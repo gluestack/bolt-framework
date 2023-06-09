@@ -49,7 +49,7 @@ export const IMAGE_BUCKET_CONFIGS = {
   endpoint: "https://sfo3.digitaloceanspaces.com",
   region: "us-east-1",
   credentials: {
-    accessKeyId: "DO00D9RH8GBGWTX84BDF",
-    secretAccessKey: "POQYyFYPCNp7MtvDJtnO1s12CuoMgURmt3B4sz6BS3k",
+    accessKeyId: process.env.ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.SECRET_ACCESS_KEY || "",
   },
 };

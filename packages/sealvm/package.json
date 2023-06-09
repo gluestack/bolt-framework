@@ -34,7 +34,8 @@
     "progress-stream": "^2.0.0",
     "ssh2": "^1.13.0",
     "tree-kill": "^1.2.2",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "dotenv": "^16.1.4"
   },
   "devDependencies": {
     "@commander-js/extra-typings": "^10.0.3",
