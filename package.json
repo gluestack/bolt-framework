@@ -1,0 +1,31 @@
+{
+  "name": "@gluestack-v2/seal-framework",
+  "version": "0.0.1",
+  "description": "Seal Framework CLI",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --workspaces --if-present",
+    "link:all": "npm link --workspaces --if-present",
+    "build:all": "npm run build --workspaces --if-present"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gluestack-v2/seal-framework.git"
+  },
+  "keywords": [
+    "gluestack",
+    "v2",
+    "seal",
+    "sealvm",
+    "cli"
+  ],
+  "author": "Gluestack.io",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gluestack-v2/seal-framework/issues"
+  },
+  "homepage": "https://github.com/gluestack-v2/seal-framework#readme"
+}

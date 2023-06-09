@@ -1,0 +1,12 @@
+container_name: SERVICE_NAME
+stateless: false
+platforms:
+  docker:
+    envfile: .env
+    build: ./run.Dockerfile
+    healthcheck:
+      test: "/etc/init.d/mysql status"
+      interval: 1s
+      retries: 120
+    ports:
+      - PORT:3306

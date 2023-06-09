@@ -1,0 +1,14 @@
+container_name: SERVICE_NAME
+stateless: false
+platforms:
+  docker:
+    envfile: .env
+    build: ./run.Dockerfile
+    ports:
+      - PORT:8080
+    volumes:
+      - DIRECTORY_PATH:/hasura
+    # comment this if dependency on postgres service does not exists
+    depends_on:
+      postgres:
+        condition: service_healthy

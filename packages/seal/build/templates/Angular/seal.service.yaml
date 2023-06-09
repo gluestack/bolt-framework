@@ -1,0 +1,11 @@
+container_name: SERVICE_NAME
+stateless: true
+platforms:
+  local:
+    envfile: .env
+    build: npm install && ng serve
+  docker:
+    envfile: .env
+    build: ./run.Dockerfile
+    ports:
+      - PORT:4200

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "es6",
+    "declaration": true,
+    "outDir": "./build",
+    "strict": true,
+    "types": ["node"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+		"lib": [
+			"ES2021.String"
+		]
+  },
+  "exclude": [
+    "build",
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*.ts"
+  ]
+}
