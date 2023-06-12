@@ -1,14 +1,14 @@
 {
   "name": "@gluestack-v2/sealvm",
   "version": "0.0.1",
-  "description": "Sealvm CLI",
+  "description": "SealVM CLI",
   "main": "build/index.js",
   "bin": {
     "sealvm": "./build/index.js"
   },
   "scripts": {
     "watch": "tsc --watch",
-    "build": "rm -rf build && tsc --declaration"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

@@ -1,4 +1,3 @@
-"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -22,44 +21,55 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const fs = __importStar(require("fs"));
-const $path = __importStar(require("path"));
-const os = __importStar(require("os"));
-class Store {
-    constructor(path) {
-        this.path = path;
-        this.store = {};
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
     }
-    restore() {
-        try {
-            if (fs.existsSync($path.dirname(this.path))) {
-                const data = fs.readFileSync(this.path, 'utf8');
-                if (data) {
-                    this.store = JSON.parse(data);
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "fs", "path", "os"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const fs = __importStar(require("fs"));
+    const $path = __importStar(require("path"));
+    const os = __importStar(require("os"));
+    class Store {
+        constructor(path) {
+            this.path = path;
+            this.store = {};
+        }
+        restore() {
+            try {
+                if (fs.existsSync($path.dirname(this.path))) {
+                    const data = fs.readFileSync(this.path, 'utf8');
+                    if (data) {
+                        this.store = JSON.parse(data);
+                    }
                 }
             }
-        }
-        catch (error) {
-            //
-        }
-    }
-    set(key, value) {
-        this.store[key] = value;
-    }
-    get(key) {
-        return this.store[key];
-    }
-    save() {
-        try {
-            if (!fs.existsSync($path.dirname(this.path))) {
-                fs.mkdirSync($path.dirname(this.path), { recursive: true });
+            catch (error) {
+                //
             }
-            fs.writeFileSync(this.path, JSON.stringify(this.store, null, 2) + os.EOL);
         }
-        catch (error) {
-            //
+        set(key, value) {
+            this.store[key] = value;
+        }
+        get(key) {
+            return this.store[key];
+        }
+        save() {
+            try {
+                if (!fs.existsSync($path.dirname(this.path))) {
+                    fs.mkdirSync($path.dirname(this.path), { recursive: true });
+                }
+                fs.writeFileSync(this.path, JSON.stringify(this.store, null, 2) + os.EOL);
+            }
+            catch (error) {
+                //
+            }
         }
     }
-}
-exports.default = Store;
+    exports.default = Store;
+});

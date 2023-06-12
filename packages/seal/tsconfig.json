@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "UMD",
     "target": "es6",
     "declaration": true,
     "outDir": "./build",

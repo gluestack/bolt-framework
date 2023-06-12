@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11,13 +10,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const run_1 = __importDefault(require("../actions/run"));
-exports.default = (program) => __awaiter(void 0, void 0, void 0, function* () {
-    program
-        .command("run")
-        .argument("<path>", "Path to the project")
-        .option("-d, --detatch", "Runs the project in daemon mode")
-        .description("Runs the project in the sealvm")
-        .action(run_1.default);
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "../actions/run"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const run_1 = __importDefault(require("../actions/run"));
+    exports.default = (program) => __awaiter(void 0, void 0, void 0, function* () {
+        program
+            .command("start")
+            .alias("run")
+            .argument("<path>", "Path to the project")
+            .option("-d, --detatch", "Runs the project in daemon mode")
+            .description("Runs the project in the sealvm")
+            .action(run_1.default);
+    });
 });

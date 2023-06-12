@@ -1,15 +1,15 @@
 {
   "name": "@gluestack-v2/seal",
   "version": "0.0.1",
-  "description": "Seal CLI",
+  "description": "Seal Framework CLI",
   "main": "build/index.js",
   "bin": {
     "seal": "./build/index.js"
   },
   "scripts": {
-    "copy-files": "cp -r src/templates build/",
-    "build": "rm -rf build && tsc --declaration && npm run copy-files",
-    "watch": "rm -rf build/* && npm run copy-files && tsc --watch"
+    "copy-files": "cp -fR src/templates build/",
+    "build": "tsc && npm run copy-files",
+    "watch": "npm run copy-files && tsc --watch"
   },
   "repository": {
     "type": "git",

@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15,130 +14,141 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = require("path");
-const lodash_1 = require("lodash");
-const helpers_1 = require("@gluestack/helpers");
-/**
- * Env
- *
- * This class is responsible for generating the .env file
- * in your gluestack app
- */
-class Env {
-    constructor(envContent, build, routes = []) {
-        this.keys = envContent;
-        routes.map((route) => {
-            const server = route.domain.split(".")[0] || "";
-            if (!this.keys[`ENDPOINT_${server.toUpperCase()}`]) {
-                this.keys[`ENDPOINT_${server.toUpperCase()}`] = `http://localhost:${route.port}`;
-            }
-        });
-        this.keyCharacter = "%";
-        this.envs = [];
-        this.filepath = (0, path_1.join)(process.cwd(), ".env");
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
     }
-    // Adds router.js data to the nginx conf data
-    // if and only if the given path exists
-    addEnv(serviceName, envContent, path) {
-        var _a, e_1, _b, _c;
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                for (var _d = true, _e = __asyncValues(Object.keys(envContent)), _f; _f = yield _e.next(), _a = _f.done, !_a;) {
-                    _c = _f.value;
-                    _d = false;
-                    try {
-                        const key = _c;
-                        this.keys[(0, helpers_1.getCrossEnvKey)(serviceName, key)] = envContent[key];
-                    }
-                    finally {
-                        _d = true;
-                    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "path", "lodash", "@gluestack/helpers"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const path_1 = require("path");
+    const lodash_1 = require("lodash");
+    const helpers_1 = require("@gluestack/helpers");
+    /**
+     * Env
+     *
+     * This class is responsible for generating the .env file
+     * in your gluestack app
+     */
+    class Env {
+        constructor(envContent, build, routes = []) {
+            this.keys = envContent;
+            routes.map((route) => {
+                const server = route.domain.split(".")[0] || "";
+                if (!this.keys[`ENDPOINT_${server.toUpperCase()}`]) {
+                    this.keys[`ENDPOINT_${server.toUpperCase()}`] = `http://localhost:${route.port}`;
                 }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
+            });
+            this.keyCharacter = "%";
+            this.envs = [];
+            this.filepath = (0, path_1.join)(process.cwd(), ".env");
+        }
+        // Adds router.js data to the nginx conf data
+        // if and only if the given path exists
+        addEnv(serviceName, envContent, path) {
+            var _a, e_1, _b, _c;
+            return __awaiter(this, void 0, void 0, function* () {
                 try {
-                    if (!_d && !_a && (_b = _e.return)) yield _b.call(_e);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            const childEnv = new ChildEnv((0, helpers_1.getPrefix)(serviceName), serviceName, envContent, path);
-            this.envs.push(childEnv);
-        });
-    }
-    // Generates the .env file
-    generate() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                for (const key in this.keys) {
-                    const prefix = key.split("_")[0];
-                    const replaceKeys = this.getReplaceKeys(this.keys[key]);
-                    for (const replaceKey of replaceKeys) {
-                        this.keys[key] = this.keys[key].replaceAll(`${this.keyCharacter}${replaceKey}${this.keyCharacter}`, this.keys[replaceKey] || "");
-                        const childEnv = (0, lodash_1.find)(this.envs, { prefix: prefix });
-                        if (childEnv) {
-                            childEnv.updateKey(key.replace(new RegExp("^" + `${prefix}_`), ""), this.keys[key]);
+                    for (var _d = true, _e = __asyncValues(Object.keys(envContent)), _f; _f = yield _e.next(), _a = _f.done, !_a;) {
+                        _c = _f.value;
+                        _d = false;
+                        try {
+                            const key = _c;
+                            this.keys[(0, helpers_1.getCrossEnvKey)(serviceName, key)] = envContent[key];
+                        }
+                        finally {
+                            _d = true;
                         }
                     }
                 }
-                yield this.writeEnv();
-            }
-            catch (err) {
-                console.log("> .env file creation failed due to following reasons -");
-                console.log(err);
-            }
-        });
-    }
-    writeEnv() {
-        return __awaiter(this, void 0, void 0, function* () {
-            for (const childEnv of this.envs) {
-                if (childEnv.filepath === this.filepath) {
-                    this.keys = Object.assign(Object.assign({}, this.keys), childEnv.keys);
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (!_d && !_a && (_b = _e.return)) yield _b.call(_e);
+                    }
+                    finally { if (e_1) throw e_1.error; }
                 }
-                else {
-                    yield childEnv.writeEnv();
+                const childEnv = new ChildEnv((0, helpers_1.getPrefix)(serviceName), serviceName, envContent, path);
+                this.envs.push(childEnv);
+            });
+        }
+        // Generates the .env file
+        generate() {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    for (const key in this.keys) {
+                        const prefix = key.split("_")[0];
+                        const replaceKeys = this.getReplaceKeys(this.keys[key]);
+                        for (const replaceKey of replaceKeys) {
+                            this.keys[key] = this.keys[key].replaceAll(`${this.keyCharacter}${replaceKey}${this.keyCharacter}`, this.keys[replaceKey] || "");
+                            const childEnv = (0, lodash_1.find)(this.envs, { prefix: prefix });
+                            if (childEnv) {
+                                childEnv.updateKey(key.replace(new RegExp("^" + `${prefix}_`), ""), this.keys[key]);
+                            }
+                        }
+                    }
+                    yield this.writeEnv();
                 }
-            }
-            const env = (0, helpers_1.jsonToEnv)(this.keys);
-            yield (0, helpers_1.writeFile)(this.filepath, env);
-        });
-    }
-    getReplaceKeys(str) {
-        if (!str.includes(this.keyCharacter)) {
-            return [];
+                catch (err) {
+                    console.log("> .env file creation failed due to following reasons -");
+                    console.log(err);
+                }
+            });
         }
-        const specialChar = "%";
-        let startIdx = str.indexOf(specialChar);
-        let endIdx = str.indexOf(specialChar, startIdx + 1);
-        const result = [];
-        while (startIdx !== -1 && endIdx !== -1) {
-            const substring = str.substring(startIdx + 1, endIdx);
-            result.push(substring);
-            const nextStartIdx = str.indexOf(specialChar, endIdx + 1);
-            startIdx = endIdx;
-            endIdx = nextStartIdx;
-        }
-        return result;
-    }
-}
-exports.default = Env;
-class ChildEnv {
-    constructor(prefix, serviceName, keys, path) {
-        this.prefix = prefix;
-        this.serviceName = serviceName;
-        this.keys = keys;
-        this.filepath = (0, path_1.join)(path, ".env");
-    }
-    updateKey(key, value) {
-        this.keys[key] = value;
-    }
-    writeEnv() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const env = (0, helpers_1.jsonToEnv)(this.keys);
-            if (env) {
+        writeEnv() {
+            return __awaiter(this, void 0, void 0, function* () {
+                for (const childEnv of this.envs) {
+                    if (childEnv.filepath === this.filepath) {
+                        this.keys = Object.assign(Object.assign({}, this.keys), childEnv.keys);
+                    }
+                    else {
+                        yield childEnv.writeEnv();
+                    }
+                }
+                const env = (0, helpers_1.jsonToEnv)(this.keys);
                 yield (0, helpers_1.writeFile)(this.filepath, env);
+            });
+        }
+        getReplaceKeys(str) {
+            if (!str.includes(this.keyCharacter)) {
+                return [];
             }
-        });
+            const specialChar = "%";
+            let startIdx = str.indexOf(specialChar);
+            let endIdx = str.indexOf(specialChar, startIdx + 1);
+            const result = [];
+            while (startIdx !== -1 && endIdx !== -1) {
+                const substring = str.substring(startIdx + 1, endIdx);
+                result.push(substring);
+                const nextStartIdx = str.indexOf(specialChar, endIdx + 1);
+                startIdx = endIdx;
+                endIdx = nextStartIdx;
+            }
+            return result;
+        }
     }
-}
+    exports.default = Env;
+    class ChildEnv {
+        constructor(prefix, serviceName, keys, path) {
+            this.prefix = prefix;
+            this.serviceName = serviceName;
+            this.keys = keys;
+            this.filepath = (0, path_1.join)(path, ".env");
+        }
+        updateKey(key, value) {
+            this.keys[key] = value;
+        }
+        writeEnv() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const env = (0, helpers_1.jsonToEnv)(this.keys);
+                if (env) {
+                    yield (0, helpers_1.writeFile)(this.filepath, env);
+                }
+            });
+        }
+    }
+});

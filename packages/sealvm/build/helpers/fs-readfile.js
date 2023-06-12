@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,15 +7,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.readfile = void 0;
-const promises_1 = require("fs/promises");
-const readfile = (filepath) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        return yield (0, promises_1.readFile)(filepath, "utf8");
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
     }
-    catch (e) {
-        return false;
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "fs/promises"], factory);
     }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.readfile = void 0;
+    const promises_1 = require("fs/promises");
+    const readfile = (filepath) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            return yield (0, promises_1.readFile)(filepath, "utf8");
+        }
+        catch (e) {
+            return false;
+        }
+    });
+    exports.readfile = readfile;
 });
-exports.readfile = readfile;

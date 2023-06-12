@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,27 +7,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateSeal = void 0;
-const zod_1 = require("zod");
-const exit_with_msg_1 = require("../helpers/exit-with-msg");
-const ConfigSchema = zod_1.z.object({
-    envfile: zod_1.z.string(),
-    project_id: zod_1.z.string(),
-    project_name: zod_1.z.string(),
-    default_runner: zod_1.z.string(),
-    services: zod_1.z.nullable(zod_1.z.record(zod_1.z.string(), zod_1.z.object({
-        path: zod_1.z.string(),
-    }))),
-});
-const validateSeal = (context) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield ConfigSchema.parseAsync(context);
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
     }
-    catch (error) {
-        // @ts-ignore ZodError
-        yield (0, exit_with_msg_1.exitWithMsg)(JSON.stringify(Object.assign({}, error.errors), null, 2));
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "zod", "../helpers/exit-with-msg"], factory);
     }
-    return context;
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.validateSeal = void 0;
+    const zod_1 = require("zod");
+    const exit_with_msg_1 = require("../helpers/exit-with-msg");
+    const ConfigSchema = zod_1.z.object({
+        envfile: zod_1.z.string(),
+        project_id: zod_1.z.string(),
+        project_name: zod_1.z.string(),
+        default_runner: zod_1.z.string(),
+        services: zod_1.z.nullable(zod_1.z.record(zod_1.z.string(), zod_1.z.object({
+            path: zod_1.z.string(),
+        }))),
+    });
+    const validateSeal = (context) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield ConfigSchema.parseAsync(context);
+        }
+        catch (error) {
+            // @ts-ignore ZodError
+            yield (0, exit_with_msg_1.exitWithMsg)(JSON.stringify(Object.assign({}, error.errors), null, 2));
+        }
+        return context;
+    });
+    exports.validateSeal = validateSeal;
 });
-exports.validateSeal = validateSeal;

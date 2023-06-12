@@ -4,7 +4,7 @@ import { Client } from "ssh2";
 import { VM_CONFIG } from "../constants";
 import { exitWithMsg } from "./exit-with-msg";
 
-export const connecToVm = async () => {
+export const connecToVm = async (portNumber: number = 2222) => {
   const interval = 5000;
   const maxDuration = 5 * 60 * 1000;
   const maxIterations = Math.floor(maxDuration / interval);
@@ -18,7 +18,7 @@ export const connecToVm = async () => {
 
         const conn = new Client();
 
-        conn.connect(VM_CONFIG);
+        conn.connect({...VM_CONFIG, port: portNumber});
 
         conn.on("ready", () => {
           clearInterval(pollConnection);

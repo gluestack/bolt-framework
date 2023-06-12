@@ -1,4 +1,3 @@
-"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -31,40 +30,51 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.executeDetached = void 0;
-const fs_exists_1 = require("./fs-exists");
-const child_process_1 = require("child_process");
-const path_1 = require("path");
-const fs_mkdir_1 = require("./fs-mkdir");
-const fs = __importStar(require("fs"));
-const fs_writefile_1 = require("./fs-writefile");
-const executeDetached = (command, args, servicePath, options) => __awaiter(void 0, void 0, void 0, function* () {
-    const serviceLogPath = (0, path_1.join)(servicePath, ".logs");
-    if (!(yield (0, fs_exists_1.exists)(serviceLogPath))) {
-        yield (0, fs_mkdir_1.createFolder)(serviceLogPath);
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
     }
-    const outputLogPath = (0, path_1.join)(serviceLogPath, "out.log");
-    const errorLogPath = (0, path_1.join)(serviceLogPath, "err.log");
-    yield (0, fs_writefile_1.writefile)(outputLogPath, "");
-    yield (0, fs_writefile_1.writefile)(errorLogPath, "");
-    // Open a file to redirect standard output/error streams
-    const stdOut = fs.openSync(outputLogPath, "a");
-    const stdErr = fs.openSync(errorLogPath, "a");
-    // Spawn the process in detached mode
-    const child = (0, child_process_1.spawn)(command, args, Object.assign(Object.assign({}, options), { detached: true, stdio: ["ignore", stdOut, stdErr] }));
-    // // Detach the child process
-    child.unref();
-    fs.closeSync(stdOut);
-    fs.closeSync(stdErr);
-    // Optionally, listen for events
-    child.on("error", (err) => {
-        console.log(">> (detached) Error:", err.message);
-        process.exit();
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "./fs-exists", "child_process", "path", "./fs-mkdir", "fs", "./fs-writefile"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.executeDetached = void 0;
+    const fs_exists_1 = require("./fs-exists");
+    const child_process_1 = require("child_process");
+    const path_1 = require("path");
+    const fs_mkdir_1 = require("./fs-mkdir");
+    const fs = __importStar(require("fs"));
+    const fs_writefile_1 = require("./fs-writefile");
+    const executeDetached = (command, args, servicePath, options) => __awaiter(void 0, void 0, void 0, function* () {
+        const serviceLogPath = (0, path_1.join)(servicePath, ".logs");
+        if (!(yield (0, fs_exists_1.exists)(serviceLogPath))) {
+            yield (0, fs_mkdir_1.createFolder)(serviceLogPath);
+        }
+        const outputLogPath = (0, path_1.join)(serviceLogPath, "out.log");
+        const errorLogPath = (0, path_1.join)(serviceLogPath, "err.log");
+        yield (0, fs_writefile_1.writefile)(outputLogPath, "");
+        yield (0, fs_writefile_1.writefile)(errorLogPath, "");
+        // Open a file to redirect standard output/error streams
+        const stdOut = fs.openSync(outputLogPath, "a");
+        const stdErr = fs.openSync(errorLogPath, "a");
+        // Spawn the process in detached mode
+        const child = (0, child_process_1.spawn)(command, args, Object.assign(Object.assign({}, options), { detached: true, stdio: ["ignore", stdOut, stdErr] }));
+        // // Detach the child process
+        child.unref();
+        fs.closeSync(stdOut);
+        fs.closeSync(stdErr);
+        // Optionally, listen for events
+        child.on("error", (err) => {
+            console.log(">> (detached) Error:", err.message);
+            process.exit();
+        });
+        child.on("exit", (code, signal) => {
+            console.log(">> (detached) Process exited with code:", code);
+        });
+        return child.pid;
     });
-    child.on("exit", (code, signal) => {
-        console.log(">> (detached) Process exited with code:", code);
-    });
-    return child.pid;
+    exports.executeDetached = executeDetached;
 });
-exports.executeDetached = executeDetached;

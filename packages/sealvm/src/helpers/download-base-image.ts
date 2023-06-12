@@ -9,9 +9,17 @@ import {
   VM_BINARIES,
   VM_INTERNALS_PATH,
 } from "../constants";
+
 import { exitWithMsg } from "./exit-with-msg";
 
 export const downloadBaseImages = async () => {
+  if (
+    IMAGE_BUCKET_CONFIGS?.credentials?.accessKeyId === "" ||
+    IMAGE_BUCKET_CONFIGS?.credentials?.secretAccessKey === ""
+  ) {
+    exitWithMsg(">> AWS credentials are missing!");
+  }
+
   const s3Client = new S3({
     forcePathStyle: false, // Configures to use subdomain/virtual calling format.
     ...IMAGE_BUCKET_CONFIGS,
@@ -44,12 +52,25 @@ export const downloadBaseImages = async () => {
 
     // Listen to progress events
     progressStream.on("progress", (progress) => {
+      let transferredSize;
+      let lengthSize;
+
       const percent = Math.round(progress.percentage);
+
+      if (progress.transferred >= 1024 * 1024 * 1000) {
+        transferredSize = `${(progress.transferred / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+        lengthSize = `${(progress.length / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+      } else {
+        transferredSize = `${(progress.transferred / (1024 * 1024)).toFixed(2)} MB`;
+        lengthSize = `${(progress.length / (1024 * 1024)).toFixed(2)} MB`;
+      }
+
+
       process.stdout.clearLine(1);
       process.stdout.cursorTo(0);
       process.stdout.write(
         chalk.yellow(
-          `\r>> Downloaded: ${percent}% (${progress.transferred}/${progress.length})`
+          `\r>> Downloaded: ${transferredSize} / ${lengthSize} - ${percent}%`
         )
       );
     });

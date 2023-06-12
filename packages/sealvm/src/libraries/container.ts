@@ -37,7 +37,7 @@ export default class Container {
     if (!(await exists(join(projectContainerPath, VM_BINARIES.ALPINE)))) {
       await copyFile(VM_BINARIES.ALPINE, projectContainerPath, "alpine.img");
     }
-    console.log(chalk.green(`>> Image created for ${this.containerName}!\n`));
+    console.log(chalk.green(`>> Image created for ${this.containerName}!`));
 
     return projectContainerPath;
   }

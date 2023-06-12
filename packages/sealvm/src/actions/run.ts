@@ -94,14 +94,15 @@ export default async function (localPath: string, option: any) {
     for (const port of sealConfig.ports) {
       portExposePromises.push(exposePort(port));
     }
+
     const sshPids: number[] | null[] = await Promise.all(portExposePromises);
-    console.log(chalk.green(">> Ports exposed\n"));
+    console.log(chalk.green(">> Ports exposed"));
 
     // Run project inside vm
     console.log(chalk.yellow("Starting running project inside vm..."));
     const projectRunnerId =
       (await runProjectInsideVm(sealConfig, isDetached)) ?? 0;
-    console.log(chalk.green(">> Project running inside vm\n"));
+    console.log(chalk.green(">> Project running inside vm"));
 
     // Update project status
     const json: IMetadata = {
@@ -115,7 +116,7 @@ export default async function (localPath: string, option: any) {
     // Kill process on ctrl+c
     process.on("SIGINT", () => {
       (async () => {
-        console.log(chalk.yellow("\n>> Killing process..."));
+        console.log(chalk.yellow(">> Killing process..."));
         await killMultipleProcesses([...sshPids, projectRunnerId]);
         await updateStore("projects", sealConfig.name, {
           ...project,

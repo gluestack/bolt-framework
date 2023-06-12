@@ -29,12 +29,12 @@ export default async function (projectPath: string) {
   // Unmounting the project
   console.log(chalk.yellow(`>> Unmounting project...`));
   await killProcess(project.mountProcessId as number);
-  console.log(chalk.green(`>> Project unmounted successfully...\n`));
+  console.log(chalk.green(`>> Project unmounted successfully...`));
 
   // Killing VM process
   console.log(chalk.yellow(`>> Exiting from VM...`));
   await VM.destroy(project.vmProcessId as number);
-  console.log(chalk.green(`>> VM exited successfully...\n`));
+  console.log(chalk.green(`>> VM exited successfully...`));
 
   // Updating metadata
   const json: IMetadata = {

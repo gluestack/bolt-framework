@@ -1,4 +1,3 @@
-"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -31,33 +30,44 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = require("path");
-const os = __importStar(require("os"));
-const fs_exists_1 = require("../helpers/fs-exists");
-const exit_with_msg_1 = require("../helpers/exit-with-msg");
-const fs_readfile_json_1 = require("../helpers/fs-readfile-json");
-const helpers_1 = require("@gluestack/helpers");
-exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        // if service doesn't exists, exit
-        const _projectListPath = (0, path_1.join)(os.homedir(), ".seal", "projects.json");
-        const _projectListExists = yield (0, fs_exists_1.exists)(_projectListPath);
-        if (!_projectListExists) {
-            throw new Error(`> There are no available seal projects`);
-        }
-        const data = (yield (0, fs_readfile_json_1.readfile)(_projectListPath)) || [];
-        if (!data || !data.length) {
-            throw new Error(`> There are no available seal projects`);
-        }
-        const head = ["#", "Project Name", "Path"];
-        const rows = [];
-        data.map((item, index) => {
-            rows.push([item.id, item.name, item.path]);
-        });
-        helpers_1.ConsoleTable.print(head, rows);
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
     }
-    catch (err) {
-        yield (0, exit_with_msg_1.exitWithMsg)(err.message || err);
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "path", "os", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/fs-readfile-json", "@gluestack/helpers"], factory);
     }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const path_1 = require("path");
+    const os = __importStar(require("os"));
+    const fs_exists_1 = require("../helpers/fs-exists");
+    const exit_with_msg_1 = require("../helpers/exit-with-msg");
+    const fs_readfile_json_1 = require("../helpers/fs-readfile-json");
+    const helpers_1 = require("@gluestack/helpers");
+    exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            // if service doesn't exists, exit
+            const _projectListPath = (0, path_1.join)(os.homedir(), ".seal", "projects.json");
+            const _projectListExists = yield (0, fs_exists_1.exists)(_projectListPath);
+            if (!_projectListExists) {
+                throw new Error(`> There are no available seal projects`);
+            }
+            const data = (yield (0, fs_readfile_json_1.readfile)(_projectListPath)) || [];
+            if (!data || !data.length) {
+                throw new Error(`> There are no available seal projects`);
+            }
+            const head = ["#", "Project Name", "Path"];
+            const rows = [];
+            data.map((item, index) => {
+                rows.push([item.id, item.name, item.path]);
+            });
+            helpers_1.ConsoleTable.print(head, rows);
+        }
+        catch (err) {
+            yield (0, exit_with_msg_1.exitWithMsg)(err.message || err);
+        }
+    });
 });

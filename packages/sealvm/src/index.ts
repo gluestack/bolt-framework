@@ -1,7 +1,12 @@
 #!/usr/bin/env node
-import env from "dotenv";
+
+import { join } from "path";
+import dotenv from "dotenv";
+dotenv.config({
+  path: join(__dirname, "..", ".env"),
+});
 
 import Commander from "./libraries/commander";
-
-env.config();
-Commander.register();
+(async function () {
+  await Commander.register();
+})();

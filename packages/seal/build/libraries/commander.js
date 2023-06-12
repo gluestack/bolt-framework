@@ -1,4 +1,3 @@
-"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -41,93 +40,105 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-// @ts-ignore
-const package_json_1 = __importDefault(require("../../package.json"));
-const chalk_1 = __importDefault(require("chalk"));
-const lodash_1 = require("lodash");
-const path = __importStar(require("path"));
-const commander_1 = require("commander");
-const promises_1 = require("fs/promises");
-const closest_match_1 = require("closest-match");
-const fs_exists_1 = require("../helpers/fs-exists");
-class Commander {
-    constructor() {
-        this.cwd = process.cwd();
-        this.program = new commander_1.Command();
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
     }
-    static register() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const command = new Commander();
-            yield command.init();
-            yield command.addCommands();
-            yield command.close();
-        });
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "../../package.json", "chalk", "lodash", "path", "commander", "fs/promises", "closest-match", "../helpers/fs-exists"], factory);
     }
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.program
-                .name("Seal")
-                .version(`Seal Run Version v${package_json_1.default.version}`)
-                .description(`Seal CLI tool v${package_json_1.default.version}`);
-        });
-    }
-    addCommands() {
-        var _a, e_1, _b, _c;
-        return __awaiter(this, void 0, void 0, function* () {
-            var _d;
-            const files = yield (0, promises_1.readdir)(path.join(__dirname, "..", "commands"));
-            const _sealYamlPath = yield (0, fs_exists_1.exists)(path.join(process.cwd(), "seal.yaml"));
-            files.sort((a, b) => {
-                var _a, _b;
-                const aNum = parseInt(((_a = a.match(/^\d+/)) !== null && _a !== void 0 ? _a : [""])[0]);
-                const bNum = parseInt(((_b = b.match(/^\d+/)) !== null && _b !== void 0 ? _b : [""])[0]);
-                return aNum - bNum;
+})(function (require, exports) {
+    "use strict";
+    var __syncRequire = typeof module === "object" && typeof module.exports === "object";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    // @ts-ignore
+    const package_json_1 = __importDefault(require("../../package.json"));
+    const chalk_1 = __importDefault(require("chalk"));
+    const lodash_1 = require("lodash");
+    const path = __importStar(require("path"));
+    const commander_1 = require("commander");
+    const promises_1 = require("fs/promises");
+    const closest_match_1 = require("closest-match");
+    const fs_exists_1 = require("../helpers/fs-exists");
+    class Commander {
+        constructor() {
+            this.cwd = process.cwd();
+            this.program = new commander_1.Command();
+        }
+        static register() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const command = new Commander();
+                yield command.init();
+                yield command.addCommands();
+                yield command.close();
             });
-            try {
-                for (var _e = true, files_1 = __asyncValues(files), files_1_1; files_1_1 = yield files_1.next(), _a = files_1_1.done, !_a;) {
-                    _c = files_1_1.value;
-                    _e = false;
-                    try {
-                        const file = _c;
-                        if (!file.endsWith(".js")) {
-                            continue;
-                        }
-                        const commandNo = parseInt(file.split("-")[0]);
-                        if (!_sealYamlPath && commandNo > 2) {
-                            continue;
-                        }
-                        const commands = yield (_d = "../commands/" + file.replace(".js", ""), Promise.resolve().then(() => __importStar(require(_d))));
-                        commands.default(this.program);
-                    }
-                    finally {
-                        _e = true;
-                    }
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
+        }
+        init() {
+            return __awaiter(this, void 0, void 0, function* () {
+                this.program
+                    .name("Seal")
+                    .version(`Seal Run Version v${package_json_1.default.version}`)
+                    .description(`Seal CLI tool v${package_json_1.default.version}`);
+            });
+        }
+        addCommands() {
+            var _a, e_1, _b, _c;
+            return __awaiter(this, void 0, void 0, function* () {
+                var _d;
+                const files = yield (0, promises_1.readdir)(path.join(__dirname, "..", "commands"));
+                const _sealYamlPath = yield (0, fs_exists_1.exists)(path.join(process.cwd(), "seal.yaml"));
+                files.sort((a, b) => {
+                    var _a, _b;
+                    const aNum = parseInt(((_a = a.match(/^\d+/)) !== null && _a !== void 0 ? _a : [""])[0]);
+                    const bNum = parseInt(((_b = b.match(/^\d+/)) !== null && _b !== void 0 ? _b : [""])[0]);
+                    return aNum - bNum;
+                });
                 try {
-                    if (!_e && !_a && (_b = files_1.return)) yield _b.call(files_1);
+                    for (var _e = true, files_1 = __asyncValues(files), files_1_1; files_1_1 = yield files_1.next(), _a = files_1_1.done, !_a;) {
+                        _c = files_1_1.value;
+                        _e = false;
+                        try {
+                            const file = _c;
+                            if (!file.endsWith(".js")) {
+                                continue;
+                            }
+                            const commandNo = parseInt(file.split("-")[0]);
+                            if (!_sealYamlPath && commandNo > 2) {
+                                continue;
+                            }
+                            const commands = yield (_d = "../commands/" + file.replace(".js", ""), __syncRequire ? Promise.resolve().then(() => __importStar(require(_d))) : new Promise((resolve_1, reject_1) => { require([_d], resolve_1, reject_1); }).then(__importStar));
+                            commands.default(this.program);
+                        }
+                        finally {
+                            _e = true;
+                        }
+                    }
                 }
-                finally { if (e_1) throw e_1.error; }
-            }
-        });
-    }
-    close() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.program.on("command:*", () => {
-                const cmd = this.program.args[0];
-                const cmds = (0, lodash_1.map)(this.program.commands, "_name").concat("help");
-                const closestCommand = (0, closest_match_1.closestMatch)(cmd, cmds);
-                //@ts-ignore
-                this.program.args[0] = closestCommand;
-                const cmdWithArgs = this.program.args.join(" ");
-                console.log(chalk_1.default.redBright(`\nUnknown command: "${cmd}".`), chalk_1.default.cyanBright(`Did you mean "${closestCommand}"?`), chalk_1.default.bgBlack(`\n$ seal ${cmdWithArgs}`), chalk_1.default.italic(chalk_1.default.magentaBright("\nUse --help for list of available commands\n")));
-                process.exit(1);
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (!_e && !_a && (_b = files_1.return)) yield _b.call(files_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
             });
-            this.program.parseAsync();
-        });
+        }
+        close() {
+            return __awaiter(this, void 0, void 0, function* () {
+                this.program.on("command:*", () => {
+                    const cmd = this.program.args[0];
+                    const cmds = (0, lodash_1.map)(this.program.commands, "_name").concat("help");
+                    const closestCommand = (0, closest_match_1.closestMatch)(cmd, cmds);
+                    //@ts-ignore
+                    this.program.args[0] = closestCommand;
+                    const cmdWithArgs = this.program.args.join(" ");
+                    console.log(chalk_1.default.redBright(`\nUnknown command: "${cmd}".`), chalk_1.default.cyanBright(`Did you mean "${closestCommand}"?`), chalk_1.default.bgBlack(`\n$ seal ${cmdWithArgs}`), chalk_1.default.italic(chalk_1.default.magentaBright("\nUse --help for list of available commands\n")));
+                    process.exit(1);
+                });
+                this.program.parseAsync();
+            });
+        }
     }
-}
-exports.default = Commander;
+    exports.default = Commander;
+});

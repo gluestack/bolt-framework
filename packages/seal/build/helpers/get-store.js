@@ -1,4 +1,3 @@
-"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -34,19 +33,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const os = __importStar(require("os"));
-const path_1 = require("path");
-const up_1 = require("../actions/up");
-const store_1 = __importDefault(require("../libraries/store"));
-function getStore() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const _yamlContent = yield (0, up_1.getAndValidateSealYaml)();
-        const _sealFolderPath = (0, path_1.join)(os.homedir(), ".seal");
-        const _sealFilePath = (0, path_1.join)(_sealFolderPath, `${_yamlContent.project_id}.json`);
-        const store = new store_1.default(_sealFilePath);
-        store.restore();
-        return store;
-    });
-}
-exports.default = getStore;
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "os", "path", "../actions/up", "../libraries/store"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const os = __importStar(require("os"));
+    const path_1 = require("path");
+    const up_1 = require("../actions/up");
+    const store_1 = __importDefault(require("../libraries/store"));
+    function getStore() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const _yamlContent = yield (0, up_1.getAndValidateSealYaml)();
+            const _sealFolderPath = (0, path_1.join)(os.homedir(), ".seal");
+            const _sealFilePath = (0, path_1.join)(_sealFolderPath, `${_yamlContent.project_id}.json`);
+            const store = new store_1.default(_sealFilePath);
+            store.restore();
+            return store;
+        });
+    }
+    exports.default = getStore;
+});

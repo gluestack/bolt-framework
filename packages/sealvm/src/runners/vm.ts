@@ -27,19 +27,19 @@ export default class Vm {
     );
   }
 
-  static async connect() {
-    console.log(chalk.yellow(">> initiating connection..."));
-    const conn: any = await connecToVm();
+  static async connect(portNumber: number = 2222) {
+    console.log(chalk.yellow(">> Initiating connection..."));
+    const conn: any = await connecToVm(portNumber);
     if (conn) {
-      console.log(chalk.green(">> connection established... \n"));
+      console.log(chalk.green(">> Connection established..."));
       return conn;
     }
   }
 
   static async connectOnce() {
-    console.log(chalk.yellow(">> initiating connection..."));
+    console.log(chalk.yellow(">> Initiating connection..."));
     const conn: any = await connectToVmOnce();
-    console.log(chalk.green(">> connection established... \n"));
+    console.log(chalk.green(">> Connection established..."));
     return conn;
   }
 

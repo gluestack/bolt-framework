@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11,12 +10,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const generate_routes_1 = __importDefault(require("../helpers/generate-routes"));
-const up_1 = require("./up");
-exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
-    const _yamlContent = yield (0, up_1.getAndValidateSealYaml)();
-    console.log(`> Creating Ingress ${_yamlContent.project_name}...`);
-    yield (0, generate_routes_1.default)(_yamlContent);
-    process.exit(0);
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "../helpers/generate-routes", "./up"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    const generate_routes_1 = __importDefault(require("../helpers/generate-routes"));
+    const up_1 = require("./up");
+    exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
+        const _yamlContent = yield (0, up_1.getAndValidateSealYaml)();
+        console.log(`> Creating Ingress ${_yamlContent.project_name}...`);
+        yield (0, generate_routes_1.default)(_yamlContent);
+        process.exit(0);
+    });
 });
