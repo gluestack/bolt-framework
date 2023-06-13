@@ -24,6 +24,7 @@ export declare const VM_CONFIG: {
     username: string;
     password: string;
 };
+export declare const SSH_CONFIG: string[];
 export declare const IMAGE_BUCKET_CONFIGS: {
     endpoint: string;
     region: string;

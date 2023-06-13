@@ -16,12 +16,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../helpers/execute", "../helpers/validate-project-status"], factory);
+        define(["require", "exports", "chalk", "../constants", "../helpers/execute", "../helpers/validate-project-status"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const chalk_1 = __importDefault(require("chalk"));
+    const constants_1 = require("../constants");
     const execute_1 = require("../helpers/execute");
     const validate_project_status_1 = require("../helpers/validate-project-status");
     function default_1(containerName) {
@@ -30,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const sshPort = project === null || project === void 0 ? void 0 : project.sshPort;
             if (project && sshPort) {
                 console.log(chalk_1.default.yellow(`Opening shell for ${containerName}...`));
-                const args = ["-p", sshPort.toString(), "sealvm@localhost"];
+                const args = ["-p", sshPort.toString(), ...constants_1.SSH_CONFIG];
                 yield (0, execute_1.execute)("ssh", args, {
                     stdio: "inherit",
                     shell: true,

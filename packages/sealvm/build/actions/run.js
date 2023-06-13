@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "child_process", "../helpers/fs-exists", "../helpers/update-store", "../helpers/kill-process", "../helpers/exit-with-msg", "../helpers/validate-seal-file", "../helpers/execute-detached", "../helpers/validate-project-status", "../runners/vm"], factory);
+        define(["require", "exports", "chalk", "path", "child_process", "../helpers/fs-exists", "../helpers/update-store", "../helpers/kill-process", "../helpers/exit-with-msg", "../helpers/validate-seal-file", "../helpers/execute-detached", "../helpers/validate-project-status", "../runners/vm", "../constants"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -32,12 +32,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const execute_detached_1 = require("../helpers/execute-detached");
     const validate_project_status_1 = require("../helpers/validate-project-status");
     const vm_1 = __importDefault(require("../runners/vm"));
-    function runProjectInsideVm(projectConfig, isDetatched) {
+    const constants_1 = require("../constants");
+    function runProjectInsideVm(vmPort, projectConfig, isDetatched) {
         return __awaiter(this, void 0, void 0, function* () {
             const args = [
                 "-p",
-                "2222",
-                "sealvm@localhost",
+                `${vmPort}`,
+                ...constants_1.SSH_CONFIG,
                 `"cd ${projectConfig.destination} && ${projectConfig.command}"`,
             ];
             if (isDetatched) {
@@ -58,7 +59,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         });
     }
     // Expose port to host machine
-    function exposePort(port) {
+    function exposePort(vmPort, port) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(chalk_1.default.yellow(`>> Exposing port ${port}`));
             if (!port.includes(":")) {
@@ -67,7 +68,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
             const portMap = port.split(":");
             port = `${portMap[0]}:localhost:${portMap[1]}`;
-            const args = ["-p", "2222", "-N", "-L", port, "sealvm@localhost"];
+            const args = ["-p", `${vmPort}`, "-N", "-L", port, ...constants_1.SSH_CONFIG];
             const sshPid = yield (0, execute_detached_1.executeDetached)("ssh", args, { detached: true });
             return sshPid;
         });
@@ -88,18 +89,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const sealConfig = yield (0, validate_seal_file_1.validateSealFile)(localPath);
                 // Check if sealvm is up or not
                 const project = yield (0, validate_project_status_1.validateProjectStatus)(sealConfig.name, "run");
-                const conn = yield vm_1.default.connectOnce();
+                const sshPort = project.sshPort;
+                const conn = yield vm_1.default.connectOnce(sshPort);
                 conn.end();
                 // Expose ports
                 const portExposePromises = [];
                 for (const port of sealConfig.ports) {
-                    portExposePromises.push(exposePort(port));
+                    portExposePromises.push(exposePort(sshPort, port));
                 }
                 const sshPids = yield Promise.all(portExposePromises);
                 console.log(chalk_1.default.green(">> Ports exposed"));
                 // Run project inside vm
                 console.log(chalk_1.default.yellow("Starting running project inside vm..."));
-                const projectRunnerId = (_a = (yield runProjectInsideVm(sealConfig, isDetached))) !== null && _a !== void 0 ? _a : 0;
+                const projectRunnerId = (_a = (yield runProjectInsideVm(sshPort, sealConfig, isDetached))) !== null && _a !== void 0 ? _a : 0;
                 console.log(chalk_1.default.green(">> Project running inside vm"));
                 // Update project status
                 const json = Object.assign(Object.assign({}, project), { status: "up", sshProcessIds: sshPids, projectRunnerId: projectRunnerId });

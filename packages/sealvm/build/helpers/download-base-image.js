@@ -57,7 +57,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 let lengthSize;
                 const percent = Math.round(progress.percentage);
                 if (progress.transferred >= 1024 * 1024 * 1000) {
-                    transferredSize = `${(progress.transferred / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+                    transferredSize = `${(progress.transferred /
+                        (1024 * 1024 * 1024)).toFixed(2)} GB`;
                     lengthSize = `${(progress.length / (1024 * 1024 * 1024)).toFixed(2)} GB`;
                 }
                 else {

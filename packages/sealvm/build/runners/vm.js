@@ -44,16 +44,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             return __awaiter(this, void 0, void 0, function* () {
                 console.log(chalk_1.default.yellow(">> Initiating connection..."));
                 const conn = yield (0, connect_to_vm_1.connecToVm)(portNumber);
-                if (conn) {
-                    console.log(chalk_1.default.green(">> Connection established..."));
-                    return conn;
-                }
+                console.log(chalk_1.default.green(">> Connection established..."));
+                return conn;
             });
         }
-        static connectOnce() {
+        static connectOnce(portNumber = 2222) {
             return __awaiter(this, void 0, void 0, function* () {
                 console.log(chalk_1.default.yellow(">> Initiating connection..."));
-                const conn = yield (0, connect_to_vm_1.connectToVmOnce)();
+                const conn = yield (0, connect_to_vm_1.connectToVmOnce)(portNumber);
                 console.log(chalk_1.default.green(">> Connection established..."));
                 return conn;
             });

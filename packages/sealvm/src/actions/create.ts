@@ -57,7 +57,9 @@ async function checkForBaseImages() {
 
   // Remove .internals folder if exists
   if (await exists(VM_INTERNALS_PATH)) {
+    console.log(chalk.yellow(">> Removing corrupted binaries..."));
     await removeFolder(VM_INTERNALS_PATH);
+    console.log(chalk.green(">> Removed corrupted binaries successfully!"));
   }
 
   // Create .internals folder  folder
@@ -66,7 +68,7 @@ async function checkForBaseImages() {
   // Download and extract base images
   console.log(chalk.yellow(">> Downloading binaries..."));
   await downloadBaseImages();
-  console.log(chalk.green(">> Downloaded binaries successfully!"));
+  console.log(chalk.green("\n>> Downloaded binaries successfully!"));
 
   console.log(chalk.yellow(">> Extracting downloaded binaries..."));
   await extractDownloadedImage();
@@ -108,10 +110,10 @@ export default async (localPath: string) => {
     // Connect to VM
     const conn = await VM.connect(sshPort);
 
-    await conn.end();
+    conn.end();
 
     // Copy files to VM and maintain it with rsync
-    const args = [localPath, sealConfig.destination];
+    const args = [localPath, sealConfig.destination, sshPort.toString()];
     const mountPid = await executeDetached(VM_BINARIES.NOTIFY_SCRIPT, args, {
       detatched: true,
     });

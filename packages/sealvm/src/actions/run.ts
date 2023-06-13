@@ -17,15 +17,17 @@ import { IMetadata } from "../typings/metadata";
 import { ISealVMConfig } from "../typings/sealvm-config";
 
 import VM from "../runners/vm";
+import { SSH_CONFIG } from "../constants";
 
 async function runProjectInsideVm(
+  vmPort: number,
   projectConfig: ISealVMConfig,
   isDetatched: boolean
 ) {
   const args = [
     "-p",
-    "2222",
-    "sealvm@localhost",
+    `${vmPort}`,
+    ...SSH_CONFIG,
     `"cd ${projectConfig.destination} && ${projectConfig.command}"`,
   ];
 
@@ -51,7 +53,7 @@ async function runProjectInsideVm(
 }
 
 // Expose port to host machine
-async function exposePort(port: string) {
+async function exposePort(vmPort: number, port: string) {
   console.log(chalk.yellow(`>> Exposing port ${port}`));
 
   if (!port.includes(":")) {
@@ -61,7 +63,7 @@ async function exposePort(port: string) {
 
   const portMap = port.split(":");
   port = `${portMap[0]}:localhost:${portMap[1]}`;
-  const args = ["-p", "2222", "-N", "-L", port, "sealvm@localhost"];
+  const args = ["-p", `${vmPort}`, "-N", "-L", port, ...SSH_CONFIG];
 
   const sshPid = await executeDetached("ssh", args, { detached: true });
   return sshPid;
@@ -86,13 +88,14 @@ export default async function (localPath: string, option: any) {
     // Check if sealvm is up or not
     const project = await validateProjectStatus(sealConfig.name, "run");
 
-    const conn = await VM.connectOnce();
+    const sshPort = project.sshPort as number;
+    const conn = await VM.connectOnce(sshPort);
     conn.end();
 
     // Expose ports
     const portExposePromises: any = [];
     for (const port of sealConfig.ports) {
-      portExposePromises.push(exposePort(port));
+      portExposePromises.push(exposePort(sshPort, port));
     }
 
     const sshPids: number[] | null[] = await Promise.all(portExposePromises);
@@ -101,7 +104,7 @@ export default async function (localPath: string, option: any) {
     // Run project inside vm
     console.log(chalk.yellow("Starting running project inside vm..."));
     const projectRunnerId =
-      (await runProjectInsideVm(sealConfig, isDetached)) ?? 0;
+      (await runProjectInsideVm(sshPort, sealConfig, isDetached)) ?? 0;
     console.log(chalk.green(">> Project running inside vm"));
 
     // Update project status

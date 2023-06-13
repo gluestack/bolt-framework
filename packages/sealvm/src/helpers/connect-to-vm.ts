@@ -18,7 +18,7 @@ export const connecToVm = async (portNumber: number = 2222) => {
 
         const conn = new Client();
 
-        conn.connect({...VM_CONFIG, port: portNumber});
+        conn.connect({ ...VM_CONFIG, port: portNumber });
 
         conn.on("ready", () => {
           clearInterval(pollConnection);
@@ -36,7 +36,7 @@ export const connecToVm = async (portNumber: number = 2222) => {
 
         if (currentCounter >= maxIterations) {
           clearInterval(pollConnection);
-          exitWithMsg(">> Maximum Tries exceeded");
+          exitWithMsg(">> Maximum Tries exceeded!");
         }
       }, interval);
     } catch (error: any) {
@@ -45,12 +45,12 @@ export const connecToVm = async (portNumber: number = 2222) => {
   });
 };
 
-export const connectToVmOnce = async () => {
+export const connectToVmOnce = async (portNumber: number = 2222) => {
   return new Promise((resolve, _reject) => {
     try {
       const conn = new Client();
 
-      conn.connect(VM_CONFIG);
+      conn.connect({ ...VM_CONFIG, port: portNumber });
       conn.on("ready", () => {
         return resolve(conn);
       });

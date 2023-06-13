@@ -67,14 +67,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             console.log(chalk_1.default.yellow(">> Binaries not found or are corrupted!"));
             // Remove .internals folder if exists
             if (yield (0, fs_exists_1.exists)(constants_1.VM_INTERNALS_PATH)) {
+                console.log(chalk_1.default.yellow(">> Removing corrupted binaries..."));
                 yield (0, fs_remove_folder_1.removeFolder)(constants_1.VM_INTERNALS_PATH);
+                console.log(chalk_1.default.green(">> Removed corrupted binaries successfully!"));
             }
             // Create .internals folder  folder
             yield (0, fs_mkdir_1.createFolder)(constants_1.VM_INTERNALS_PATH);
             // Download and extract base images
             console.log(chalk_1.default.yellow(">> Downloading binaries..."));
             yield (0, download_base_image_1.downloadBaseImages)();
-            console.log(chalk_1.default.green(">> Downloaded binaries successfully!"));
+            console.log(chalk_1.default.green("\n>> Downloaded binaries successfully!"));
             console.log(chalk_1.default.yellow(">> Extracting downloaded binaries..."));
             yield extractDownloadedImage();
             console.log(chalk_1.default.green(">> Binaries extracted successfully!"));
@@ -105,9 +107,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             const vmPid = yield vm_1.default.create(localPath, contianerPath, sshPort);
             // Connect to VM
             const conn = yield vm_1.default.connect(sshPort);
-            yield conn.end();
+            conn.end();
             // Copy files to VM and maintain it with rsync
-            const args = [localPath, sealConfig.destination];
+            const args = [localPath, sealConfig.destination, sshPort.toString()];
             const mountPid = yield (0, execute_detached_1.executeDetached)(constants_1.VM_BINARIES.NOTIFY_SCRIPT, args, {
                 detatched: true,
             });

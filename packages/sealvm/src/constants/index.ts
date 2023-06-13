@@ -45,6 +45,12 @@ export const VM_CONFIG = {
   password: "",
 };
 
+export const SSH_CONFIG = [
+  "-o",
+  "StrictHostKeyChecking=accept-new",
+  "sealvm@localhost",
+];
+
 export const IMAGE_BUCKET_CONFIGS = {
   endpoint: "https://sfo3.digitaloceanspaces.com",
   region: "us-east-1",

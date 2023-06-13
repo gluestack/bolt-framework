@@ -50,7 +50,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     conn.on("error", (err) => { });
                     if (currentCounter >= maxIterations) {
                         clearInterval(pollConnection);
-                        (0, exit_with_msg_1.exitWithMsg)(">> Maximum Tries exceeded");
+                        (0, exit_with_msg_1.exitWithMsg)(">> Maximum Tries exceeded!");
                     }
                 }, interval);
             }
@@ -60,11 +60,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         });
     });
     exports.connecToVm = connecToVm;
-    const connectToVmOnce = () => __awaiter(void 0, void 0, void 0, function* () {
+    const connectToVmOnce = (portNumber = 2222) => __awaiter(void 0, void 0, void 0, function* () {
         return new Promise((resolve, _reject) => {
             try {
                 const conn = new ssh2_1.Client();
-                conn.connect(constants_1.VM_CONFIG);
+                conn.connect(Object.assign(Object.assign({}, constants_1.VM_CONFIG), { port: portNumber }));
                 conn.on("ready", () => {
                     return resolve(conn);
                 });

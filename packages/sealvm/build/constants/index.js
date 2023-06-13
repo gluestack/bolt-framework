@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     "use strict";
     var _a, _b;
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.IMAGE_BUCKET_CONFIGS = exports.VM_CONFIG = exports.YAMLDATA = exports.VM_BINARIES = exports.VM_INTERNALS_PATH = exports.SEALVM = void 0;
+    exports.IMAGE_BUCKET_CONFIGS = exports.SSH_CONFIG = exports.VM_CONFIG = exports.YAMLDATA = exports.VM_BINARIES = exports.VM_INTERNALS_PATH = exports.SEALVM = void 0;
     const path_1 = require("path");
     const os_1 = __importDefault(require("os"));
     const homeDir = os_1.default.homedir();
@@ -43,6 +43,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         username: "sealvm",
         password: "",
     };
+    exports.SSH_CONFIG = [
+        "-o",
+        "StrictHostKeyChecking=accept-new",
+        "sealvm@localhost",
+    ];
     exports.IMAGE_BUCKET_CONFIGS = {
         endpoint: "https://sfo3.digitaloceanspaces.com",
         region: "us-east-1",

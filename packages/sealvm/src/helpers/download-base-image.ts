@@ -58,13 +58,19 @@ export const downloadBaseImages = async () => {
       const percent = Math.round(progress.percentage);
 
       if (progress.transferred >= 1024 * 1024 * 1000) {
-        transferredSize = `${(progress.transferred / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-        lengthSize = `${(progress.length / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+        transferredSize = `${(
+          progress.transferred /
+          (1024 * 1024 * 1024)
+        ).toFixed(2)} GB`;
+        lengthSize = `${(progress.length / (1024 * 1024 * 1024)).toFixed(
+          2
+        )} GB`;
       } else {
-        transferredSize = `${(progress.transferred / (1024 * 1024)).toFixed(2)} MB`;
+        transferredSize = `${(progress.transferred / (1024 * 1024)).toFixed(
+          2
+        )} MB`;
         lengthSize = `${(progress.length / (1024 * 1024)).toFixed(2)} MB`;
       }
-
 
       process.stdout.clearLine(1);
       process.stdout.cursorTo(0);
