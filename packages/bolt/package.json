@@ -17,8 +17,16 @@
     "directory": "packages/bolt"
   },
   "keywords": [
+    "gluestack",
     "typescript",
-    "bolt"
+    "bolt",
+    "service-runner",
+    "project-runner",
+    "host",
+    "vm",
+    "virtual-machine",
+    "local",
+    "docker"
   ],
   "engines": {
     "node": ">=18 <19"
