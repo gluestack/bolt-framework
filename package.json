@@ -1,34 +1,36 @@
 {
-  "name": "@gluestack-v2/seal-framework",
+  "name": "@gluestack-v2/bolt-framework",
   "version": "0.0.1",
-  "description": "Seal Framework & VM CLI Tools",
+  "description": "bolt framework",
   "private": true,
   "scripts": {
     "install:all": "npm install --workspaces --if-present",
     "link:all": "npm link --workspaces --if-present && npm run fix:permission",
-    "build:all": "npm run build --workspaces --if-present",
-    "watch:sealvm": "npm run watch --workspace @gluestack-v2/sealvm",
-    "watch:seal": "npm run watch --workspace @gluestack-v2/seal",
-    "fix:permission": "chmod +x ./packages/sealvm/build/index.js && chmod +x ./packages/seal/build/index.js"
+    "build:all": "npm run build:boltvm && npm run build:bolt && npm run fix:permission",
+    "build:boltvm": "npm run build --workspace @gluestack-v2/boltvm",
+    "build:bolt": "npm run build --workspace @gluestack-v2/bolt",
+    "watch:boltvm": "npm run watch --workspace @gluestack-v2/boltvm",
+    "watch:bolt": "npm run watch --workspace @gluestack-v2/bolt",
+    "fix:permission": "chmod +x ./packages/bolt/build/index.js && chmod +x ./packages/boltvm/build/index.js "
   },
   "workspaces": [
     "packages/*"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gluestack-v2/seal-framework.git"
+    "url": "git+https://github.com/gluestack-v2/bolt-framework.git"
   },
   "keywords": [
     "gluestack",
     "v2",
-    "seal",
-    "sealvm",
+    "bolt",
+    "boltvm",
     "cli"
   ],
   "author": "Gluestack.io",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gluestack-v2/seal-framework/issues"
+    "url": "https://github.com/gluestack-v2/bolt-framework/issues"
   },
-  "homepage": "https://github.com/gluestack-v2/seal-framework#readme"
+  "homepage": "https://github.com/gluestack-v2/bolt-framework#readme"
 }

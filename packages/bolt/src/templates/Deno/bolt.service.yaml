@@ -1,0 +1,11 @@
+container_name: SERVICE_NAME
+stateless: true
+service_runners:
+  local:
+    envfile: .env
+    build: deno cache main.ts && deno run app.js
+  docker:
+    envfile: .env
+    build: ./run.Dockerfile
+    ports:
+      - PORT:3000

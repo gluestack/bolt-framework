@@ -1,0 +1,18 @@
+container_name: SERVICE_NAME
+stateless: false
+service_runners:
+  docker:
+    envfile: .env
+    build: ./run.Dockerfile
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - psql -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 10s
+      retries: 50
+      start_period: 30s
+    ports:
+      - PORT:5432
+    volumes:
+      - DIRECTORY_PATH/db:/var/lib/postgresql/data/

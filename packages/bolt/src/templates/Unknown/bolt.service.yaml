@@ -1,0 +1,11 @@
+container_name: SERVICE_NAME
+stateless: true
+service_runners:
+  local:
+    envfile: .env
+    build: npm run install --workspaces --if-present && npm run dev
+  docker:
+    envfile: .env
+    build: ./run.Dockerfile
+    ports:
+      - PORT:3000
