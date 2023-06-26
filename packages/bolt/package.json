@@ -1,6 +1,6 @@
 {
   "name": "@gluestack-v2/bolt",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Bolt Framework CLI",
   "main": "build/index.js",
   "bin": {
@@ -20,6 +20,9 @@
     "typescript",
     "bolt"
   ],
+  "engines": {
+    "node": ">=18 <19"
+  },
   "author": "gluestack.io",
   "license": "ISC",
   "bugs": {
