@@ -1,6 +1,6 @@
 {
-  "name": "@gluestack-v2/bolt",
-  "version": "0.1.0",
+  "name": "@gluestack/bolt",
+  "version": "0.1.1",
   "description": "Bolt Framework CLI",
   "main": "build/index.js",
   "bin": {
@@ -13,9 +13,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gluestack-v2/bolt-framework.git",
+    "url": "git+https://github.com/gluestack/bolt-framework.git",
     "directory": "packages/bolt"
   },
+  "bugs": {
+    "url": "https://github.com/gluestack/bolt-framework/issues"
+  },
+  "homepage": "https://bolt.gluestack.io",
   "keywords": [
     "gluestack",
     "typescript",
@@ -33,10 +37,6 @@
   },
   "author": "gluestack.io",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/gluestack-v2/bolt-framework/issues"
-  },
-  "homepage": "https://github.com/gluestack-v2/bolt-framework#readme",
   "dependencies": {
     "@gluestack/glue-server-sdk-js": "^0.0.7",
     "@gluestack/helpers": "^0.0.17",

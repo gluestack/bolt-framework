@@ -1,5 +1,5 @@
 {
-  "name": "@gluestack-v2/boltvm",
+  "name": "@gluestack/boltvm",
   "version": "0.0.1",
   "description": "BoltVM CLI",
   "main": "build/index.js",
@@ -12,13 +12,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gluestack-v2/bolt-framework.git",
+    "url": "git+https://github.com/gluestack/bolt-framework.git",
     "directory": "packages/boltvm"
   },
   "bugs": {
-    "url": "https://github.com/gluestack-v2/bolt-framework/issues"
+    "url": "https://github.com/gluestack/bolt-framework/issues"
   },
-  "homepage": "https://github.com/gluestack-v2/bolt-framework#readme",
+  "homepage": "https://github.com/gluestack/bolt-framework#readme",
   "author": "gluestack.io",
   "license": "MIT",
   "types": "./build/index.d.ts",
