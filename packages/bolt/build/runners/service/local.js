@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const execute_detached_1 = require("../../helpers/execute-detached");
     const kill_process_1 = require("../../helpers/kill-process");
     const get_local_logs_1 = require("../../helpers/get-local-logs");
-    class Local {
+    class ServiceRunnerLocal {
         constructor(servicePath, build) {
             this.build = build;
             this.volume = (0, path_1.join)(servicePath);
@@ -63,5 +63,5 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             });
         }
     }
-    exports.default = Local;
+    exports.default = ServiceRunnerLocal;
 });

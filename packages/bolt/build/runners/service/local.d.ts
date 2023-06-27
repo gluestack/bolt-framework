@@ -1,5 +1,5 @@
 import BoltServiceRunner from "../../typings/bolt-service-runner";
-export default class Local implements BoltServiceRunner {
+export default class ServiceRunnerLocal implements BoltServiceRunner {
     volume: string;
     build: string;
     constructor(servicePath: string, build: string);
