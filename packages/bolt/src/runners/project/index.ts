@@ -4,7 +4,7 @@ import ProjectRunnerHost from "./host";
 // import ProjectRunnerVm from "./vm";
 
 interface Options {
-  action: "up" | "down";
+  action: "up" | "down" | "exec";
 }
 
 export default class ProjectRunner {

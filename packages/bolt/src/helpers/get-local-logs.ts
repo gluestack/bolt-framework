@@ -5,7 +5,6 @@ import { exists } from "./fs-exists";
 
 export const getLogs = async (
   serviceName: string,
-  servicePath: string,
   isFollow: boolean,
   filePath: string
 ): Promise<void> => {

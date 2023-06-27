@@ -9,7 +9,7 @@ import { validateServices } from "../helpers/validate-services";
 
 import Common from "../common";
 
-import Docker from "../runners/docker";
+import ServiceRunnerDocker from "../runners/service/docker";
 import ProjectRunner from "../runners/project";
 import { BOLT } from "../constants/bolt-configs";
 import { ProjectRunners } from "../typings/store-service";
@@ -57,7 +57,7 @@ export default class Down {
     // 3. stops the nginx container if it is running
     if (projectRunnerEnv !== "vm") {
       if (await exists(join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME))) {
-        await Docker.stopOnly(BOLT.NGINX_CONTAINER_NAME);
+        await ServiceRunnerDocker.stopOnly(BOLT.NGINX_CONTAINER_NAME);
       }
     }
 
