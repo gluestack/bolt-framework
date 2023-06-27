@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/update-store", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/docker", "../runners/local", "../common"], factory);
+        define(["require", "exports", "chalk", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/update-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -27,9 +27,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const update_store_1 = require("../helpers/update-store");
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
-    const docker_1 = __importDefault(require("../runners/docker"));
-    const local_1 = __importDefault(require("../runners/local"));
     const common_1 = __importDefault(require("../common"));
+    const service_1 = __importDefault(require("../runners/service"));
     class ServiceDown {
         checkIfAlreadyDown(_yamlContent, serviceName) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -65,22 +64,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield (0, validate_services_1.validateServices)();
                 const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
                 const service = yield this.checkIfAlreadyDown(_yamlContent, serviceName);
-                const serviceRunner = service.serviceRunner;
-                if (!service || !serviceRunner) {
+                const currentServiceRunner = service.serviceRunner;
+                if (!service || !currentServiceRunner) {
                     yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" service is not running`);
                     return;
                 }
-                {
-                    const { envfile, build } = content.service_runners[serviceRunner];
-                    switch (serviceRunner) {
-                        case "docker":
-                            yield docker_1.default.stop(content.container_name, servicePath, build, [], envfile);
-                            break;
-                        case "local":
-                            const processId = Number(service.processId) || 0;
-                            yield local_1.default.stop(processId);
-                            break;
-                    }
+                const { envfile, build } = content.service_runners[currentServiceRunner];
+                const serviceRunner = new service_1.default();
+                switch (currentServiceRunner) {
+                    case "docker":
+                        const dockerConfig = {
+                            containerName: content.container_name,
+                            servicePath: servicePath,
+                            build: build,
+                            envFile: envfile,
+                            ports: [],
+                            volumes: [],
+                            isFollow: false,
+                        };
+                        yield serviceRunner.docker(dockerConfig, {
+                            action: "stop",
+                        });
+                        break;
+                    case "local":
+                        const processId = Number(service.processId) || 0;
+                        const localConfig = {
+                            servicePath: servicePath,
+                            serviceName: serviceName,
+                            build: build,
+                            processId: processId,
+                            isFollow: false,
+                        };
+                        yield serviceRunner.local(localConfig, {
+                            action: "stop",
+                        });
+                        break;
                 }
                 const json = {
                     status: "down",
@@ -93,7 +111,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (isAllServiceDown) {
                     yield (0, update_store_1.updateStore)("project_runner", "none");
                 }
-                console.log(chalk_1.default.green(`\n"${serviceName}" is down from ${serviceRunner} platform\n`));
+                console.log(chalk_1.default.green(`\n"${serviceName}" is down from ${currentServiceRunner} platform\n`));
             });
         }
     }

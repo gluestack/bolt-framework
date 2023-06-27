@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../common", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/docker", "../runners/local"], factory);
+        define(["require", "exports", "chalk", "../common", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/service"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -27,8 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const get_store_1 = __importDefault(require("../helpers/get-store"));
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
-    const docker_1 = __importDefault(require("../runners/docker"));
-    const local_1 = __importDefault(require("../runners/local"));
+    const service_1 = __importDefault(require("../runners/service"));
     class Log {
         checkIfServiceIsUp(_yamlContent, serviceName) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -54,7 +53,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield (0, validate_services_1.validateServices)();
                 const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
                 const service = yield this.checkIfServiceIsUp(_yamlContent, serviceName);
-                const serviceRunner = service.serviceRunner;
+                const currentServiceRunner = service.serviceRunner;
                 // if (isVM && serviceRunner !== "vm") {
                 //   await exitWithMsg(`>> "${serviceName}" is not running on vm`);
                 // }
@@ -64,13 +63,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     //   await getVmLogs(".", { follow: isFollow });
                     return;
                 }
-                switch (serviceRunner) {
+                const serviceRunner = new service_1.default();
+                switch (currentServiceRunner) {
                     case "docker":
-                        const { envfile, build } = content.service_runners[serviceRunner];
-                        yield docker_1.default.logs(content.container_name, servicePath, build, [], envfile, isFollow);
+                        const { envfile, build } = content.service_runners[currentServiceRunner];
+                        const dockerConfig = {
+                            containerName: content.container_name,
+                            servicePath: servicePath,
+                            build: build,
+                            envFile: envfile,
+                            ports: [],
+                            volumes: [],
+                            isFollow: isFollow,
+                        };
+                        yield serviceRunner.docker(dockerConfig, { action: "logs" });
                         break;
                     case "local":
-                        yield local_1.default.logs(serviceName, servicePath, isFollow);
+                        const localConfig = {
+                            servicePath: servicePath,
+                            serviceName: serviceName,
+                            build: content.service_runners[currentServiceRunner].build,
+                            isFollow: isFollow,
+                            processId: 0,
+                        };
+                        serviceRunner.local(localConfig, { action: "logs" });
                         break;
                     // case "vm":
                     //   const vmConfig = _yamlContent.server.vm;

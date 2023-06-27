@@ -6,13 +6,12 @@ import { updateStore } from "../helpers/update-store";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
 
-import Docker from "../runners/docker";
-import Local from "../runners/local";
-
 import Common from "../common";
 
 import { StoreService, StoreServices } from "../typings/store-service";
 import { Bolt } from "../typings/bolt";
+import ServiceRunner from "../runners/service";
+import { DockerConfig, LocalConfig } from "../typings/project-runner-config";
 
 export default class ServiceDown {
   public async checkIfAlreadyDown(_yamlContent: any, serviceName: string) {
@@ -62,30 +61,44 @@ export default class ServiceDown {
       serviceName
     );
 
-    const serviceRunner = service.serviceRunner;
+    const currentServiceRunner = service.serviceRunner;
 
-    if (!service || !serviceRunner) {
+    if (!service || !currentServiceRunner) {
       await exitWithMsg(`>> "${serviceName}" service is not running`);
       return;
     }
 
-    {
-      const { envfile, build } = content.service_runners[serviceRunner];
-      switch (serviceRunner) {
-        case "docker":
-          await Docker.stop(
-            content.container_name,
-            servicePath,
-            build,
-            [],
-            envfile
-          );
-          break;
-        case "local":
-          const processId: number = Number(service.processId) || 0;
-          await Local.stop(processId);
-          break;
-      }
+    const { envfile, build } = content.service_runners[currentServiceRunner];
+
+    const serviceRunner = new ServiceRunner();
+    switch (currentServiceRunner) {
+      case "docker":
+        const dockerConfig: DockerConfig = {
+          containerName: content.container_name,
+          servicePath: servicePath,
+          build: build,
+          envFile: envfile,
+          ports: [],
+          volumes: [],
+          isFollow: false,
+        };
+        await serviceRunner.docker(dockerConfig, {
+          action: "stop",
+        });
+        break;
+      case "local":
+        const processId: number = Number(service.processId) || 0;
+        const localConfig: LocalConfig = {
+          servicePath: servicePath,
+          serviceName: serviceName,
+          build: build,
+          processId: processId,
+          isFollow: false,
+        };
+        await serviceRunner.local(localConfig, {
+          action: "stop",
+        });
+        break;
     }
 
     const json: StoreService = {
@@ -104,7 +117,9 @@ export default class ServiceDown {
     }
 
     console.log(
-      chalk.green(`\n"${serviceName}" is down from ${serviceRunner} platform\n`)
+      chalk.green(
+        `\n"${serviceName}" is down from ${currentServiceRunner} platform\n`
+      )
     );
   }
 }

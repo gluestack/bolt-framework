@@ -105,7 +105,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                                 continue;
                             }
                             const commandNo = parseInt(file.split("-")[0]);
-                            if (!_boltYamlPath && commandNo > 2) {
+                            if (!_boltYamlPath && commandNo >= 2) {
                                 continue;
                             }
                             const commands = yield (_d = "../commands/" + file.replace(".js", ""), __syncRequire ? Promise.resolve().then(() => __importStar(require(_d))) : new Promise((resolve_1, reject_1) => { require([_d], resolve_1, reject_1); }).then(__importStar));

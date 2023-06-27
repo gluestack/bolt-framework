@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const path_1 = require("path");
     const execute_1 = require("./execute");
     const fs_exists_1 = require("./fs-exists");
-    const getLogs = (serviceName, servicePath, isFollow, filePath) => __awaiter(void 0, void 0, void 0, function* () {
+    const getLogs = (serviceName, isFollow, filePath) => __awaiter(void 0, void 0, void 0, function* () {
         //check if log file exists in the service or not
         const serviceLogPath = filePath;
         if (!(yield (0, fs_exists_1.exists)(serviceLogPath))) {

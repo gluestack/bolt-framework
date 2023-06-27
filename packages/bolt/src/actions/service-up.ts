@@ -6,18 +6,17 @@ import { exitWithMsg } from "../helpers/exit-with-msg";
 import getStore from "../helpers/get-store";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
-import { updateStore } from "../helpers/update-store";
 
 import Common from "../common";
 
 import { BOLT } from "../constants/bolt-configs";
 
 import { RunServiceOptions } from "../typings/run-service-options";
-import { StoreService, StoreServices } from "../typings/store-service";
+import { StoreServices } from "../typings/store-service";
 
-import Docker from "../runners/docker";
-import Local from "../runners/local";
 import { Bolt } from "../typings/bolt";
+import ServiceRunner from "../runners/service";
+import { DockerConfig, LocalConfig } from "../typings/project-runner-config";
 
 export default class ServiceUp {
   //
@@ -78,33 +77,37 @@ export default class ServiceUp {
     await Common.generateEnv();
 
     let PID: any = null;
-
+    const runnerService = new ServiceRunner();
     switch (serviceRunner) {
       case "docker":
-        await Docker.start(
-          content.container_name,
-          servicePath,
-          build,
-          ports || [],
-          envfile,
-          volumes
-        );
+        const dockerConfig: DockerConfig = {
+          containerName: content.container_name,
+          servicePath: servicePath,
+          build: build,
+          ports: ports || [],
+          envFile: envfile,
+          volumes: volumes || [],
+          isFollow: false,
+        };
+        await runnerService.docker(dockerConfig, {
+          action: "start",
+          serviceName: serviceName,
+        });
         PID = content.container_name;
         break;
       case "local":
-        PID = await Local.start(context || servicePath, build, serviceName);
+        const localConfig: LocalConfig = {
+          servicePath: context || servicePath,
+          build: build,
+          serviceName: serviceName,
+          isFollow: false,
+          processId: 0,
+        };
+        PID = await runnerService.local(localConfig, {
+          action: "start",
+        });
         break;
     }
-
-    const json: StoreService = {
-      status: "up",
-      serviceRunner: serviceRunner,
-      port: ports,
-      processId: PID,
-    };
-
-    await updateStore("services", serviceName, json);
-    await updateStore("project_runner", "host");
 
     console.log(
       chalk.green(

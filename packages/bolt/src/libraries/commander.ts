@@ -47,7 +47,7 @@ export default class Commander {
         continue;
       }
       const commandNo = parseInt(file.split("-")[0]);
-      if (!_boltYamlPath && commandNo > 2) {
+      if (!_boltYamlPath && commandNo >= 2) {
         continue;
       }
 

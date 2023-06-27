@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../helpers/update-store", "../common", "../constants/bolt-configs", "../runners/docker", "../runners/local"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../constants/bolt-configs", "../runners/service"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -28,11 +28,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const get_store_1 = __importDefault(require("../helpers/get-store"));
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
-    const update_store_1 = require("../helpers/update-store");
     const common_1 = __importDefault(require("../common"));
     const bolt_configs_1 = require("../constants/bolt-configs");
-    const docker_1 = __importDefault(require("../runners/docker"));
-    const local_1 = __importDefault(require("../runners/local"));
+    const service_1 = __importDefault(require("../runners/service"));
     class ServiceUp {
         //
         checkIfAlreadyUp(_yamlContent, serviceName) {
@@ -68,23 +66,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 // generates .env
                 yield common_1.default.generateEnv();
                 let PID = null;
+                const runnerService = new service_1.default();
                 switch (serviceRunner) {
                     case "docker":
-                        yield docker_1.default.start(content.container_name, servicePath, build, ports || [], envfile, volumes);
+                        const dockerConfig = {
+                            containerName: content.container_name,
+                            servicePath: servicePath,
+                            build: build,
+                            ports: ports || [],
+                            envFile: envfile,
+                            volumes: volumes || [],
+                            isFollow: false,
+                        };
+                        yield runnerService.docker(dockerConfig, {
+                            action: "start",
+                            serviceName: serviceName,
+                        });
                         PID = content.container_name;
                         break;
                     case "local":
-                        PID = yield local_1.default.start(context || servicePath, build, serviceName);
+                        const localConfig = {
+                            servicePath: context || servicePath,
+                            build: build,
+                            serviceName: serviceName,
+                            isFollow: false,
+                            processId: 0,
+                        };
+                        PID = yield runnerService.local(localConfig, {
+                            action: "start",
+                        });
                         break;
                 }
-                const json = {
-                    status: "up",
-                    serviceRunner: serviceRunner,
-                    port: ports,
-                    processId: PID,
-                };
-                yield (0, update_store_1.updateStore)("services", serviceName, json);
-                yield (0, update_store_1.updateStore)("project_runner", "host");
                 console.log(chalk_1.default.green(`\n"${serviceName}" service is up on ${serviceRunner} platform\n`));
             });
         }

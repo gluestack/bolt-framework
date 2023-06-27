@@ -4,8 +4,8 @@ import { exitWithMsg } from "../helpers/exit-with-msg";
 import getStore from "../helpers/get-store";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
-import Docker from "../runners/docker";
-import Local from "../runners/local";
+import ServiceRunner from "../runners/service";
+import { DockerConfig, LocalConfig } from "../typings/project-runner-config";
 import { StoreService } from "../typings/store-service";
 
 export default class Log {
@@ -44,7 +44,7 @@ export default class Log {
       _yamlContent,
       serviceName
     );
-    const serviceRunner = service.serviceRunner;
+    const currentServiceRunner = service.serviceRunner;
 
     // if (isVM && serviceRunner !== "vm") {
     //   await exitWithMsg(`>> "${serviceName}" is not running on vm`);
@@ -57,20 +57,32 @@ export default class Log {
       return;
     }
 
-    switch (serviceRunner) {
+    const serviceRunner = new ServiceRunner();
+
+    switch (currentServiceRunner) {
       case "docker":
-        const { envfile, build } = content.service_runners[serviceRunner];
-        await Docker.logs(
-          content.container_name,
-          servicePath,
-          build,
-          [],
-          envfile,
-          isFollow
-        );
+        const { envfile, build } =
+          content.service_runners[currentServiceRunner];
+        const dockerConfig: DockerConfig = {
+          containerName: content.container_name,
+          servicePath: servicePath,
+          build: build,
+          envFile: envfile,
+          ports: [],
+          volumes: [],
+          isFollow: isFollow,
+        };
+        await serviceRunner.docker(dockerConfig, { action: "logs" });
         break;
       case "local":
-        await Local.logs(serviceName, servicePath, isFollow);
+        const localConfig: LocalConfig = {
+          servicePath: servicePath,
+          serviceName: serviceName,
+          build: content.service_runners[currentServiceRunner].build,
+          isFollow: isFollow,
+          processId: 0,
+        };
+        serviceRunner.local(localConfig, { action: "logs" });
         break;
       // case "vm":
       //   const vmConfig = _yamlContent.server.vm;

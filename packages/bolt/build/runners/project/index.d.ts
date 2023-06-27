@@ -1,6 +1,6 @@
 import { Bolt } from "../../typings/bolt";
 interface Options {
-    action: "up" | "down";
+    action: "up" | "down" | "exec";
 }
 export default class ProjectRunner {
     _yamlContent: Bolt;

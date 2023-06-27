@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/docker", "../runners/project", "../constants/bolt-configs"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service/docker", "../runners/project", "../constants/bolt-configs"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -29,7 +29,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
-    const docker_1 = __importDefault(require("../runners/docker"));
+    const docker_1 = __importDefault(require("../runners/service/docker"));
     const project_1 = __importDefault(require("../runners/project"));
     const bolt_configs_1 = require("../constants/bolt-configs");
     class Down {

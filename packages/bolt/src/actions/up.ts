@@ -10,7 +10,7 @@ import { validateServices } from "../helpers/validate-services";
 
 import Common from "../common";
 
-import Docker from "../runners/docker";
+import ServiceRunnerDocker from "../runners/service/docker";
 import ProjectRunner from "../runners/project";
 import { BOLT } from "../constants/bolt-configs";
 import { stringifyYAML } from "../helpers/stringify-yaml";
@@ -80,7 +80,7 @@ export default class Up {
     if (projectRunnerOption !== "vm" && _yamlContent.ingress) {
       const nginxConfig = join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME);
       if (await exists(nginxConfig)) {
-        await Docker.startOnly(
+        await ServiceRunnerDocker.startOnly(
           BOLT.NGINX_CONTAINER_NAME,
           ports,
           `${nginxConfig}:/etc/nginx/nginx.conf`,
