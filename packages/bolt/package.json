@@ -1,6 +1,6 @@
 {
   "name": "@gluestack/bolt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Bolt Framework CLI",
   "main": "build/index.js",
   "bin": {
