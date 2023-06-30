@@ -14,7 +14,7 @@ export const validateMetadata = async (option?: any) => {
   try {
     let _yamlContent = await Common.getAndValidateBoltYaml();
 
-    const _projectFolderPath = join(os.homedir(), BOLT.YAML_FILE_NAME);
+    const _projectFolderPath = join(os.homedir(), BOLT.PROCESS_FOLDER_NAME);
     const _projectListPath = join(
       _projectFolderPath,
       BOLT.PROCESS_PROJECT_LIST_FILE_NAME
@@ -28,6 +28,7 @@ export const validateMetadata = async (option?: any) => {
 
     const data: any[] = (await readfile(_projectListPath)) || [];
     const _projectExists = find(data, { id: _yamlContent.project_id });
+    console.log(_projectExists);
 
     if (!_projectExists) {
       data.push({

@@ -23,9 +23,9 @@ export default class Commander {
 
   public async init() {
     this.program
-      .name("Bolt")
-      .version(`Bolt Run Version v${packageJSON.version}`)
-      .description(`Bolt CLI tool v${packageJSON.version}`);
+      .name("bolt")
+      .version(`bolt Run Version v${packageJSON.version}`)
+      .description(`bolt CLI tool v${packageJSON.version}`);
   }
 
   public async addCommands() {

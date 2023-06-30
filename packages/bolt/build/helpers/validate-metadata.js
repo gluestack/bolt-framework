@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const validateMetadata = (option) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             let _yamlContent = yield common_1.default.getAndValidateBoltYaml();
-            const _projectFolderPath = (0, path_1.join)(os_1.default.homedir(), bolt_configs_1.BOLT.YAML_FILE_NAME);
+            const _projectFolderPath = (0, path_1.join)(os_1.default.homedir(), bolt_configs_1.BOLT.PROCESS_FOLDER_NAME);
             const _projectListPath = (0, path_1.join)(_projectFolderPath, bolt_configs_1.BOLT.PROCESS_PROJECT_LIST_FILE_NAME);
             const _projectPath = process.cwd();
             if (!(yield (0, fs_exists_1.exists)(_projectFolderPath))) {
@@ -44,6 +44,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
             const data = (yield (0, fs_readfile_json_1.readfile)(_projectListPath)) || [];
             const _projectExists = (0, lodash_1.find)(data, { id: _yamlContent.project_id });
+            console.log(_projectExists);
             if (!_projectExists) {
                 data.push({
                     id: _yamlContent.project_id,
