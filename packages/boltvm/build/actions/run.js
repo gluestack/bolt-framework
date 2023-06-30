@@ -100,9 +100,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     const sshPids = yield Promise.all(portExposePromises);
                     console.log(chalk_1.default.green(">> Ports exposed"));
                     // Run project inside vm
-                    console.log(chalk_1.default.yellow("Starting running project inside vm..."));
+                    console.log(chalk_1.default.yellow(">> Started running project inside VM..."));
                     const projectRunnerId = (_a = (yield this.runProjectInsideVm(sshPort, boltConfig, localPath, detatched))) !== null && _a !== void 0 ? _a : 0;
-                    console.log(chalk_1.default.green(">> Project running inside vm"));
+                    console.log(chalk_1.default.green(">> Project running inside VM"));
                     // Update project status
                     const json = Object.assign(Object.assign({}, project), { status: "up", sshProcessIds: sshPids, projectRunnerId: projectRunnerId });
                     yield (0, update_store_1.updateStore)("projects", project_id, json);

@@ -51,7 +51,7 @@ export default class Up {
     await validateServices();
 
     // 1. generates routes
-    console.log(`>> Creating Ingress ${_yamlContent.project_name}...`);
+    console.log(`>> Creating Ingress...`);
     const ports = await generateRoutes(_yamlContent);
 
     // 2. generates .env

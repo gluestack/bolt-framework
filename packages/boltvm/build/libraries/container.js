@@ -45,9 +45,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield (0, fs_mkdir_1.createFolder)(projectContainerPath);
                 }
                 if (!cached) {
-                    console.log(chalk_1.default.yellow(`>> Creating image for ${this.containerName}...`));
+                    console.log(chalk_1.default.yellow(`>> Creating Image...`));
                     yield (0, fs_copyfile_1.copyFile)(bolt_vm_1.VM_BINARIES.ALPINE, projectContainerPath, bolt_vm_1.VM_BINARIES.CONTAINER_IMAGE_NAME);
-                    console.log(chalk_1.default.green(`>> Image created for ${this.containerName}!`));
+                    console.log(chalk_1.default.green(`>> Image created!`));
                 }
                 if (!(yield (0, fs_exists_1.exists)((0, path_1.join)(projectContainerPath, bolt_vm_1.VM_BINARIES.CONTAINER_IMAGE_NAME)))) {
                     console.log(chalk_1.default.yellow(`>> Image Not found! Creating image for ${this.containerName}...`));

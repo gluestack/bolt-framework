@@ -17,6 +17,7 @@ import { BOLT } from "../constants/bolt-configs";
 
 import { Bolt } from "../typings/bolt";
 import { removeSpecialChars } from "@gluestack/helpers";
+import { boltignore } from "../constants/boltignore";
 
 export default class Init {
   public async handle(options: any) {
@@ -55,6 +56,7 @@ export default class Init {
 
       await stringifyYAML(json, _yamlPath);
       await writefile(_envPath, "" + os.EOL);
+      await writefile(join(process.cwd(), ".boltignore"), boltignore);
 
       if (!(await exists(_projectFolderPath))) {
         await createFolder(_projectFolderPath);

@@ -32,7 +32,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 // Validations for metadata and services
                 yield (0, validate_metadata_1.validateMetadata)();
                 yield (0, validate_services_1.validateServices)();
-                console.log(`>> Creating Ingress ${_yamlContent.project_name}...`);
+                console.log(`>> Creating Ingress...`);
                 yield (0, generate_routes_1.default)(_yamlContent);
                 process.exit(0);
             });

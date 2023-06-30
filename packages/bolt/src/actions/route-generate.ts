@@ -12,7 +12,7 @@ export default class RouteGenerate {
     await validateMetadata();
     await validateServices();
 
-    console.log(`>> Creating Ingress ${_yamlContent.project_name}...`);
+    console.log(`>> Creating Ingress...`);
     await generateRoutes(_yamlContent);
     process.exit(0);
   }

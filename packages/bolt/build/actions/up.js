@@ -59,7 +59,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield (0, validate_metadata_1.validateMetadata)();
                 yield (0, validate_services_1.validateServices)();
                 // 1. generates routes
-                console.log(`>> Creating Ingress ${_yamlContent.project_name}...`);
+                console.log(`>> Creating Ingress...`);
                 const ports = yield (0, generate_routes_1.default)(_yamlContent);
                 // 2. generates .env
                 yield common_1.default.generateEnv();

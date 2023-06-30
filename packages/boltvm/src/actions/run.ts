@@ -102,7 +102,7 @@ export default class Run {
       console.log(chalk.green(">> Ports exposed"));
 
       // Run project inside vm
-      console.log(chalk.yellow("Starting running project inside vm..."));
+      console.log(chalk.yellow(">> Started running project inside VM..."));
       const projectRunnerId =
         (await this.runProjectInsideVm(
           sshPort,
@@ -110,7 +110,7 @@ export default class Run {
           localPath,
           detatched
         )) ?? 0;
-      console.log(chalk.green(">> Project running inside vm"));
+      console.log(chalk.green(">> Project running inside VM"));
 
       // Update project status
       const json: IMetadata = {
