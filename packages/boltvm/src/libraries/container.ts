@@ -36,15 +36,13 @@ export default class Container {
     }
 
     if (!cached) {
-      console.log(
-        chalk.yellow(`>> Creating image for ${this.containerName}...`)
-      );
+      console.log(chalk.yellow(`>> Creating Image...`));
       await copyFile(
         VM_BINARIES.ALPINE,
         projectContainerPath,
         VM_BINARIES.CONTAINER_IMAGE_NAME
       );
-      console.log(chalk.green(`>> Image created for ${this.containerName}!`));
+      console.log(chalk.green(`>> Image created!`));
     }
 
     if (

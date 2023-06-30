@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "os", "chalk", "moment", "@gluestack/boltvm", "lodash", "path", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/fs-readfile-json", "../helpers/fs-writefile", "../helpers/fs-mkdir", "../helpers/stringify-yaml", "../constants/bolt-file", "../constants/bolt-configs", "@gluestack/helpers"], factory);
+        define(["require", "exports", "os", "chalk", "moment", "@gluestack/boltvm", "lodash", "path", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/fs-readfile-json", "../helpers/fs-writefile", "../helpers/fs-mkdir", "../helpers/stringify-yaml", "../constants/bolt-file", "../constants/bolt-configs", "@gluestack/helpers", "../constants/boltignore"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -59,6 +59,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const bolt_file_1 = require("../constants/bolt-file");
     const bolt_configs_1 = require("../constants/bolt-configs");
     const helpers_1 = require("@gluestack/helpers");
+    const boltignore_1 = require("../constants/boltignore");
     class Init {
         handle(options) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -83,6 +84,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     }
                     yield (0, stringify_yaml_1.stringifyYAML)(json, _yamlPath);
                     yield (0, fs_writefile_1.writefile)(_envPath, "" + os.EOL);
+                    yield (0, fs_writefile_1.writefile)((0, path_1.join)(process.cwd(), ".boltignore"), boltignore_1.boltignore);
                     if (!(yield (0, fs_exists_1.exists)(_projectFolderPath))) {
                         yield (0, fs_mkdir_1.createFolder)(_projectFolderPath);
                     }
