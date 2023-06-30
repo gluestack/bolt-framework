@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "os", "chalk", "moment", "lodash", "path", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/fs-readfile-json", "../helpers/fs-writefile", "../helpers/fs-mkdir", "../helpers/stringify-yaml", "../constants/bolt-file", "../constants/bolt-configs"], factory);
+        define(["require", "exports", "os", "chalk", "moment", "@gluestack/boltvm", "lodash", "path", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/fs-readfile-json", "../helpers/fs-writefile", "../helpers/fs-mkdir", "../helpers/stringify-yaml", "../constants/bolt-file", "../constants/bolt-configs", "@gluestack/helpers"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -47,7 +47,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const os = __importStar(require("os"));
     const chalk_1 = __importDefault(require("chalk"));
     const moment_1 = __importDefault(require("moment"));
-    // import addMetadata from "@gluestack-v2/sealvm/build/actions/addMetadata";
+    const boltvm_1 = __importDefault(require("@gluestack/boltvm"));
     const lodash_1 = require("lodash");
     const path_1 = require("path");
     const fs_exists_1 = require("../helpers/fs-exists");
@@ -58,6 +58,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const stringify_yaml_1 = require("../helpers/stringify-yaml");
     const bolt_file_1 = require("../constants/bolt-file");
     const bolt_configs_1 = require("../constants/bolt-configs");
+    const helpers_1 = require("@gluestack/helpers");
     class Init {
         handle(options) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -77,8 +78,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         throw new Error(`>> Cannot init "${(0, path_1.relative)(".", _yamlPath)}" file already exists`);
                     }
                     const json = Object.assign(Object.assign({}, bolt_file_1.boltFile), { project_id: `${ID}`, project_name: `${_projectName}` });
-                    // json.server.vm.source = join(_projectPath);
-                    // json.server.vm.name = removeSpecialChars(basename(_projectPath));
+                    if (json.vm) {
+                        json.vm.name = (0, helpers_1.removeSpecialChars)((0, path_1.basename)(_projectPath));
+                    }
                     yield (0, stringify_yaml_1.stringifyYAML)(json, _yamlPath);
                     yield (0, fs_writefile_1.writefile)(_envPath, "" + os.EOL);
                     if (!(yield (0, fs_exists_1.exists)(_projectFolderPath))) {
@@ -100,7 +102,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         };
                     }
                     yield (0, fs_writefile_1.writefile)(_projectListPath, JSON.stringify(data) + os.EOL);
-                    //   await addMetadata(_projectPath);
+                    // if vm is present in json, add metadata
+                    if (json.vm) {
+                        const boltVM = new boltvm_1.default(_projectPath);
+                        yield boltVM.addMetadata();
+                    }
                     console.log(`>> Installed bolt in ${chalk_1.default.green(_projectPath)}`);
                 }
                 catch (err) {

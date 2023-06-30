@@ -49,13 +49,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const fs = __importStar(require("fs"));
     const fs_writefile_1 = require("./fs-writefile");
     const executeDetachedWithLogs = (command, args, logFileLocation, options) => __awaiter(void 0, void 0, void 0, function* () {
-        // Managing log files
-        const projectLogPath = logFileLocation;
-        if (!(yield (0, fs_exists_1.exists)(projectLogPath))) {
-            yield (0, fs_mkdir_1.createFolder)(projectLogPath);
+        if (!(yield (0, fs_exists_1.exists)(logFileLocation))) {
+            yield (0, fs_mkdir_1.createFolder)(logFileLocation);
         }
-        const outputLogPath = (0, path_1.join)(projectLogPath, "out.log");
-        const errorLogPath = (0, path_1.join)(projectLogPath, "err.log");
+        const outputLogPath = (0, path_1.join)(logFileLocation, "out.log");
+        const errorLogPath = (0, path_1.join)(logFileLocation, "err.log");
         yield (0, fs_writefile_1.writefile)(outputLogPath, "");
         yield (0, fs_writefile_1.writefile)(errorLogPath, "");
         // Open a file to redirect standard output/error streams

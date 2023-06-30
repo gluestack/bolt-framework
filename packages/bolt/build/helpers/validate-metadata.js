@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "path", "os", "lodash", "./fs-exists", "./fs-mkdir", "./fs-readfile-json", "./fs-writefile", "./exit-with-msg", "../common", "../constants/bolt-configs"], factory);
+        define(["require", "exports", "path", "os", "lodash", "./fs-exists", "./fs-mkdir", "./fs-readfile-json", "./fs-writefile", "./exit-with-msg", "../common", "../constants/bolt-configs", "@gluestack/boltvm"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -25,7 +25,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const path_1 = require("path");
     const os_1 = __importDefault(require("os"));
     const lodash_1 = require("lodash");
-    // import addMetadata from "@gluestack-v2/sealvm/build/actions/addMetadata";
     const fs_exists_1 = require("./fs-exists");
     const fs_mkdir_1 = require("./fs-mkdir");
     const fs_readfile_json_1 = require("./fs-readfile-json");
@@ -33,6 +32,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const exit_with_msg_1 = require("./exit-with-msg");
     const common_1 = __importDefault(require("../common"));
     const bolt_configs_1 = require("../constants/bolt-configs");
+    const boltvm_1 = __importDefault(require("@gluestack/boltvm"));
     const validateMetadata = (option) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             let _yamlContent = yield common_1.default.getAndValidateBoltYaml();
@@ -58,7 +58,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 };
             }
             yield (0, fs_writefile_1.writefile)(_projectListPath, JSON.stringify(data) + os_1.default.EOL);
-            // await addMetadata(_projectPath);
+            if (_yamlContent.vm) {
+                const boltVm = new boltvm_1.default(process.cwd());
+                yield boltVm.addMetadata();
+            }
         }
         catch (error) {
             (0, exit_with_msg_1.exitWithMsg)(`Error while validating metatdata: ${error}`);

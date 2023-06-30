@@ -7,45 +7,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../actions/addMetadata", "./exit-with-msg", "./get-store"], factory);
+        define(["require", "exports", "../common", "./exit-with-msg", "./get-store"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateProjectStatus = void 0;
-    const addMetadata_1 = require("../actions/addMetadata");
+    const common_1 = __importDefault(require("../common"));
     const exit_with_msg_1 = require("./exit-with-msg");
     const get_store_1 = require("./get-store");
-    const validateProjectStatus = (projectId, command, sealConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    const validateProjectStatus = (action, boltConfig) => __awaiter(void 0, void 0, void 0, function* () {
+        const projectId = boltConfig.project_id;
+        const projectName = boltConfig.project_name;
         const store = yield (0, get_store_1.getStore)();
         const data = store.get("projects");
-        let project = data && data[projectId] ? data[projectId] : null;
-        if (!project && sealConfig) {
-            project = yield (0, addMetadata_1.createProject)(sealConfig);
+        let project = data[projectId];
+        if (!project && boltConfig) {
+            project = yield common_1.default.createProjectMetadata(boltConfig);
         }
-        switch (command) {
+        switch (action) {
             case "create":
                 if (project && (project.status === "build" || project.status === "up")) {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectId}"'s image has already been built and sealvm is running.`);
+                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectName}"'s image has already been built and boltvm is running.`);
                 }
                 break;
             case "run":
                 if (project && project.status === "down") {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> sealvm is down, please create the project first!!!`);
+                    (0, exit_with_msg_1.exitWithMsg)(`>> boltvm is down, please create the project first!!!`);
                 }
                 if (project && project.status === "up") {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectId}" is already running`);
+                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectName}" is already running`);
                 }
                 break;
             case "down":
                 if (project && project.status === "down") {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectId}" project is already down or is not running`);
+                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectName}" project is already down or is not running`);
                 }
                 break;
             case "status":
@@ -55,15 +60,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 break;
             case "exec":
                 if (!project) {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> No container exist for project id: "${projectId}"`);
+                    (0, exit_with_msg_1.exitWithMsg)(`>> No container exist for project id: "${projectName}"`);
                 }
                 if (project && project.status === "down") {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectId}" is down, please run the project first!!!`);
+                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectName}" is down, please run the project first!!!`);
                 }
                 break;
             case "log":
                 if (project && project.status === "down") {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectId}" project is already down or is not running`);
+                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectName}" project is already down or is not running`);
                 }
                 break;
             default:

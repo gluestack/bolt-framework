@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17,15 +16,71 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./libraries/commander"], factory);
+        define(["require", "exports", "./actions/addMetadata", "./actions/create", "./actions/doctor", "./actions/down", "./actions/exec", "./actions/log", "./actions/run", "./actions/status"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const commander_1 = __importDefault(require("./libraries/commander"));
-    (function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield commander_1.default.register();
-        });
-    })();
+    const addMetadata_1 = __importDefault(require("./actions/addMetadata"));
+    const create_1 = __importDefault(require("./actions/create"));
+    const doctor_1 = __importDefault(require("./actions/doctor"));
+    const down_1 = __importDefault(require("./actions/down"));
+    const exec_1 = __importDefault(require("./actions/exec"));
+    const log_1 = __importDefault(require("./actions/log"));
+    const run_1 = __importDefault(require("./actions/run"));
+    const status_1 = __importDefault(require("./actions/status"));
+    class BoltVm {
+        constructor(location) {
+            this.location = location;
+        }
+        addMetadata() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const addMetadata = new addMetadata_1.default();
+                yield addMetadata.handle(this.location);
+            });
+        }
+        create(cache) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const create = new create_1.default();
+                yield create.handle(this.location, cache);
+            });
+        }
+        run(detached) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const run = new run_1.default();
+                yield run.handle(this.location, detached);
+            });
+        }
+        exec() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const exec = new exec_1.default();
+                yield exec.handle(this.location);
+            });
+        }
+        log(isFollow) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const log = new log_1.default();
+                yield log.handle(this.location, isFollow);
+            });
+        }
+        down() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const down = new down_1.default();
+                yield down.handle(this.location);
+            });
+        }
+        status() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const status = new status_1.default();
+                yield status.handle(this.location);
+            });
+        }
+        doctor() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const doctor = new doctor_1.default();
+                yield doctor.handle();
+            });
+        }
+    }
+    exports.default = BoltVm;
 });

@@ -2,10 +2,8 @@ import { Ingress } from "./ingress";
 export interface Service {
     path: string;
 }
-export interface Vm {
+export interface VM {
     name: string;
-    source: string;
-    destination: string;
     ports: string[];
     command: string;
 }
@@ -17,4 +15,5 @@ export interface Bolt {
     default_service_runner: "local" | "docker";
     services: Record<any, Service>;
     ingress?: Ingress[] | null;
+    vm?: VM;
 }

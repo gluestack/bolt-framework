@@ -45,7 +45,7 @@ export default class Down {
         await projectRunner.host({ action: "down" });
         break;
       case "vm":
-        await projectRunner.vm(false, { action: "down" });
+        await projectRunner.vm({ action: "down" });
         break;
       default:
         exitWithMsg(

@@ -1,19 +1,20 @@
 import os from "os";
 import { join } from "path";
 
-import { SEALVM } from "../constants";
+import { BOLTVM } from "../constants/bolt-vm";
 import { exists } from "./fs-exists";
 import { createFolder } from "./fs-mkdir";
 import { writefile } from "./fs-writefile";
 import { exitWithMsg } from "./exit-with-msg";
 
 export const checkMetadataFile = async () => {
+  const metaDataDirectory = join(os.homedir(), BOLTVM.METADATA_FOLDER);
+  const metaDataFile = join(metaDataDirectory, BOLTVM.METADATA_FILE);
+
   try {
-    const metaDataDirectory = join(os.homedir(), SEALVM.METADATA_FOLDER);
     if (!(await exists(metaDataDirectory))) {
       await createFolder(metaDataDirectory);
     }
-    const metaDataFile = join(metaDataDirectory, SEALVM.METADATA_FILE);
     if (!(await exists(metaDataFile))) {
       await writefile(
         metaDataFile,
@@ -23,6 +24,6 @@ export const checkMetadataFile = async () => {
       );
     }
   } catch (error: any) {
-    exitWithMsg(`Error in validating ${SEALVM.METADATA_FILE}`, error);
+    exitWithMsg(`Error in validating ${metaDataFile}`, error);
   }
 };

@@ -1,9 +1,6 @@
 import { join } from "path";
 import os from "os";
 import { find, findIndex } from "lodash";
-
-// import addMetadata from "@gluestack-v2/sealvm/build/actions/addMetadata";
-
 import { exists } from "./fs-exists";
 import { createFolder } from "./fs-mkdir";
 import { readfile } from "./fs-readfile-json";
@@ -11,6 +8,7 @@ import { writefile } from "./fs-writefile";
 import { exitWithMsg } from "./exit-with-msg";
 import Common from "../common";
 import { BOLT } from "../constants/bolt-configs";
+import BoltVm from "@gluestack/boltvm";
 
 export const validateMetadata = async (option?: any) => {
   try {
@@ -46,7 +44,10 @@ export const validateMetadata = async (option?: any) => {
 
     await writefile(_projectListPath, JSON.stringify(data) + os.EOL);
 
-    // await addMetadata(_projectPath);
+    if (_yamlContent.vm) {
+      const boltVm = new BoltVm(process.cwd());
+      await boltVm.addMetadata();
+    }
   } catch (error: any) {
     exitWithMsg(`Error while validating metatdata: ${error}`);
   }

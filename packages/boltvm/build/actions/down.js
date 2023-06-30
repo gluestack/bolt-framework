@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/kill-process", "../helpers/update-store", "../helpers/validate-seal-file", "../runners/vm", "../helpers/validate-project-status"], factory);
+        define(["require", "exports", "chalk", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/kill-process", "../helpers/update-store", "../helpers/validate-bolt-file", "../runners/vm", "../helpers/validate-project-status"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -26,30 +26,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const kill_process_1 = require("../helpers/kill-process");
     const update_store_1 = require("../helpers/update-store");
-    const validate_seal_file_1 = require("../helpers/validate-seal-file");
+    const validate_bolt_file_1 = require("../helpers/validate-bolt-file");
     const vm_1 = __importDefault(require("../runners/vm"));
     const validate_project_status_1 = require("../helpers/validate-project-status");
-    function default_1(localPath) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Check for file path exists or not
-            if (!(yield (0, fs_exists_1.exists)(localPath))) {
-                (0, exit_with_msg_1.exitWithMsg)(">> Please specify correct path in source");
-                return;
-            }
-            const sealConfig = yield (0, validate_seal_file_1.validateSealFile)(localPath);
-            const project = yield (0, validate_project_status_1.validateProjectStatus)(sealConfig.projectId, "down", sealConfig);
-            // Unmounting the project
-            console.log(chalk_1.default.yellow(`>> Unmounting project...`));
-            yield (0, kill_process_1.killProcess)(project.mountProcessId);
-            console.log(chalk_1.default.green(`>> Project unmounted successfully...`));
-            // Killing VM process
-            console.log(chalk_1.default.yellow(`>> Exiting from VM...`));
-            yield vm_1.default.destroy(project.vmProcessId);
-            console.log(chalk_1.default.green(`>> VM exited successfully...`));
-            // Updating metadata
-            const json = Object.assign(Object.assign({}, project), { sshPort: null, status: "down", vmProcessId: null, mountProcessId: null, sshProcessIds: null, projectRunnerId: null, updatedAt: Date.now() });
-            yield (0, update_store_1.updateStore)("projects", sealConfig.projectId, json);
-        });
+    class Down {
+        handle(localPath) {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    // Check for file path exists or not
+                    if (!(yield (0, fs_exists_1.exists)(localPath))) {
+                        (0, exit_with_msg_1.exitWithMsg)(">> Please specify correct path in source");
+                        return;
+                    }
+                    const boltConfig = yield (0, validate_bolt_file_1.validateBoltYaml)(localPath);
+                    const { project_id } = boltConfig;
+                    const project = yield (0, validate_project_status_1.validateProjectStatus)("down", boltConfig);
+                    // Unmounting the project
+                    console.log(chalk_1.default.yellow(`>> Unmounting project...`));
+                    yield (0, kill_process_1.killProcess)(project.mountProcessId);
+                    console.log(chalk_1.default.green(`>> Project unmounted successfully...`));
+                    // Killing VM process
+                    console.log(chalk_1.default.yellow(`>> Exiting from VM...`));
+                    yield vm_1.default.destroy(project.vmProcessId);
+                    console.log(chalk_1.default.green(`>> VM exited successfully...`));
+                    // Updating metadata
+                    const json = Object.assign(Object.assign({}, project), { sshPort: null, status: "down", vmProcessId: null, mountProcessId: null, sshProcessIds: null, projectRunnerId: null, updatedAt: Date.now() });
+                    yield (0, update_store_1.updateStore)("projects", project_id, json);
+                }
+                catch (error) {
+                    (0, exit_with_msg_1.exitWithMsg)(`Error while stopping VM: ${error.message}`);
+                }
+            });
+        }
     }
-    exports.default = default_1;
+    exports.default = Down;
 });

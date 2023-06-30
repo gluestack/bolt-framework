@@ -1,3 +1,4 @@
+import BoltVm from "@gluestack/boltvm";
 import chalk from "chalk";
 import Common from "../common";
 import { exitWithMsg } from "../helpers/exit-with-msg";
@@ -46,14 +47,21 @@ export default class Log {
     );
     const currentServiceRunner = service.serviceRunner;
 
-    // if (isVM && serviceRunner !== "vm") {
-    //   await exitWithMsg(`>> "${serviceName}" is not running on vm`);
-    // }
+    const store = await getStore();
+    const projectRunner = await store.get("project_runner");
+    if (projectRunner === "none") {
+      await exitWithMsg(`>> "${serviceName}" is not running`);
+    }
+    if (isVM && projectRunner !== "vm") {
+      await exitWithMsg(`>> "${serviceName}" is not running on vm`);
+    }
 
     if (isVM) {
-      console.log(chalk.green("coming soon..."));
-      process.exit();
-      //   await getVmLogs(".", { follow: isFollow });
+      const boltVm = new BoltVm(process.cwd());
+      // Validating boltVm Dependencies
+      await boltVm.doctor();
+
+      await boltVm.log(isFollow);
       return;
     }
 
@@ -84,12 +92,6 @@ export default class Log {
         };
         serviceRunner.local(localConfig, { action: "logs" });
         break;
-      // case "vm":
-      //   const vmConfig = _yamlContent.server.vm;
-      //   await validateVmConfig(vmConfig);
-      //   const logFolderPath = join(`.logs`, `${vmConfig.name}`);
-      //   await getLogs(serviceName, servicePath, isFollow, logFolderPath);
-      // break;
       default:
         await exitWithMsg(">> Platform not supported");
     }

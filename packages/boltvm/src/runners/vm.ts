@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { join } from "path";
 
-import { SEALVM } from "../constants";
+import { BOLTVM } from "../constants/bolt-vm";
 import { VM_BOOT } from "../constants/vm-commands";
 
 import { connecToVm, connectToVmOnce } from "../helpers/connect-to-vm";
@@ -24,7 +24,7 @@ export default class Vm {
     return executeDetachedWithLogs(
       "qemu-system-aarch64",
       args,
-      join(this.projectPath, SEALVM.LOG_FOLDER, "vm"),
+      join(this.projectPath, BOLTVM.LOG_FOLDER),
       {
         shell: true,
       }

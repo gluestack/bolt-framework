@@ -8,14 +8,14 @@ import { copyFile } from "../helpers/fs-copyfile";
 import { exitWithMsg } from "../helpers/exit-with-msg";
 import { removeFolder } from "../helpers/fs-remove-folder";
 
-import { SEALVM, VM_BINARIES } from "../constants";
+import { BOLTVM, VM_BINARIES } from "../constants/bolt-vm";
 
 export default class Container {
   containerName: string;
   containersPath: string = join(
     os.homedir(),
-    SEALVM.METADATA_FOLDER,
-    SEALVM.CONTAINER_FOLDER
+    BOLTVM.METADATA_FOLDER,
+    BOLTVM.CONTAINER_FOLDER
   );
 
   constructor(containerName: string) {

@@ -1,7 +1,7 @@
 import * as os from "os";
 import chalk from "chalk";
 import moment from "moment";
-// import addMetadata from "@gluestack-v2/sealvm/build/actions/addMetadata";
+import BoltVM from "@gluestack/boltvm";
 import { find, findIndex } from "lodash";
 import { basename, join, relative } from "path";
 
@@ -16,6 +16,7 @@ import { boltFile } from "../constants/bolt-file";
 import { BOLT } from "../constants/bolt-configs";
 
 import { Bolt } from "../typings/bolt";
+import { removeSpecialChars } from "@gluestack/helpers";
 
 export default class Init {
   public async handle(options: any) {
@@ -48,8 +49,9 @@ export default class Init {
         project_name: `${_projectName}`,
       };
 
-      // json.server.vm.source = join(_projectPath);
-      // json.server.vm.name = removeSpecialChars(basename(_projectPath));
+      if (json.vm) {
+        json.vm.name = removeSpecialChars(basename(_projectPath));
+      }
 
       await stringifyYAML(json, _yamlPath);
       await writefile(_envPath, "" + os.EOL);
@@ -76,7 +78,11 @@ export default class Init {
       }
       await writefile(_projectListPath, JSON.stringify(data) + os.EOL);
 
-      //   await addMetadata(_projectPath);
+      // if vm is present in json, add metadata
+      if (json.vm) {
+        const boltVM = new BoltVM(_projectPath);
+        await boltVM.addMetadata();
+      }
 
       console.log(`>> Installed bolt in ${chalk.green(_projectPath)}`);
     } catch (err: any) {

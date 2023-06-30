@@ -1,47 +1,30 @@
 import progress from "progress-stream";
 import { createWriteStream } from "fs";
-import { S3, GetObjectCommand } from "@aws-sdk/client-s3";
 import chalk from "chalk";
 import { join } from "path";
+import axios from "axios";
 
 import {
   IMAGE_BUCKET_CONFIGS,
   VM_BINARIES,
   VM_INTERNALS_PATH,
-} from "../constants";
+} from "../constants/bolt-vm";
 
 import { exitWithMsg } from "./exit-with-msg";
 
 export const downloadBaseImages = async () => {
-  if (
-    IMAGE_BUCKET_CONFIGS?.credentials?.accessKeyId === "" ||
-    IMAGE_BUCKET_CONFIGS?.credentials?.secretAccessKey === ""
-  ) {
-    exitWithMsg(">> AWS credentials are missing!");
-  }
-
-  const s3Client = new S3({
-    forcePathStyle: false, // Configures to use subdomain/virtual calling format.
-    ...IMAGE_BUCKET_CONFIGS,
-  });
-
-  // Specifies a path within your bucket and the file to download.
-  const bucketParams = {
-    Bucket: "seal-assets",
-    Key: "arch64-alpine/images.zip",
-  };
-
   // Downloads your file and saves its contents to /tmp/local-file.ext.
 
   try {
-    const response: any = await s3Client.send(
-      new GetObjectCommand(bucketParams)
-    );
-
-    const contentLength = response.ContentLength;
+    const response = await axios({
+      method: "get",
+      url: IMAGE_BUCKET_CONFIGS.cdnEndpoint,
+      responseType: "stream",
+    });
+    // const contentLength = response.ContentLength;
 
     const progressStream = progress({
-      length: contentLength,
+      length: response.headers["content-length"],
       time: 1000, // Emit progress event every second
     });
 
@@ -81,9 +64,9 @@ export const downloadBaseImages = async () => {
       );
     });
 
-    if (response.Body) {
+    if (response.data) {
       // Pipe the response body to the progress stream and then to the file stream
-      response.Body.pipe(progressStream).pipe(fileStream);
+      response.data.pipe(progressStream).pipe(fileStream);
     }
 
     // Wait for the file to be downloaded and saved

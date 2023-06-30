@@ -16,39 +16,48 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/validate-seal-file", "../helpers/validate-project-status"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/exit-with-msg", "../helpers/validate-bolt-file", "../helpers/validate-project-status"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const chalk_1 = __importDefault(require("chalk"));
     const path_1 = require("path");
-    const validate_seal_file_1 = require("../helpers/validate-seal-file");
+    const exit_with_msg_1 = require("../helpers/exit-with-msg");
+    const validate_bolt_file_1 = require("../helpers/validate-bolt-file");
     const validate_project_status_1 = require("../helpers/validate-project-status");
-    function default_1(localPath) {
-        return __awaiter(this, void 0, void 0, function* () {
-            localPath =
-                localPath === "." ? process.cwd() : (0, path_1.join)(process.cwd(), localPath);
-            // Check for valid sealvm yml file
-            const sealConfig = yield (0, validate_seal_file_1.validateSealFile)(localPath);
-            // Check if project has been created
-            const project = yield (0, validate_project_status_1.validateProjectStatus)(sealConfig.projectId, "status");
-            const status = project.status;
-            switch (status) {
-                case "build":
-                    console.log(chalk_1.default.green(`>> ${sealConfig.name}'s image has been build on sealvm. `));
-                    break;
-                case "up":
-                    console.log(chalk_1.default.green(`>> ${sealConfig.name} is up & running on sealvm. `));
-                    break;
-                case "down":
-                    console.log(chalk_1.default.green(`>> ${sealConfig.name} is down. `));
-                    break;
-                default:
-                    console.log(chalk_1.default.green(`>> ${sealConfig.name} has unknown status. ${status} `));
-                    break;
-            }
-        });
+    class Status {
+        handle(localPath) {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    localPath =
+                        localPath === "." ? process.cwd() : (0, path_1.join)(process.cwd(), localPath);
+                    // Check for valid boltvm yml file
+                    const boltConfig = yield (0, validate_bolt_file_1.validateBoltYaml)(localPath);
+                    const { project_name } = boltConfig;
+                    // Check if project has been created
+                    const project = yield (0, validate_project_status_1.validateProjectStatus)("status", boltConfig);
+                    const status = project.status;
+                    switch (status) {
+                        case "build":
+                            console.log(chalk_1.default.green(`>> ${project_name}'s image has been build on boltvm. `));
+                            break;
+                        case "up":
+                            console.log(chalk_1.default.green(`>> ${project_name} is up & running on boltvm. `));
+                            break;
+                        case "down":
+                            console.log(chalk_1.default.green(`>> ${project_name} is down. `));
+                            break;
+                        default:
+                            console.log(chalk_1.default.green(`>> ${project_name} has unknown status. ${status} `));
+                            break;
+                    }
+                }
+                catch (error) {
+                    (0, exit_with_msg_1.exitWithMsg)("Error while getting status of container: ${error.message}");
+                }
+            });
+        }
     }
-    exports.default = default_1;
+    exports.default = Status;
 });

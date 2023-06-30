@@ -4,14 +4,14 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "path", "."], factory);
+        define(["require", "exports", "path", "./bolt-vm"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.VM_BOOT = void 0;
     const path_1 = require("path");
-    const _1 = require(".");
+    const bolt_vm_1 = require("./bolt-vm");
     const VM_BOOT = (containerPath, sshPort) => {
         const alpineImage = (0, path_1.join)(containerPath, "alpine.img");
         sshPort = sshPort.toString();
@@ -28,9 +28,9 @@
             "4G",
             "-nographic",
             "-drive",
-            `if=pflash,format=raw,file=${_1.VM_BINARIES.UEFI}`,
+            `if=pflash,format=raw,file=${bolt_vm_1.VM_BINARIES.UEFI}`,
             "-drive",
-            `if=pflash,file=${_1.VM_BINARIES.VARSTORE}`,
+            `if=pflash,file=${bolt_vm_1.VM_BINARIES.VARSTORE}`,
             "-drive",
             `if=virtio,file=${alpineImage}`,
             "-netdev",

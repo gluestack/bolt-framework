@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "os", "path", "../constants", "./fs-exists", "./fs-mkdir", "./fs-writefile", "./exit-with-msg"], factory);
+        define(["require", "exports", "os", "path", "../constants/bolt-vm", "./fs-exists", "./fs-mkdir", "./fs-writefile", "./exit-with-msg"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,18 +24,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.checkMetadataFile = void 0;
     const os_1 = __importDefault(require("os"));
     const path_1 = require("path");
-    const constants_1 = require("../constants");
+    const bolt_vm_1 = require("../constants/bolt-vm");
     const fs_exists_1 = require("./fs-exists");
     const fs_mkdir_1 = require("./fs-mkdir");
     const fs_writefile_1 = require("./fs-writefile");
     const exit_with_msg_1 = require("./exit-with-msg");
     const checkMetadataFile = () => __awaiter(void 0, void 0, void 0, function* () {
+        const metaDataDirectory = (0, path_1.join)(os_1.default.homedir(), bolt_vm_1.BOLTVM.METADATA_FOLDER);
+        const metaDataFile = (0, path_1.join)(metaDataDirectory, bolt_vm_1.BOLTVM.METADATA_FILE);
         try {
-            const metaDataDirectory = (0, path_1.join)(os_1.default.homedir(), constants_1.SEALVM.METADATA_FOLDER);
             if (!(yield (0, fs_exists_1.exists)(metaDataDirectory))) {
                 yield (0, fs_mkdir_1.createFolder)(metaDataDirectory);
             }
-            const metaDataFile = (0, path_1.join)(metaDataDirectory, constants_1.SEALVM.METADATA_FILE);
             if (!(yield (0, fs_exists_1.exists)(metaDataFile))) {
                 yield (0, fs_writefile_1.writefile)(metaDataFile, JSON.stringify({
                     projects: {},
@@ -43,7 +43,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
         }
         catch (error) {
-            (0, exit_with_msg_1.exitWithMsg)(`Error in validating ${constants_1.SEALVM.METADATA_FILE}`, error);
+            (0, exit_with_msg_1.exitWithMsg)(`Error in validating ${metaDataFile}`, error);
         }
     });
     exports.checkMetadataFile = checkMetadataFile;

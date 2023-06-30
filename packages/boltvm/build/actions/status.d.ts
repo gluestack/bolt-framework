@@ -1,1 +1,3 @@
-export default function (localPath: string): Promise<void>;
+export default class Status {
+    handle(localPath: string): Promise<void>;
+}

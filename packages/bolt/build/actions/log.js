@@ -16,12 +16,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../common", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/service"], factory);
+        define(["require", "exports", "@gluestack/boltvm", "../common", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/service"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const chalk_1 = __importDefault(require("chalk"));
+    const boltvm_1 = __importDefault(require("@gluestack/boltvm"));
     const common_1 = __importDefault(require("../common"));
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const get_store_1 = __importDefault(require("../helpers/get-store"));
@@ -54,13 +54,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
                 const service = yield this.checkIfServiceIsUp(_yamlContent, serviceName);
                 const currentServiceRunner = service.serviceRunner;
-                // if (isVM && serviceRunner !== "vm") {
-                //   await exitWithMsg(`>> "${serviceName}" is not running on vm`);
-                // }
+                const store = yield (0, get_store_1.default)();
+                const projectRunner = yield store.get("project_runner");
+                if (projectRunner === "none") {
+                    yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" is not running`);
+                }
+                if (isVM && projectRunner !== "vm") {
+                    yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" is not running on vm`);
+                }
                 if (isVM) {
-                    console.log(chalk_1.default.green("coming soon..."));
-                    process.exit();
-                    //   await getVmLogs(".", { follow: isFollow });
+                    const boltVm = new boltvm_1.default(process.cwd());
+                    // Validating boltVm Dependencies
+                    yield boltVm.doctor();
+                    yield boltVm.log(isFollow);
                     return;
                 }
                 const serviceRunner = new service_1.default();
@@ -88,12 +94,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         };
                         serviceRunner.local(localConfig, { action: "logs" });
                         break;
-                    // case "vm":
-                    //   const vmConfig = _yamlContent.server.vm;
-                    //   await validateVmConfig(vmConfig);
-                    //   const logFolderPath = join(`.logs`, `${vmConfig.name}`);
-                    //   await getLogs(serviceName, servicePath, isFollow, logFolderPath);
-                    // break;
                     default:
                         yield (0, exit_with_msg_1.exitWithMsg)(">> Platform not supported");
                 }

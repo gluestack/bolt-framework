@@ -1,6 +1,6 @@
 {
   "name": "@gluestack/bolt",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Bolt Framework CLI",
   "main": "build/index.js",
   "bin": {
@@ -9,7 +9,8 @@
   "scripts": {
     "copy-files": "cp -fR src/templates build/",
     "build": "tsc && npm run copy-files",
-    "watch": "npm run copy-files && tsc --watch"
+    "watch": "npm run copy-files && tsc --watch",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
   "author": "gluestack.io",
   "license": "ISC",
   "dependencies": {
+    "@gluestack/boltvm": "^0.0.1",
     "@gluestack/glue-server-sdk-js": "^0.0.7",
     "@gluestack/helpers": "^0.0.17",
     "archiver": "^5.3.1",
@@ -60,10 +62,10 @@
   "devDependencies": {
     "@commander-js/extra-typings": "^10.0.3",
     "@types/archiver": "^5.3.1",
+    "@types/fs-extra": "11.0.1",
     "@types/graphql": "^14.5.0",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.192",
-    "@types/node": "^18.15.3",
-    "@types/fs-extra": "11.0.1"
+    "@types/node": "^18.15.3"
   }
 }
