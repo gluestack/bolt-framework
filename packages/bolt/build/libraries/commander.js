@@ -78,9 +78,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         init() {
             return __awaiter(this, void 0, void 0, function* () {
                 this.program
-                    .name("Bolt")
-                    .version(`Bolt Run Version v${package_json_1.default.version}`)
-                    .description(`Bolt CLI tool v${package_json_1.default.version}`);
+                    .name("bolt")
+                    .version(`bolt Run Version v${package_json_1.default.version}`)
+                    .description(`bolt CLI tool v${package_json_1.default.version}`);
             });
         }
         addCommands() {
