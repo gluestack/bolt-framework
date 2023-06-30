@@ -9,8 +9,7 @@
   "scripts": {
     "copy-files": "cp -fR src/templates build/",
     "build": "tsc && npm run copy-files",
-    "watch": "npm run copy-files && tsc --watch",
-    "publish": "npm publish --access public"
+    "watch": "npm run copy-files && tsc --watch"
   },
   "repository": {
     "type": "git",
