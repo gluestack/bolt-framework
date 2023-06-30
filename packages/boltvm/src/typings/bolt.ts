@@ -4,27 +4,23 @@ export interface Service {
   path: string;
 }
 
-interface host {
-  command: string;
-}
+// interface host {
+//   command: string;
+// }
 
-export interface Vm {
+export interface VM {
   name: string;
-  source: string;
-  destination: string;
   ports: string[];
   command: string;
 }
 
-export interface Seal {
+export interface IBolt {
   envfile: string;
   project_id: string;
   project_name: string;
-  default_runner: "local" | "docker";
+  default_project_runner: "host" | "vm";
+  default_service_runner: "local" | "docker";
   services: Record<any, Service>;
   ingress?: Ingress[] | null;
-  server: {
-    host: host;
-    vm: Vm;
-  };
+  vm: VM;
 }

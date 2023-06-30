@@ -16,13 +16,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "./host"], factory);
+        define(["require", "exports", "chalk", "./host", "./vm"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const chalk_1 = __importDefault(require("chalk"));
     const host_1 = __importDefault(require("./host"));
+    const vm_1 = __importDefault(require("./vm"));
     class ProjectRunner {
         constructor(_yamlContent) {
             this._yamlContent = _yamlContent;
@@ -30,28 +31,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         host(option) {
             return __awaiter(this, void 0, void 0, function* () {
                 const projectRunnerHost = new host_1.default(this._yamlContent);
-                // If action is up, run the project in host
-                if (option.action === "up") {
-                    yield projectRunnerHost.up();
-                    return;
+                const { action } = option;
+                switch (action) {
+                    case "up":
+                        yield projectRunnerHost.up();
+                        break;
+                    case "down":
+                        yield projectRunnerHost.down();
+                        break;
+                    default:
+                        console.log(chalk_1.default.red(`Invalid action: ${action}`));
+                        break;
                 }
-                // If action is down, stop the project in host
-                yield projectRunnerHost.down();
             });
         }
-        vm(cache, Option) {
+        vm(option, cache) {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log(chalk_1.default.green("coming soon..."));
-                process.exit();
-                // const projectRunnerVm = new ProjectRunnerVm(this._yamlContent);
-                // // If action is up, run the project in vm
-                // if (Option.action === "up") {
-                //   await projectRunnerVm.up(cache);
-                //   return;
-                // }
-                // // If action is down, stop the project in vm
-                // await projectRunnerVm.down();
-                // return;
+                const projectRunnerVm = new vm_1.default(this._yamlContent);
+                const { action } = option;
+                switch (action) {
+                    case "up":
+                        yield projectRunnerVm.up(cache || false);
+                        break;
+                    case "down":
+                        yield projectRunnerVm.down();
+                        break;
+                    case "exec":
+                        yield projectRunnerVm.exec();
+                        break;
+                    default:
+                        console.log(chalk_1.default.red(`Invalid action: ${action}`));
+                        break;
+                }
             });
         }
     }

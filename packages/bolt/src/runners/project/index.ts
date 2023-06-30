@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { Bolt } from "../../typings/bolt";
 import ProjectRunnerHost from "./host";
-// import ProjectRunnerVm from "./vm";
+import ProjectRunnerVm from "./vm";
 
 interface Options {
   action: "up" | "down" | "exec";
@@ -17,29 +17,38 @@ export default class ProjectRunner {
   public async host(option: Options) {
     const projectRunnerHost = new ProjectRunnerHost(this._yamlContent);
 
-    // If action is up, run the project in host
-    if (option.action === "up") {
-      await projectRunnerHost.up();
-      return;
-    }
+    const { action } = option;
 
-    // If action is down, stop the project in host
-    await projectRunnerHost.down();
+    switch (action) {
+      case "up":
+        await projectRunnerHost.up();
+        break;
+      case "down":
+        await projectRunnerHost.down();
+        break;
+      default:
+        console.log(chalk.red(`Invalid action: ${action}`));
+        break;
+    }
   }
 
-  public async vm(cache: boolean, Option: Options) {
-    console.log(chalk.green("coming soon..."));
-    process.exit();
-    // const projectRunnerVm = new ProjectRunnerVm(this._yamlContent);
+  public async vm(option: Options, cache?: boolean) {
+    const projectRunnerVm = new ProjectRunnerVm(this._yamlContent);
+    const { action } = option;
 
-    // // If action is up, run the project in vm
-    // if (Option.action === "up") {
-    //   await projectRunnerVm.up(cache);
-    //   return;
-    // }
-
-    // // If action is down, stop the project in vm
-    // await projectRunnerVm.down();
-    // return;
+    switch (action) {
+      case "up":
+        await projectRunnerVm.up(cache || false);
+        break;
+      case "down":
+        await projectRunnerVm.down();
+        break;
+      case "exec":
+        await projectRunnerVm.exec();
+        break;
+      default:
+        console.log(chalk.red(`Invalid action: ${action}`));
+        break;
+    }
   }
 }

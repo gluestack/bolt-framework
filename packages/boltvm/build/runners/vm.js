@@ -16,14 +16,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../constants", "../constants/vm-commands", "../helpers/connect-to-vm", "../helpers/execute-detached", "../helpers/kill-process"], factory);
+        define(["require", "exports", "chalk", "path", "../constants/bolt-vm", "../constants/vm-commands", "../helpers/connect-to-vm", "../helpers/execute-detached", "../helpers/kill-process"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const chalk_1 = __importDefault(require("chalk"));
     const path_1 = require("path");
-    const constants_1 = require("../constants");
+    const bolt_vm_1 = require("../constants/bolt-vm");
     const vm_commands_1 = require("../constants/vm-commands");
     const connect_to_vm_1 = require("../helpers/connect-to-vm");
     const execute_detached_1 = require("../helpers/execute-detached");
@@ -37,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         boot() {
             return __awaiter(this, void 0, void 0, function* () {
                 const args = (0, vm_commands_1.VM_BOOT)(this.containerPath, this.sshPort);
-                return (0, execute_detached_1.executeDetachedWithLogs)("qemu-system-aarch64", args, (0, path_1.join)(this.projectPath, constants_1.SEALVM.LOG_FOLDER, "vm"), {
+                return (0, execute_detached_1.executeDetachedWithLogs)("qemu-system-aarch64", args, (0, path_1.join)(this.projectPath, bolt_vm_1.BOLTVM.LOG_FOLDER), {
                     shell: true,
                 });
             });

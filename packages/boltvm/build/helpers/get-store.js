@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "os", "path", "../libraries/store", "../constants"], factory);
+        define(["require", "exports", "os", "path", "../libraries/store", "../constants/bolt-vm"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -48,11 +48,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const os = __importStar(require("os"));
     const path_1 = require("path");
     const store_1 = __importDefault(require("../libraries/store"));
-    const constants_1 = require("../constants");
+    const bolt_vm_1 = require("../constants/bolt-vm");
     const getStore = () => __awaiter(void 0, void 0, void 0, function* () {
-        const _sealFolderPath = (0, path_1.join)(os.homedir(), constants_1.SEALVM.METADATA_FOLDER);
-        const _sealFilePath = (0, path_1.join)(_sealFolderPath, constants_1.SEALVM.METADATA_FILE);
-        const store = new store_1.default(_sealFilePath);
+        const boltVmFolderPath = (0, path_1.join)(os.homedir(), bolt_vm_1.BOLTVM.METADATA_FOLDER);
+        const boltVmFilePath = (0, path_1.join)(boltVmFolderPath, bolt_vm_1.BOLTVM.METADATA_FILE);
+        const store = new store_1.default(boltVmFilePath);
         store.restore();
         return store;
     });

@@ -18,17 +18,10 @@
         default_service_runner: "local",
         services: {},
         ingress: null,
-        // server: {
-        //   host: {
-        //     command: "node glue up",
-        //   },
-        //   vm: {
-        //     name: "",
-        //     source: "",
-        //     destination: "/home/boltvm/projects",
-        //     ports: ["3000:3000"],
-        //     command: "node glue up",
-        //   },
-        // },
+        vm: {
+            name: "",
+            ports: ["3000:3000"],
+            command: "bolt up --host",
+        },
     };
 });

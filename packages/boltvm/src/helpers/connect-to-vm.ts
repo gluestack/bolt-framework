@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { Client } from "ssh2";
 
-import { VM_CONFIG } from "../constants";
+import { VM_CONFIG } from "../constants/bolt-vm";
 import { exitWithMsg } from "./exit-with-msg";
 
 export const connecToVm = async (portNumber: number = 2222) => {

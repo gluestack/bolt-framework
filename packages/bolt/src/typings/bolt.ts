@@ -4,14 +4,8 @@ export interface Service {
   path: string;
 }
 
-// interface host {
-//   command: string;
-// }
-
-export interface Vm {
+export interface VM {
   name: string;
-  source: string;
-  destination: string;
   ports: string[];
   command: string;
 }
@@ -24,8 +18,5 @@ export interface Bolt {
   default_service_runner: "local" | "docker";
   services: Record<any, Service>;
   ingress?: Ingress[] | null;
-  // server: {
-  //   host: host;
-  //   vm: Vm;
-  // };
+  vm?: VM;
 }

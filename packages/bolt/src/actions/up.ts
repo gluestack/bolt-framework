@@ -67,7 +67,7 @@ export default class Up {
         break;
       case "vm":
         const cache = options.cache ? true : false;
-        await projectRunner.vm(cache, { action: "up" });
+        await projectRunner.vm({ action: "up" }, cache);
         break;
       default:
         exitWithMsg(

@@ -72,7 +72,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         break;
                     case "vm":
                         const cache = options.cache ? true : false;
-                        yield projectRunner.vm(cache, { action: "up" });
+                        yield projectRunner.vm({ action: "up" }, cache);
                         break;
                     default:
                         (0, exit_with_msg_1.exitWithMsg)(`Invalid runner "${projectRunnerOption}" specified in ${bolt_configs_1.BOLT.YAML_FILE_NAME}`);

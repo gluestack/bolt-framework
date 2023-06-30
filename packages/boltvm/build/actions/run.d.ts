@@ -1,1 +1,5 @@
-export default function (localPath: string, option: any): Promise<void>;
+export default class Run {
+    private runProjectInsideVm;
+    private exposePort;
+    handle(localPath: string, detatched: any): Promise<void>;
+}

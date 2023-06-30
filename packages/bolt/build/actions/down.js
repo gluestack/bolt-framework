@@ -56,7 +56,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         yield projectRunner.host({ action: "down" });
                         break;
                     case "vm":
-                        yield projectRunner.vm(false, { action: "down" });
+                        yield projectRunner.vm({ action: "down" });
                         break;
                     default:
                         (0, exit_with_msg_1.exitWithMsg)(`>> Unknown server environment for ${_yamlContent.project_name}`);

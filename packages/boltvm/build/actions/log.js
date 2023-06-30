@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/execute", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/validate-seal-file", "../helpers/validate-project-status", "../constants"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/execute", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/validate-bolt-file", "../helpers/validate-project-status", "../constants/bolt-vm"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -26,52 +26,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const execute_1 = require("../helpers/execute");
     const fs_exists_1 = require("../helpers/fs-exists");
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
-    const validate_seal_file_1 = require("../helpers/validate-seal-file");
+    const validate_bolt_file_1 = require("../helpers/validate-bolt-file");
     const validate_project_status_1 = require("../helpers/validate-project-status");
-    const constants_1 = require("../constants");
-    function default_1(localPath, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const isFollow = options.follow || false;
-                // Check for file path exists or not
-                if (!(yield (0, fs_exists_1.exists)(localPath))) {
-                    (0, exit_with_msg_1.exitWithMsg)(">> Please specify correct path to initialize");
-                    return;
+    const bolt_vm_1 = require("../constants/bolt-vm");
+    class Log {
+        handle(localPath, isFollow) {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    // Check for file path exists or not
+                    if (!(yield (0, fs_exists_1.exists)(localPath))) {
+                        (0, exit_with_msg_1.exitWithMsg)(">> Please specify correct path to initialize");
+                        return;
+                    }
+                    // Check for valid boltvm yml file
+                    const boltConfig = yield (0, validate_bolt_file_1.validateBoltYaml)(localPath);
+                    const { project_name } = boltConfig;
+                    // Check if project is already down
+                    yield (0, validate_project_status_1.validateProjectStatus)("log", boltConfig);
+                    // Check if .logs folder exists
+                    const vmLogPath = (0, path_1.join)(localPath, bolt_vm_1.BOLTVM.LOG_FOLDER);
+                    if (!(yield (0, fs_exists_1.exists)(vmLogPath))) {
+                        (0, exit_with_msg_1.exitWithMsg)(">> No .logs folder found");
+                    }
+                    // Check if out.logs and err.logs file exists
+                    const outputLogPath = (0, path_1.join)(vmLogPath, "out.log");
+                    const errorLogPath = (0, path_1.join)(vmLogPath, "err.log");
+                    if (!(yield (0, fs_exists_1.exists)(outputLogPath))) {
+                        console.log(chalk_1.default.red(`>> ${outputLogPath} file not found for ${project_name}`));
+                        return;
+                    }
+                    if (!(yield (0, fs_exists_1.exists)(errorLogPath))) {
+                        console.log(chalk_1.default.red(`>> ${errorLogPath} file not found for ${project_name}`));
+                        return;
+                    }
+                    const catLogsCommand = `cat  ${(0, path_1.join)(vmLogPath, "*.log")}`;
+                    const tailLogsCommand = `tail -f ${(0, path_1.join)(vmLogPath, "*.log")}`;
+                    const executableCommand = isFollow ? tailLogsCommand : catLogsCommand;
+                    console.log(chalk_1.default.gray(`$ ${executableCommand}`));
+                    const args = ["-c", `'${executableCommand}'`];
+                    yield (0, execute_1.execute)("sh", args, {
+                        stdio: "inherit",
+                        shell: true,
+                    });
                 }
-                // Check for valid sealvm yml file
-                const sealConfig = yield (0, validate_seal_file_1.validateSealFile)(localPath);
-                // Check if project is already down
-                yield (0, validate_project_status_1.validateProjectStatus)(sealConfig.projectId, "log");
-                // Check if .logs folder exists
-                const vmLogPath = (0, path_1.join)(localPath, constants_1.SEALVM.LOG_FOLDER, "vm");
-                if (!(yield (0, fs_exists_1.exists)(vmLogPath))) {
-                    (0, exit_with_msg_1.exitWithMsg)(">> No .logs folder found");
+                catch (err) {
+                    console.log(chalk_1.default.red("Error while getting logs: ", err.message));
                 }
-                // Check if out.logs and err.logs file exists
-                const outputLogPath = (0, path_1.join)(vmLogPath, "out.log");
-                const errorLogPath = (0, path_1.join)(vmLogPath, "err.log");
-                if (!(yield (0, fs_exists_1.exists)(outputLogPath))) {
-                    console.log(chalk_1.default.red(`>> out.logs file not found for ${sealConfig.projectId}`));
-                    return;
-                }
-                if (!(yield (0, fs_exists_1.exists)(errorLogPath))) {
-                    console.log(chalk_1.default.red(`>> err.logs file not found for ${sealConfig.projectId}`));
-                    return;
-                }
-                const catLogsCommand = `cat  ${(0, path_1.join)(vmLogPath, "*.log")}`;
-                const tailLogsCommand = `tail -f ${(0, path_1.join)(vmLogPath, "*.log")}`;
-                const executableCommand = isFollow ? tailLogsCommand : catLogsCommand;
-                console.log(chalk_1.default.gray(`$ ${executableCommand}`));
-                const args = ["-c", `'${executableCommand}'`];
-                yield (0, execute_1.execute)("sh", args, {
-                    stdio: "inherit",
-                    shell: true,
-                });
-            }
-            catch (err) {
-                console.log(chalk_1.default.red("Error while getting logs: ", err.message));
-            }
-        });
+            });
+        }
     }
-    exports.default = default_1;
+    exports.default = Log;
 });

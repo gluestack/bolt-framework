@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "ssh2", "../constants", "./exit-with-msg"], factory);
+        define(["require", "exports", "chalk", "ssh2", "../constants/bolt-vm", "./exit-with-msg"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,7 +24,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.connectToVmOnce = exports.connecToVm = void 0;
     const chalk_1 = __importDefault(require("chalk"));
     const ssh2_1 = require("ssh2");
-    const constants_1 = require("../constants");
+    const bolt_vm_1 = require("../constants/bolt-vm");
     const exit_with_msg_1 = require("./exit-with-msg");
     const connecToVm = (portNumber = 2222) => __awaiter(void 0, void 0, void 0, function* () {
         const interval = 5000;
@@ -37,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const pollConnection = setInterval(() => {
                     currentCounter++;
                     const conn = new ssh2_1.Client();
-                    conn.connect(Object.assign(Object.assign({}, constants_1.VM_CONFIG), { port: portNumber }));
+                    conn.connect(Object.assign(Object.assign({}, bolt_vm_1.VM_CONFIG), { port: portNumber }));
                     conn.on("ready", () => {
                         clearInterval(pollConnection);
                         if (isReady) {
@@ -64,7 +64,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         return new Promise((resolve, _reject) => {
             try {
                 const conn = new ssh2_1.Client();
-                conn.connect(Object.assign(Object.assign({}, constants_1.VM_CONFIG), { port: portNumber }));
+                conn.connect(Object.assign(Object.assign({}, bolt_vm_1.VM_CONFIG), { port: portNumber }));
                 conn.on("ready", () => {
                     return resolve(conn);
                 });

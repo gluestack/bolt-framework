@@ -11,14 +11,12 @@ export const executeDetachedWithLogs = async (
   logFileLocation: string,
   options: any
 ): Promise<number> => {
-  // Managing log files
-  const projectLogPath: string = logFileLocation;
-  if (!(await exists(projectLogPath))) {
-    await createFolder(projectLogPath);
+  if (!(await exists(logFileLocation))) {
+    await createFolder(logFileLocation);
   }
 
-  const outputLogPath: string = join(projectLogPath, "out.log");
-  const errorLogPath: string = join(projectLogPath, "err.log");
+  const outputLogPath: string = join(logFileLocation, "out.log");
+  const errorLogPath: string = join(logFileLocation, "err.log");
 
   await writefile(outputLogPath, "");
   await writefile(errorLogPath, "");

@@ -1,1 +1,3 @@
-export default function (localPath: string, options: any): Promise<void>;
+export default class Log {
+    handle(localPath: string, isFollow: boolean): Promise<void>;
+}

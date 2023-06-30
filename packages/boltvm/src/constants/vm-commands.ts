@@ -1,5 +1,5 @@
 import { join } from "path";
-import { VM_BINARIES } from ".";
+import { VM_BINARIES } from "./bolt-vm";
 
 export const VM_BOOT = (containerPath: string, sshPort: number | string) => {
   const alpineImage = join(containerPath, "alpine.img");

@@ -1,2 +1,2 @@
-import { Vm } from "../typings/bolt";
-export declare const validateVmConfig: (context: Vm) => Promise<Vm>;
+import { VM } from "../typings/bolt";
+export declare const validateVmConfig: (context: VM) => Promise<VM>;

@@ -1,16 +1,14 @@
 import { z } from "zod";
-import { Vm } from "../typings/bolt";
+import { VM } from "../typings/bolt";
 import { exitWithMsg } from "../helpers/exit-with-msg";
 
 const ConfigSchema = z.object({
   name: z.string(),
-  source: z.string(),
-  destination: z.string(),
   ports: z.array(z.string()),
   command: z.string(),
 });
 
-export const validateVmConfig = async (context: Vm): Promise<Vm> => {
+export const validateVmConfig = async (context: VM): Promise<VM> => {
   try {
     await ConfigSchema.parseAsync(context);
   } catch (error: any) {

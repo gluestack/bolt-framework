@@ -11,7 +11,8 @@
     "build:bolt": "npm run build --workspace @gluestack/bolt",
     "watch:boltvm": "npm run watch --workspace @gluestack/boltvm",
     "watch:bolt": "npm run watch --workspace @gluestack/bolt",
-    "fix:permission": "chmod +x ./packages/bolt/build/index.js && chmod +x ./packages/boltvm/build/index.js"
+    "fix:permission": "chmod +x ./packages/bolt/build/index.js",
+    "publish:all": "npm run build:all && npm run publish --workspace @gluestack/boltvm && npm run publish --workspace @gluestack/bolt"
   },
   "workspaces": [
     "packages/*"

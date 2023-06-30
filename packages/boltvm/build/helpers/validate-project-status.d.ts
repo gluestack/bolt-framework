@@ -1,3 +1,4 @@
 import { IMetadata } from "../typings/metadata";
-import { ISealVMConfig } from "../typings/sealvm-config";
-export declare const validateProjectStatus: (projectId: string, command: string, sealConfig?: ISealVMConfig) => Promise<IMetadata>;
+import { IBolt } from "../typings/bolt";
+import { BoltVmActions } from "../typings/boltvm-actions";
+export declare const validateProjectStatus: (action: BoltVmActions, boltConfig: IBolt) => Promise<IMetadata>;

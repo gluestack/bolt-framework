@@ -7,27 +7,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "path", "os", "dotenv"], factory);
+        define(["require", "exports", "path", "os"], factory);
     }
 })(function (require, exports) {
     "use strict";
-    var _a, _b;
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.IMAGE_BUCKET_CONFIGS = exports.SSH_CONFIG = exports.VM_CONFIG = exports.YAMLDATA = exports.VM_BINARIES = exports.VM_INTERNALS_PATH = exports.SEALVM = void 0;
+    exports.VM_INTERNALS_CONFIG = exports.IMAGE_BUCKET_CONFIGS = exports.SSH_CONFIG = exports.VM_BINARIES = exports.VM_CONFIG = exports.VM_INTERNALS_PATH = exports.BOLTVM = void 0;
     const path_1 = require("path");
     const os_1 = __importDefault(require("os"));
-    const dotenv_1 = __importDefault(require("dotenv"));
-    dotenv_1.default.config({ path: (0, path_1.join)(__dirname, "..", "..", ".env") });
     const homeDir = os_1.default.homedir();
-    exports.SEALVM = {
-        CONFIG_FILE: "seal.yaml",
-        METADATA_FOLDER: (0, path_1.join)(".seal", "sealvm"),
+    exports.BOLTVM = {
+        METADATA_FOLDER: (0, path_1.join)(".bolt", "boltvm"),
         METADATA_FILE: "metadata.json",
         CONTAINER_FOLDER: "containers",
         SCRIPT_PATH: (0, path_1.join)(__dirname, "../../../../../", "assets", "internals", "scripts", "notify-from-host.sh"),
-        LOG_FOLDER: ".logs",
+        LOG_FOLDER: (0, path_1.join)(".logs", "vm"),
     };
-    exports.VM_INTERNALS_PATH = (0, path_1.join)(homeDir, exports.SEALVM.METADATA_FOLDER, ".internals");
+    exports.VM_INTERNALS_PATH = (0, path_1.join)(homeDir, exports.BOLTVM.METADATA_FOLDER, ".internals");
+    exports.VM_CONFIG = {
+        host: "127.0.0.1",
+        port: 2222,
+        username: "boltvm",
+        password: "",
+    };
     exports.VM_BINARIES = {
         ALPINE: (0, path_1.join)(exports.VM_INTERNALS_PATH, "alpine.img"),
         UEFI: (0, path_1.join)(exports.VM_INTERNALS_PATH, "QEMU_EFI.img"),
@@ -36,28 +38,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         IMAGE_NAME: "images.zip",
         CONTAINER_IMAGE_NAME: "alpine.img",
     };
-    exports.YAMLDATA = {
-        destination: "/home/sealvm/projects",
-        ports: ["3000:3000"],
-        command: "seal up",
-    };
-    exports.VM_CONFIG = {
-        host: "127.0.0.1",
-        port: 2222,
-        username: "sealvm",
-        password: "",
-    };
     exports.SSH_CONFIG = [
         "-o",
         "StrictHostKeyChecking=accept-new",
-        "sealvm@localhost",
+        "boltvm@localhost",
     ];
     exports.IMAGE_BUCKET_CONFIGS = {
-        endpoint: "https://sfo3.digitaloceanspaces.com",
-        region: "us-east-1",
-        credentials: {
-            accessKeyId: (_a = process.env.ACCESS_KEY_ID) !== null && _a !== void 0 ? _a : "",
-            secretAccessKey: (_b = process.env.SECRET_ACCESS_KEY) !== null && _b !== void 0 ? _b : "",
-        },
+        cdnEndpoint: "https://seal-assets.sfo3.cdn.digitaloceanspaces.com/arch64-alpine/images.zip",
+    };
+    exports.VM_INTERNALS_CONFIG = {
+        destination: "/home/boltvm/projects",
     };
 });

@@ -16,62 +16,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../constants", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/update-store", "../helpers/check-metadata-file", "../helpers/validate-seal-file", "../helpers/get-store", "chalk"], factory);
+        define(["require", "exports", "../helpers/fs-exists", "../helpers/exit-with-msg", "../helpers/check-metadata-file", "../helpers/validate-bolt-file", "../common", "../constants/bolt"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.createProject = void 0;
-    const constants_1 = require("../constants");
     const fs_exists_1 = require("../helpers/fs-exists");
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
-    const update_store_1 = require("../helpers/update-store");
     const check_metadata_file_1 = require("../helpers/check-metadata-file");
-    const validate_seal_file_1 = require("../helpers/validate-seal-file");
-    const get_store_1 = require("../helpers/get-store");
-    const chalk_1 = __importDefault(require("chalk"));
-    function createProject(sealConfig) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const json = {
-                projectName: sealConfig.name,
-                containerPath: "",
-                sshPort: null,
-                status: "down",
-                vmProcessId: null,
-                mountProcessId: null,
-                sshProcessIds: null,
-                projectRunnerId: null,
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-            };
-            const store = yield (0, get_store_1.getStore)();
-            const storeData = store.get("projects") || {};
-            const projectId = sealConfig.projectId;
-            if (storeData[projectId]) {
-                return storeData[projectId];
-            }
-            console.log(`>> Creating ${chalk_1.default.green(sealConfig.name)}'s configurations for sealvm...`);
-            yield (0, update_store_1.updateStore)("projects", projectId, json);
-            console.log(`>> Successfully created ${chalk_1.default.green(sealConfig.name)}'s configurations for sealvm...`);
-            return json;
-        });
+    const validate_bolt_file_1 = require("../helpers/validate-bolt-file");
+    const common_1 = __importDefault(require("../common"));
+    const bolt_1 = require("../constants/bolt");
+    class AddMetadata {
+        handle(localPath) {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    // Validate Path
+                    if (!(yield (0, fs_exists_1.exists)(localPath))) {
+                        yield (0, exit_with_msg_1.exitWithMsg)(">> Please specify correct path in source");
+                        return;
+                    }
+                    // Check for valid boltvm yml file
+                    const boltConfig = yield (0, validate_bolt_file_1.validateBoltYaml)(localPath);
+                    // Check metadata for boltvm
+                    yield (0, check_metadata_file_1.checkMetadataFile)();
+                    yield common_1.default.createProjectMetadata(boltConfig);
+                }
+                catch (error) {
+                    yield (0, exit_with_msg_1.exitWithMsg)(`Error while creating ${bolt_1.BOLT.CONFIG_FILE} ${error.message}`);
+                }
+            });
+        }
     }
-    exports.createProject = createProject;
-    exports.default = (localPath) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            // Validate Path
-            if (!(yield (0, fs_exists_1.exists)(localPath))) {
-                (0, exit_with_msg_1.exitWithMsg)(">> Please specify correct path in source");
-                return;
-            }
-            // Check for valid sealvm yml file
-            const sealConfig = yield (0, validate_seal_file_1.validateSealFile)(localPath);
-            // Create SealVM Metadata
-            yield (0, check_metadata_file_1.checkMetadataFile)();
-            yield createProject(sealConfig);
-        }
-        catch (error) {
-            (0, exit_with_msg_1.exitWithMsg)(`Error while creating ${constants_1.SEALVM.CONFIG_FILE}`, error.message);
-        }
-    });
+    exports.default = AddMetadata;
 });

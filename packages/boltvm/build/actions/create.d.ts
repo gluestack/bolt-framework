@@ -1,2 +1,5 @@
-declare const _default: (localPath: string, option: any) => Promise<void>;
-export default _default;
+export default class Create {
+    private extractDownloadedImage;
+    private checkForBaseImages;
+    handle(localPath: string, cache: boolean): Promise<void>;
+}

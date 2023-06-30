@@ -1,42 +1,45 @@
-import { createProject } from "../actions/addMetadata";
-import { IMetadata } from "../typings/metadata";
-import { ISealVMConfig } from "../typings/sealvm-config";
+import Common from "../common";
+import { IMetadata, IProject } from "../typings/metadata";
+import { IBoltVMConfig } from "../typings/boltvm-config";
 import { exitWithMsg } from "./exit-with-msg";
 import { getStore } from "./get-store";
+import { IBolt } from "../typings/bolt";
+import { BoltVmActions } from "../typings/boltvm-actions";
 
 export const validateProjectStatus = async (
-  projectId: string,
-  command: string,
-  sealConfig?: ISealVMConfig
+  action: BoltVmActions,
+  boltConfig: IBolt
 ) => {
+  const projectId = boltConfig.project_id;
+  const projectName = boltConfig.project_name;
   const store = await getStore();
-  const data = store.get("projects");
-  let project: IMetadata = data && data[projectId] ? data[projectId] : null;
+  const data: IProject = store.get("projects");
+  let project: IMetadata = data[projectId];
 
-  if (!project && sealConfig) {
-    project = await createProject(sealConfig);
+  if (!project && boltConfig) {
+    project = await Common.createProjectMetadata(boltConfig);
   }
 
-  switch (command) {
+  switch (action) {
     case "create":
       if (project && (project.status === "build" || project.status === "up")) {
         exitWithMsg(
-          `>> "${projectId}"'s image has already been built and sealvm is running.`
+          `>> "${projectName}"'s image has already been built and boltvm is running.`
         );
       }
       break;
     case "run":
       if (project && project.status === "down") {
-        exitWithMsg(`>> sealvm is down, please create the project first!!!`);
+        exitWithMsg(`>> boltvm is down, please create the project first!!!`);
       }
       if (project && project.status === "up") {
-        exitWithMsg(`>> "${projectId}" is already running`);
+        exitWithMsg(`>> "${projectName}" is already running`);
       }
       break;
     case "down":
       if (project && project.status === "down") {
         exitWithMsg(
-          `>> "${projectId}" project is already down or is not running`
+          `>> "${projectName}" project is already down or is not running`
         );
       }
       break;
@@ -47,18 +50,18 @@ export const validateProjectStatus = async (
       break;
     case "exec":
       if (!project) {
-        exitWithMsg(`>> No container exist for project id: "${projectId}"`);
+        exitWithMsg(`>> No container exist for project id: "${projectName}"`);
       }
       if (project && project.status === "down") {
         exitWithMsg(
-          `>> "${projectId}" is down, please run the project first!!!`
+          `>> "${projectName}" is down, please run the project first!!!`
         );
       }
       break;
     case "log":
       if (project && project.status === "down") {
         exitWithMsg(
-          `>> "${projectId}" project is already down or is not running`
+          `>> "${projectName}" project is already down or is not running`
         );
       }
       break;

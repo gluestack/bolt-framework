@@ -1,7 +1,3 @@
-// import { exitWithMsg } from "../../helpers/exit-with-msg";
-// import { exists } from "../../helpers/fs-exists";
-// import { updateAllServicesStatus } from "../../helpers/update-all-services-status";
-// import { updateStore } from "../../helpers/update-store";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -20,80 +16,104 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk"], factory);
+        define(["require", "exports", "../../helpers/exit-with-msg", "../../helpers/update-all-services-status", "../../helpers/update-store", "../../validations/bolt-vm", "@gluestack/boltvm", "../../common"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const chalk_1 = __importDefault(require("chalk"));
-    // import { Bolt } from "../../typings/bolt";
-    // import { StoreService } from "../../typings/store-service";
-    // import { validateVmConfig } from "../../validations/bolt-vm";
-    // import { createProjectInVm } from "@gluestack-v2/bolt";
-    // import { runProjectInVm } from "../../runners/vm/run-project-in-vm";
+    const exit_with_msg_1 = require("../../helpers/exit-with-msg");
+    const update_all_services_status_1 = require("../../helpers/update-all-services-status");
+    const update_store_1 = require("../../helpers/update-store");
+    const bolt_vm_1 = require("../../validations/bolt-vm");
+    const boltvm_1 = __importDefault(require("@gluestack/boltvm"));
+    const common_1 = __importDefault(require("../../common"));
     class ProjectRunnerVm {
         constructor(_yamlContent) {
             this._yamlContent = _yamlContent;
+            this.boltVM = new boltvm_1.default(process.cwd());
+        }
+        resolveServiceRunner(defaultServiceRunner, providedRunner) {
+            if (providedRunner.includes(defaultServiceRunner)) {
+                return defaultServiceRunner;
+            }
+            else {
+                return providedRunner[0];
+            }
+        }
+        updateStatusOfAllServices() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const _yamlContent = this._yamlContent;
+                const defaultServiceRunner = _yamlContent.default_service_runner;
+                Object.entries(_yamlContent.services).forEach(([serviceName]) => __awaiter(this, void 0, void 0, function* () {
+                    // Validating and getting content from bolt.service.yaml
+                    const { content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
+                    const runner = this.resolveServiceRunner(defaultServiceRunner, Object.keys(content.service_runners));
+                    const json = {
+                        status: "up",
+                        serviceRunner: runner,
+                        port: null,
+                        processId: null,
+                    };
+                    yield (0, update_store_1.updateStore)("services", serviceName, json);
+                }));
+            });
         }
         up(cache) {
             return __awaiter(this, void 0, void 0, function* () {
-                //   const _yamlContent = this._yamlContent;
-                //   // const vmConfig = _yamlContent.server.vm;
-                //   const projectPath = vmConfig.source;
-                //   await validateVmConfig(vmConfig);
-                //   if (!projectPath || !(await exists(projectPath))) {
-                //     exitWithMsg(`>> "${projectPath}" specified in source doesn't exists`);
-                //   }
-                //   // await createProjectInVm(projectPath, { cache: cache });
-                //   // await runProjectInVm(projectPath, { detatch: true });
-                //   await updateStore("environment", "server", "vm");
-                //   const json: StoreService = {
-                //     status: "up",
-                //     platform: "vm",
-                //     port: null,
-                //     processId: null,
-                //   };
-                //   await updateAllServicesStatus(_yamlContent, json, { reset: false });
-                //   // Updating the store
-                //   await updateStore("project_runner", "vm");
+                try {
+                    // Validating boltVm Dependencies
+                    yield this.boltVM.doctor();
+                    const _yamlContent = this._yamlContent;
+                    const vmConfig = _yamlContent.vm;
+                    if (!vmConfig) {
+                        (0, exit_with_msg_1.exitWithMsg)(`>> No vm config found in bolt.yaml`);
+                        return;
+                    }
+                    //   const projectPath = vmConfig.source;
+                    yield (0, bolt_vm_1.validateVmConfig)(vmConfig);
+                    yield this.boltVM.create(cache);
+                    yield this.boltVM.run(true);
+                    // Updating the status of all services
+                    yield this.updateStatusOfAllServices();
+                    // Updating the store
+                    yield (0, update_store_1.updateStore)("project_runner", "vm");
+                }
+                catch (error) {
+                    (0, exit_with_msg_1.exitWithMsg)(`Error occured executing bolt up: ${error.message}`);
+                }
             });
         }
         down() {
             return __awaiter(this, void 0, void 0, function* () {
-                //   const yamlContent = this._yamlContent;
-                //   const sourcePath = yamlContent.server.vm.source;
-                //   if (!sourcePath) {
-                //     exitWithMsg(">> VM source path not found.");
-                //   }
-                //   // await downProjectInVm(_yamlContent.server.vm.source);
-                //   const json: StoreService = {
-                //     status: "down",
-                //     platform: null,
-                //     port: null,
-                //     processId: null,
-                //   };
-                //   await updateAllServicesStatus(yamlContent, json, { reset: false });
-                //   await updateStore("project_runner", "none");
+                try {
+                    // Validating boltVm Dependencies
+                    yield this.boltVM.doctor();
+                    const yamlContent = this._yamlContent;
+                    yield this.boltVM.down();
+                    const json = {
+                        status: "down",
+                        serviceRunner: null,
+                        port: null,
+                        processId: null,
+                    };
+                    yield (0, update_all_services_status_1.updateAllServicesStatus)(yamlContent, json, { reset: false });
+                    yield (0, update_store_1.updateStore)("project_runner", "none");
+                }
+                catch (error) {
+                    (0, exit_with_msg_1.exitWithMsg)(`Error occured executing bolt down: ${error.message}`);
+                }
             });
         }
         exec() {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log(chalk_1.default.green("Coming soon..."));
-                process.exit();
-                //   try {
-                //     const { _yamlContent, vmConfig } = await this.validateBoltYaml();
-                //     // Validations for metadata and services
-                //     await validateMetadata();
-                //     await validateServices();
-                //     const store = await getStore();
-                //     const projectRunner: "vm" | "host" | "none" = await store.get(
-                //       "project_runner"
-                //     );
-                //     this.validateMetadata(_yamlContent, projectRunner);
-                //     // await openSshTerminal(vmConfig.source);
-                //   } catch (error: any) {
-                //     exitWithMsg("Error occured executing seal exec: ", error.message);
-                //   }
+                try {
+                    // Validating boltVm Dependencies
+                    yield this.boltVM.doctor();
+                    yield this.boltVM.exec();
+                }
+                catch (error) {
+                    (0, exit_with_msg_1.exitWithMsg)(`Error occured executing bolt exec: ${error.message}`);
+                }
             });
         }
     }
