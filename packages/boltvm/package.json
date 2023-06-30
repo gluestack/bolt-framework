@@ -16,9 +16,24 @@
   "bugs": {
     "url": "https://github.com/gluestack/bolt-framework/issues"
   },
-  "homepage": "https://github.com/gluestack/bolt-framework#readme",
+  "homepage": "https://bolt.gluestack.io",
+  "keywords": [
+    "gluestack",
+    "typescript",
+    "bolt",
+    "service-runner",
+    "project-runner",
+    "host",
+    "vm",
+    "virtual-machine",
+    "local",
+    "docker"
+  ],
+  "engines": {
+    "node": ">=18 <19"
+  },
   "author": "gluestack.io",
-  "license": "MIT",
+  "license": "ISC",
   "types": "./build/index.d.ts",
   "dependencies": {
     "adm-zip": "^0.5.10",
