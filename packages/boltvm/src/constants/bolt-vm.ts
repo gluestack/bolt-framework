@@ -47,7 +47,7 @@ export const SSH_CONFIG = [
 
 export const IMAGE_BUCKET_CONFIGS = {
   cdnEndpoint:
-    "https://seal-assets.sfo3.cdn.digitaloceanspaces.com/arch64-alpine/images.zip",
+    "http://static.gluestack.io/bolt/v0.1.0/qemu-images/apple-silicon/images.zip",
 };
 
 export const VM_INTERNALS_CONFIG = {
