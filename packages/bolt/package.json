@@ -1,6 +1,6 @@
 {
   "name": "@gluestack/bolt",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Bolt Framework CLI",
   "main": "build/index.js",
   "bin": {
@@ -38,7 +38,7 @@
   "author": "gluestack.io",
   "license": "ISC",
   "dependencies": {
-    "@gluestack/boltvm": "^0.0.1",
+    "@gluestack/boltvm": "^0.0.2",
     "@gluestack/glue-server-sdk-js": "^0.0.7",
     "@gluestack/helpers": "^0.0.17",
     "archiver": "^5.3.1",

@@ -44,7 +44,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         "boltvm@localhost",
     ];
     exports.IMAGE_BUCKET_CONFIGS = {
-        cdnEndpoint: "https://seal-assets.sfo3.cdn.digitaloceanspaces.com/arch64-alpine/images.zip",
+        cdnEndpoint: "http://static.gluestack.io/bolt/v0.1.0/qemu-images/apple-silicon/images.zip",
     };
     exports.VM_INTERNALS_CONFIG = {
         destination: "/home/boltvm/projects",
