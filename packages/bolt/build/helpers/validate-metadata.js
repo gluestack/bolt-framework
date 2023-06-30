@@ -44,7 +44,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
             const data = (yield (0, fs_readfile_json_1.readfile)(_projectListPath)) || [];
             const _projectExists = (0, lodash_1.find)(data, { id: _yamlContent.project_id });
-            console.log(_projectExists);
             if (!_projectExists) {
                 data.push({
                     id: _yamlContent.project_id,

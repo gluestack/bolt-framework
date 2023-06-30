@@ -28,7 +28,6 @@ export const validateMetadata = async (option?: any) => {
 
     const data: any[] = (await readfile(_projectListPath)) || [];
     const _projectExists = find(data, { id: _yamlContent.project_id });
-    console.log(_projectExists);
 
     if (!_projectExists) {
       data.push({
