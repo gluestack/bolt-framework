@@ -155,37 +155,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield this.getLog(isFollow);
             });
         }
-        static startOnly(container_name, ports, volume, image) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const args = [
-                    "run",
-                    "-d",
-                    "--name",
-                    container_name,
-                    "-v",
-                    volume,
-                ];
-                if (ports.length > 0) {
-                    ports.forEach((port) => {
-                        args.push("-p");
-                        args.push(`${port}:${port}`);
-                    });
-                }
-                args.push(image);
-                console.log("Running docker", args.join(" "));
-                yield (0, execute_1.execute)("docker", args, {
-                    stdio: "inherit",
-                    shell: true,
-                });
-            });
-        }
-        static stopOnly(container_name) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const docker = new ServiceRunnerDocker(container_name, "", "", []);
-                yield docker.stopExec();
-                yield docker.remove();
-            });
-        }
     }
     exports.default = ServiceRunnerDocker;
 });
