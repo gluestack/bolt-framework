@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "../constants/platforms", "../helpers/exit-with-msg", "../helpers/generate-routes", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service/docker", "../runners/project", "../constants/bolt-configs", "../helpers/stringify-yaml"], factory);
+        define(["require", "exports", "fs-extra", "path", "../constants/platforms", "../helpers/exit-with-msg", "../helpers/generate-routes", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/project", "../constants/bolt-configs", "../helpers/stringify-yaml", "../libraries/ingress"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -29,10 +29,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
-    const docker_1 = __importDefault(require("../runners/service/docker"));
     const project_1 = __importDefault(require("../runners/project"));
     const bolt_configs_1 = require("../constants/bolt-configs");
     const stringify_yaml_1 = require("../helpers/stringify-yaml");
+    const ingress_1 = __importDefault(require("../libraries/ingress"));
     class Up {
         handle(options) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -82,7 +82,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (projectRunnerOption !== "vm" && _yamlContent.ingress) {
                     const nginxConfig = (0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME);
                     if (yield (0, fs_extra_1.exists)(nginxConfig)) {
-                        yield docker_1.default.startOnly(bolt_configs_1.BOLT.NGINX_CONTAINER_NAME, ports, `${nginxConfig}:/etc/nginx/nginx.conf`, "nginx:latest");
+                        yield ingress_1.default.start(bolt_configs_1.BOLT.NGINX_CONTAINER_NAME, ports, `${nginxConfig}:/etc/nginx/nginx.conf`, "nginx:latest");
                     }
                 }
             });

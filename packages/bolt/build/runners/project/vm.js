@@ -72,11 +72,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     //   const projectPath = vmConfig.source;
                     yield (0, bolt_vm_1.validateVmConfig)(vmConfig);
                     yield this.boltVM.create(cache);
-                    yield this.boltVM.run(true);
                     // Updating the status of all services
                     yield this.updateStatusOfAllServices();
                     // Updating the store
                     yield (0, update_store_1.updateStore)("project_runner", "vm");
+                    yield this.boltVM.run(true);
                 }
                 catch (error) {
                     (0, exit_with_msg_1.exitWithMsg)(`Error occured executing bolt up: ${error.message}`);

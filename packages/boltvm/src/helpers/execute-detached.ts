@@ -9,7 +9,8 @@ export const executeDetachedWithLogs = async (
   command: string,
   args: string[],
   logFileLocation: string,
-  options: any
+  options: any,
+  customMessage?: string
 ): Promise<number> => {
   if (!(await exists(logFileLocation))) {
     await createFolder(logFileLocation);
@@ -40,12 +41,23 @@ export const executeDetachedWithLogs = async (
 
   // Optionally, listen for events
   child.on("error", (err: any) => {
+    if (customMessage) {
+      console.log(`>> (detached) ${customMessage} Error:`, err);
+      process.exit();
+    }
     console.log(">> (detached) Error:", err.message);
     process.exit();
   });
 
   child.on("exit", (code: number, signal: string) => {
-    console.log(">> (detached) Process exited with code:", code);
+    if (customMessage) {
+      console.log(
+        `>> (detached) ${customMessage} Process exited with code:`,
+        code
+      );
+    } else {
+      console.log(">> (detached) Process exited with code:", code);
+    }
     if (code !== 0) {
       process.exit();
     }
@@ -57,7 +69,8 @@ export const executeDetachedWithLogs = async (
 export const executeDetached = async (
   command: string,
   args: string[],
-  options: any
+  options: any,
+  customMessage?: string
 ) => {
   // Spawn the process in detached mode
   const child = spawn(command, args, {
@@ -71,12 +84,20 @@ export const executeDetached = async (
 
   // Optionally, listen for events
   child.on("error", (err: any) => {
+    if (customMessage) {
+      console.log(`>> (detached) ${customMessage} Error:`, err);
+      process.exit();
+    }
     console.log(">> (detached) Error:", err.message);
     process.exit();
   });
 
   child.on("exit", (code, _signal) => {
-    console.log(">> (detached) Process exited with code:", code);
+    if (customMessage) {
+      console.log(`>> (detached) ${customMessage} process exited with code:`);
+    } else {
+      console.log(">> (detached) process exited with code:", code);
+    }
     if (code !== 0) {
       process.exit();
     }

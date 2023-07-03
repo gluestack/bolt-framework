@@ -25,7 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const get_store_1 = __importDefault(require("./get-store"));
     const getStoreData = (key) => __awaiter(void 0, void 0, void 0, function* () {
         const store = yield (0, get_store_1.default)();
-        const data = store.get("services") || [];
+        const data = store.get(key) || [];
         return data;
     });
     exports.getStoreData = getStoreData;

@@ -52,4 +52,5 @@ export const IMAGE_BUCKET_CONFIGS = {
 
 export const VM_INTERNALS_CONFIG = {
   destination: "/home/boltvm/projects",
+  command: `sudo npm update -g @gluestack/bolt && cd /home/boltvm/projects`,
 };

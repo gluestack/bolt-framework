@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/update-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service"], factory);
+        define(["require", "exports", "chalk", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/update-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../helpers/get-store-data"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -29,6 +29,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
     const service_1 = __importDefault(require("../runners/service"));
+    const get_store_data_1 = require("../helpers/get-store-data");
     class ServiceDown {
         checkIfAlreadyDown(_yamlContent, serviceName) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -67,6 +68,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const currentServiceRunner = service.serviceRunner;
                 if (!service || !currentServiceRunner) {
                     yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" service is not running`);
+                    return;
+                }
+                const projectRunner = yield (0, get_store_data_1.getStoreData)("project_runner");
+                if (projectRunner === "vm") {
+                    yield (0, exit_with_msg_1.exitWithMsg)(`>> ${_yamlContent.project_name} is running in VM. Run "bolt down" to stop the project!`);
                     return;
                 }
                 const { envfile, build } = content.service_runners[currentServiceRunner];

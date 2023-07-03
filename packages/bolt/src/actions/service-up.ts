@@ -70,7 +70,7 @@ export default class ServiceUp {
       );
     }
 
-    const { envfile, build, ports, volumes, context } =
+    const { envfile, build, ports, volumes } =
       content.service_runners[serviceRunner];
 
     // generates .env
@@ -97,7 +97,7 @@ export default class ServiceUp {
         break;
       case "local":
         const localConfig: LocalConfig = {
-          servicePath: context || servicePath,
+          servicePath: servicePath,
           build: build,
           serviceName: serviceName,
           isFollow: false,

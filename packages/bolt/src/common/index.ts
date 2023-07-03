@@ -10,7 +10,6 @@ import { execute } from "../helpers/execute";
 import { BOLT } from "../constants/bolt-configs";
 import { Bolt } from "../typings/bolt";
 import { closestMatch } from "closest-match";
-import getStore from "../helpers/get-store";
 
 export default class Common {
   public static async getAndValidateBoltYaml() {

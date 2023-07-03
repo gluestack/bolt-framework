@@ -117,7 +117,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     ];
                     const mountPid = yield (0, execute_detached_1.executeDetached)(bolt_vm_1.VM_BINARIES.NOTIFY_SCRIPT, args, {
                         detatched: true,
-                    });
+                    }, "mount");
                     // Adding project to metadata
                     const json = Object.assign(Object.assign({}, project), { containerPath: contianerPath, sshPort: sshPort, status: "build", vmProcessId: vmPid, mountProcessId: mountPid, createdAt: Date.now(), updatedAt: Date.now() });
                     yield (0, update_store_1.updateStore)("projects", project_id, json);

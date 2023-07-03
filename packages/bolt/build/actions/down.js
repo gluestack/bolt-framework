@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service/docker", "../runners/project", "../constants/bolt-configs"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../libraries/ingress", "../runners/project", "../constants/bolt-configs"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -29,7 +29,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
-    const docker_1 = __importDefault(require("../runners/service/docker"));
+    const ingress_1 = __importDefault(require("../libraries/ingress"));
     const project_1 = __importDefault(require("../runners/project"));
     const bolt_configs_1 = require("../constants/bolt-configs");
     class Down {
@@ -65,7 +65,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 // 3. stops the nginx container if it is running
                 if (projectRunnerEnv !== "vm") {
                     if (yield (0, fs_exists_1.exists)((0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME))) {
-                        yield docker_1.default.stopOnly(bolt_configs_1.BOLT.NGINX_CONTAINER_NAME);
+                        yield ingress_1.default.stop(bolt_configs_1.BOLT.NGINX_CONTAINER_NAME);
                     }
                 }
                 console.log(chalk_1.default.green(`>> ${_yamlContent.project_name} is down.\n`));

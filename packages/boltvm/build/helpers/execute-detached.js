@@ -48,7 +48,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const fs_mkdir_1 = require("./fs-mkdir");
     const fs = __importStar(require("fs"));
     const fs_writefile_1 = require("./fs-writefile");
-    const executeDetachedWithLogs = (command, args, logFileLocation, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const executeDetachedWithLogs = (command, args, logFileLocation, options, customMessage) => __awaiter(void 0, void 0, void 0, function* () {
         if (!(yield (0, fs_exists_1.exists)(logFileLocation))) {
             yield (0, fs_mkdir_1.createFolder)(logFileLocation);
         }
@@ -67,11 +67,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         fs.closeSync(stdErr);
         // Optionally, listen for events
         child.on("error", (err) => {
+            if (customMessage) {
+                console.log(`>> (detached) ${customMessage} Error:`, err);
+                process.exit();
+            }
             console.log(">> (detached) Error:", err.message);
             process.exit();
         });
         child.on("exit", (code, signal) => {
-            console.log(">> (detached) Process exited with code:", code);
+            if (customMessage) {
+                console.log(`>> (detached) ${customMessage} Process exited with code:`, code);
+            }
+            else {
+                console.log(">> (detached) Process exited with code:", code);
+            }
             if (code !== 0) {
                 process.exit();
             }
@@ -79,18 +88,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         return child.pid || 0;
     });
     exports.executeDetachedWithLogs = executeDetachedWithLogs;
-    const executeDetached = (command, args, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const executeDetached = (command, args, options, customMessage) => __awaiter(void 0, void 0, void 0, function* () {
         // Spawn the process in detached mode
         const child = (0, child_process_1.spawn)(command, args, Object.assign(Object.assign({}, options), { detached: true, stdio: ["ignore", "ignore", "ignore"] }));
         // Detach the child process
         child.unref();
         // Optionally, listen for events
         child.on("error", (err) => {
+            if (customMessage) {
+                console.log(`>> (detached) ${customMessage} Error:`, err);
+                process.exit();
+            }
             console.log(">> (detached) Error:", err.message);
             process.exit();
         });
         child.on("exit", (code, _signal) => {
-            console.log(">> (detached) Process exited with code:", code);
+            if (customMessage) {
+                console.log(`>> (detached) ${customMessage} process exited with code:`);
+            }
+            else {
+                console.log(">> (detached) process exited with code:", code);
+            }
             if (code !== 0) {
                 process.exit();
             }

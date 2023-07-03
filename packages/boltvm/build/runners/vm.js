@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const args = (0, vm_commands_1.VM_BOOT)(this.containerPath, this.sshPort);
                 return (0, execute_detached_1.executeDetachedWithLogs)("qemu-system-aarch64", args, (0, path_1.join)(this.projectPath, bolt_vm_1.BOLTVM.LOG_FOLDER), {
                     shell: true,
-                });
+                }, "qemu");
             });
         }
         static connect(portNumber = 2222) {

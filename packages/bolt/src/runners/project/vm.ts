@@ -73,12 +73,13 @@ export default class ProjectRunnerVm implements ProjectRunner {
       //   const projectPath = vmConfig.source;
       await validateVmConfig(vmConfig);
       await this.boltVM.create(cache);
-      await this.boltVM.run(true);
 
       // Updating the status of all services
       await this.updateStatusOfAllServices();
       // Updating the store
       await updateStore("project_runner", "vm");
+
+      await this.boltVM.run(true);
     } catch (error: any) {
       exitWithMsg(`Error occured executing bolt up: ${error.message}`);
     }

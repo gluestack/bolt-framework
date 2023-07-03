@@ -31,7 +31,7 @@ export default class Run {
       "-p",
       `${vmPort}`,
       ...SSH_CONFIG,
-      `"cd ${VM_INTERNALS_CONFIG.destination} && ${vm.command}"`,
+      `"${VM_INTERNALS_CONFIG.command} && ${vm.command}"`,
     ];
 
     if (isDetatched) {
@@ -43,7 +43,8 @@ export default class Run {
         {
           shell: true,
           detached: true,
-        }
+        },
+        "Project Runner"
       );
     } else {
       // Runs the project in foreground mode
@@ -68,7 +69,12 @@ export default class Run {
     port = `${portMap[0]}:localhost:${portMap[1]}`;
     const args = ["-p", `${vmPort}`, "-N", "-L", port, ...SSH_CONFIG];
 
-    const sshPid = await executeDetached("ssh", args, { detached: true });
+    const sshPid = await executeDetached(
+      "ssh",
+      args,
+      { detached: true },
+      "ssh"
+    );
     return sshPid;
   }
 
