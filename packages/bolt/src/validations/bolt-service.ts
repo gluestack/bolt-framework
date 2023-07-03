@@ -11,7 +11,7 @@ const ServiceConfigSchema = z.object({
     z.object({
       envfile: z.string(),
       build: z.string(),
-      context: z.string().optional(),
+      // context: z.string().optional(),
     })
   ),
 });

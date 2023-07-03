@@ -41,14 +41,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     "-p",
                     `${vmPort}`,
                     ...bolt_vm_1.SSH_CONFIG,
-                    `"cd ${bolt_vm_1.VM_INTERNALS_CONFIG.destination} && ${vm.command}"`,
+                    `"${bolt_vm_1.VM_INTERNALS_CONFIG.command} && ${vm.command}"`,
                 ];
                 if (isDetatched) {
                     // Runs the project in detatch mode and store its logs into log files
                     return yield (0, execute_detached_1.executeDetachedWithLogs)("ssh", args, (0, path_1.join)(localPath, bolt_vm_1.BOLTVM.LOG_FOLDER, "project_runner"), {
                         shell: true,
                         detached: true,
-                    });
+                    }, "Project Runner");
                 }
                 else {
                     // Runs the project in foreground mode
@@ -71,7 +71,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const portMap = port.split(":");
                 port = `${portMap[0]}:localhost:${portMap[1]}`;
                 const args = ["-p", `${vmPort}`, "-N", "-L", port, ...bolt_vm_1.SSH_CONFIG];
-                const sshPid = yield (0, execute_detached_1.executeDetached)("ssh", args, { detached: true });
+                const sshPid = yield (0, execute_detached_1.executeDetached)("ssh", args, { detached: true }, "ssh");
                 return sshPid;
             });
         }

@@ -90,7 +90,7 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
     console.log(">> Done with Initiating Docker Run...");
   }
 
-  private async stopExec() {
+  public async stopExec() {
     console.log(">> Stopping Docker Container...");
 
     const args: string[] = ["stop", this.container_name];
@@ -106,7 +106,7 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
     console.log(">> Done with Stopping Docker Container...");
   }
 
-  private async remove() {
+  public async remove() {
     console.log(">> Removing Docker Container...");
 
     const args: string[] = ["rm", this.container_name];
@@ -151,43 +151,5 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
 
   public async logs(isFollow: boolean) {
     await this.getLog(isFollow);
-  }
-
-  static async startOnly(
-    container_name: string,
-    ports: string[],
-    volume: string,
-    image: string
-  ) {
-    const args: string[] = [
-      "run",
-      "-d",
-      "--name",
-      container_name,
-      "-v",
-      volume,
-    ];
-
-    if (ports.length > 0) {
-      ports.forEach((port) => {
-        args.push("-p");
-        args.push(`${port}:${port}`);
-      });
-    }
-
-    args.push(image);
-
-    console.log("Running docker", args.join(" "));
-
-    await execute("docker", args, {
-      stdio: "inherit",
-      shell: true,
-    });
-  }
-
-  static async stopOnly(container_name: string) {
-    const docker = new ServiceRunnerDocker(container_name, "", "", []);
-    await docker.stopExec();
-    await docker.remove();
   }
 }

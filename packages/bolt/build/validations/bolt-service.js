@@ -28,7 +28,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         service_runners: zod_1.z.record(zod_1.z.enum(platforms_1.serviceRunners), zod_1.z.object({
             envfile: zod_1.z.string(),
             build: zod_1.z.string(),
-            context: zod_1.z.string().optional(),
+            // context: z.string().optional(),
         })),
     });
     const validateBoltService = (context) => __awaiter(void 0, void 0, void 0, function* () {

@@ -120,9 +120,14 @@ export default class Create {
         VM_INTERNALS_CONFIG.destination,
         sshPort.toString(),
       ];
-      const mountPid = await executeDetached(VM_BINARIES.NOTIFY_SCRIPT, args, {
-        detatched: true,
-      });
+      const mountPid = await executeDetached(
+        VM_BINARIES.NOTIFY_SCRIPT,
+        args,
+        {
+          detatched: true,
+        },
+        "mount"
+      );
 
       // Adding project to metadata
       const json: IMetadata = {

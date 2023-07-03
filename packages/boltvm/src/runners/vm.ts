@@ -27,7 +27,8 @@ export default class Vm {
       join(this.projectPath, BOLTVM.LOG_FOLDER),
       {
         shell: true,
-      }
+      },
+      "qemu"
     );
   }
 

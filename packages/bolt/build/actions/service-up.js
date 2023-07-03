@@ -62,7 +62,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (!content.service_runners[serviceRunner]) {
                     yield (0, exit_with_msg_1.exitWithMsg)(`>> service ${serviceName}: "${(0, path_1.relative)(".", (0, path_1.join)(servicePath, bolt_configs_1.BOLT.SERVICE_YAML_FILE_NAME))}" doesn't support ${serviceRunner} platform`);
                 }
-                const { envfile, build, ports, volumes, context } = content.service_runners[serviceRunner];
+                const { envfile, build, ports, volumes } = content.service_runners[serviceRunner];
                 // generates .env
                 yield common_1.default.generateEnv();
                 let PID = null;
@@ -86,7 +86,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         break;
                     case "local":
                         const localConfig = {
-                            servicePath: context || servicePath,
+                            servicePath: servicePath,
                             build: build,
                             serviceName: serviceName,
                             isFollow: false,

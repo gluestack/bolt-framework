@@ -8,10 +8,15 @@ import { validateServices } from "../helpers/validate-services";
 
 import Common from "../common";
 
-import { StoreService, StoreServices } from "../typings/store-service";
+import {
+  ProjectRunners,
+  StoreService,
+  StoreServices,
+} from "../typings/store-service";
 import { Bolt } from "../typings/bolt";
 import ServiceRunner from "../runners/service";
 import { DockerConfig, LocalConfig } from "../typings/project-runner-config";
+import { getStoreData } from "../helpers/get-store-data";
 
 export default class ServiceDown {
   public async checkIfAlreadyDown(_yamlContent: any, serviceName: string) {
@@ -65,6 +70,14 @@ export default class ServiceDown {
 
     if (!service || !currentServiceRunner) {
       await exitWithMsg(`>> "${serviceName}" service is not running`);
+      return;
+    }
+
+    const projectRunner: ProjectRunners = await getStoreData("project_runner");
+    if (projectRunner === "vm") {
+      await exitWithMsg(
+        `>> ${_yamlContent.project_name} is running in VM. Run "bolt down" to stop the project!`
+      );
       return;
     }
 
