@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./actions/addMetadata", "./actions/create", "./actions/doctor", "./actions/down", "./actions/exec", "./actions/log", "./actions/run", "./actions/status"], factory);
+        define(["require", "exports", "./actions/addMetadata", "./actions/create", "./actions/doctor", "./actions/down", "./actions/exec", "./actions/exposePort", "./actions/log", "./actions/run", "./actions/status"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const doctor_1 = __importDefault(require("./actions/doctor"));
     const down_1 = __importDefault(require("./actions/down"));
     const exec_1 = __importDefault(require("./actions/exec"));
+    const exposePort_1 = __importDefault(require("./actions/exposePort"));
     const log_1 = __importDefault(require("./actions/log"));
     const run_1 = __importDefault(require("./actions/run"));
     const status_1 = __importDefault(require("./actions/status"));
@@ -45,10 +46,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield create.handle(this.location, cache);
             });
         }
-        run(detached) {
+        run(command, detached) {
             return __awaiter(this, void 0, void 0, function* () {
                 const run = new run_1.default();
-                yield run.handle(this.location, detached);
+                yield run.handle(command, this.location, detached);
+            });
+        }
+        exposePort(port) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const exposePort = new exposePort_1.default();
+                yield exposePort.handle(this.location, port);
             });
         }
         exec() {

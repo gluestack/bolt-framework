@@ -4,7 +4,8 @@ export default class BoltVm implements IBoltVm {
     constructor(location: string);
     addMetadata(): Promise<void>;
     create(cache: boolean): Promise<void>;
-    run(detached: boolean): Promise<void>;
+    run(command: string, detached: boolean): Promise<void>;
+    exposePort(port: string): Promise<void>;
     exec(): Promise<void>;
     log(isFollow: boolean): Promise<void>;
     down(): Promise<void>;

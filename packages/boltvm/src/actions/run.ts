@@ -22,16 +22,15 @@ import { IBolt } from "../typings/bolt";
 export default class Run {
   private async runProjectInsideVm(
     vmPort: number,
-    projectConfig: IBolt,
+    command: String,
     localPath: string,
     isDetatched: boolean
   ) {
-    const { vm } = projectConfig;
     const args = [
       "-p",
       `${vmPort}`,
       ...SSH_CONFIG,
-      `"${VM_INTERNALS_CONFIG.command} && ${vm.command}"`,
+      `"${VM_INTERNALS_CONFIG.command} && ${command}"`,
     ];
 
     if (isDetatched) {
@@ -56,29 +55,7 @@ export default class Run {
     }
   }
 
-  // Expose port to host machine
-  private async exposePort(vmPort: number, port: string) {
-    console.log(chalk.yellow(`>> Exposing port ${port}`));
-
-    if (!port.includes(":")) {
-      console.log(chalk.red(`>> Invalid port mapping ${port}`));
-      return null;
-    }
-
-    const portMap = port.split(":");
-    port = `${portMap[0]}:localhost:${portMap[1]}`;
-    const args = ["-p", `${vmPort}`, "-N", "-L", port, ...SSH_CONFIG];
-
-    const sshPid = await executeDetached(
-      "ssh",
-      args,
-      { detached: true },
-      "ssh"
-    );
-    return sshPid;
-  }
-
-  public async handle(localPath: string, detatched: any) {
+  public async handle(command: string, localPath: string, detatched: any) {
     try {
       // Check for file path exists or not
       if (!(await exists(localPath))) {
@@ -89,30 +66,21 @@ export default class Run {
       // Check for valid boltvm yml file
       const boltConfig = await validateBoltYaml(localPath);
 
-      const { vm, project_id } = boltConfig;
+      const { project_id } = boltConfig;
 
       // Check if boltvm is up or not
       const project = await validateProjectStatus("run", boltConfig);
 
-      const sshPort = project.sshPort as number;
-      const conn = await VM.connectOnce(sshPort);
+      const vmPort = project.sshPort as number;
+      const conn = await VM.connectOnce(vmPort);
       await conn.end();
-
-      // Expose ports
-      const portExposePromises: any = [];
-      for (const port of vm.ports) {
-        portExposePromises.push(this.exposePort(sshPort, port));
-      }
-
-      const sshPids: number[] | null[] = await Promise.all(portExposePromises);
-      console.log(chalk.green(">> Ports exposed"));
 
       // Run project inside vm
       console.log(chalk.yellow(">> Started running project inside VM..."));
       const projectRunnerId =
         (await this.runProjectInsideVm(
-          sshPort,
-          boltConfig,
+          vmPort,
+          command,
           localPath,
           detatched
         )) ?? 0;
@@ -122,7 +90,6 @@ export default class Run {
       const json: IMetadata = {
         ...project,
         status: "up",
-        sshProcessIds: sshPids,
         projectRunnerId: projectRunnerId,
       };
       await updateStore("projects", project_id, json);
@@ -131,7 +98,6 @@ export default class Run {
       process.on("SIGINT", () => {
         (async () => {
           console.log(chalk.yellow(">> Killing process..."));
-          await killMultipleProcesses([...sshPids, projectRunnerId]);
           await updateStore("projects", project_id, {
             ...project,
             status: "build",

@@ -3,6 +3,7 @@ import Create from "./actions/create";
 import Doctor from "./actions/doctor";
 import Down from "./actions/down";
 import Exec from "./actions/exec";
+import ExposePort from "./actions/exposePort";
 import Log from "./actions/log";
 import Run from "./actions/run";
 import Status from "./actions/status";
@@ -24,9 +25,14 @@ export default class BoltVm implements IBoltVm {
     await create.handle(this.location, cache);
   }
 
-  public async run(detached: boolean) {
+  public async run(command: string, detached: boolean) {
     const run = new Run();
-    await run.handle(this.location, detached);
+    await run.handle(command, this.location, detached);
+  }
+
+  public async exposePort(port: string) {
+    const exposePort = new ExposePort();
+    await exposePort.handle(this.location, port);
   }
 
   public async exec() {
