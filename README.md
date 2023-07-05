@@ -28,7 +28,7 @@ Below's brief overview of bolt's architecture -
 
 Running projects locally requires running system services and using system resources.
 
-For eg: A project may need to run a Postgres instance, an iOS simulator and a Node watcher & bundler. 
+For eg: A project may need to run a Postgres instance, an iOS simulator and a Node watcher & bundler.
 
 It can get cumbersome when you set up everything manually because you may need a Docker instance for the Postgres, a child process on the host machine to boot the iOS simulator and another child process for the Node packager. The Node packager can also run as a Docker instance.
 
@@ -69,4 +69,4 @@ We are currently very much an Alpha product. Please file an issue if you face an
 
 ## :telephone_receiver: For Contributing or Connecting with Us
 
-[Discord](https://discord.gg/GEP2gWgd)
+Join our [Discord](https://discord.gg/GEP2gWgd)
