@@ -54,6 +54,10 @@ export default class ServiceUp {
     try {
       let { serviceRunner: srOption, cache } = options;
 
+      // Validations for metadata and services
+      await validateMetadata();
+      await validateServices();
+
       if (srOption === "docker") {
         const isDockerRunning = await getDockerStatus();
         if (!isDockerRunning) {
@@ -64,10 +68,6 @@ export default class ServiceUp {
       const { _yamlContent } = await Common.validateServiceInBoltYaml(
         serviceName
       );
-
-      // Validations for metadata and services
-      await validateMetadata();
-      await validateServices();
 
       await this.checkIfAlreadyUp(_yamlContent, serviceName);
 
