@@ -5,7 +5,6 @@ import { readfile } from "./fs-readfile";
 import { exitWithMsg } from "./exit-with-msg";
 import { IBolt } from "../typings/bolt";
 import { BOLT } from "../constants/bolt";
-import { IBoltVMConfig } from "../typings/boltvm-config";
 
 export const validateBoltYaml = async (localPath: string): Promise<IBolt> => {
   const boltVmConfigPath = join(localPath, BOLT.CONFIG_FILE);
@@ -17,9 +16,9 @@ export const validateBoltYaml = async (localPath: string): Promise<IBolt> => {
   const boltYmlContent = await readfile(boltVmConfigPath);
   const boltConfigs: IBolt = yaml.load(boltYmlContent) as IBolt;
 
-  if (!boltConfigs.vm) {
-    exitWithMsg(`No configuration found for vm in ${BOLT.CONFIG_FILE}`);
-  }
+  // if (!boltConfigs.vm) {
+  //   exitWithMsg(`No configuration found for vm in ${BOLT.CONFIG_FILE}`);
+  // }
 
   return boltConfigs;
 };

@@ -35,9 +35,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
         const boltYmlContent = yield (0, fs_readfile_1.readfile)(boltVmConfigPath);
         const boltConfigs = js_yaml_1.default.load(boltYmlContent);
-        if (!boltConfigs.vm) {
-            (0, exit_with_msg_1.exitWithMsg)(`No configuration found for vm in ${bolt_1.BOLT.CONFIG_FILE}`);
-        }
+        // if (!boltConfigs.vm) {
+        //   exitWithMsg(`No configuration found for vm in ${BOLT.CONFIG_FILE}`);
+        // }
         return boltConfigs;
     });
     exports.validateBoltYaml = validateBoltYaml;
