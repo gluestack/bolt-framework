@@ -1,6 +1,6 @@
 import { join } from "path";
 import chalk from "chalk";
-import AdmZip from "adm-zip";
+import StreamZip from "node-stream-zip";
 
 import { executeDetached } from "../helpers/execute-detached";
 import { exitWithMsg } from "../helpers/exit-with-msg";
@@ -32,10 +32,10 @@ export default class Create {
     const imagePath = join(VM_INTERNALS_PATH, VM_BINARIES.IMAGE_NAME);
 
     // Create an instance of AdmZip
-    const zip = new AdmZip(imagePath);
+    const zip = new StreamZip.async({ file: imagePath });
 
     // Extract all files to a specified directory
-    zip.extractAllTo(VM_INTERNALS_PATH, true, true);
+    await zip.extract(null, VM_INTERNALS_PATH);
 
     // Remove downloaded zip file
     await removefile(imagePath);

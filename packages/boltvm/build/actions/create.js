@@ -16,14 +16,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "path", "chalk", "adm-zip", "../helpers/execute-detached", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/update-store", "../helpers/validate-bolt-file", "../helpers/get-ssh-port", "../helpers/fs-remove-folder", "../helpers/fs-mkdir", "../helpers/download-base-image", "../helpers/fs-removefile", "../helpers/validate-project-status", "../helpers/execute", "../libraries/container", "../runners/vm", "../constants/bolt-vm"], factory);
+        define(["require", "exports", "path", "chalk", "node-stream-zip", "../helpers/execute-detached", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/update-store", "../helpers/validate-bolt-file", "../helpers/get-ssh-port", "../helpers/fs-remove-folder", "../helpers/fs-mkdir", "../helpers/download-base-image", "../helpers/fs-removefile", "../helpers/validate-project-status", "../helpers/execute", "../libraries/container", "../runners/vm", "../constants/bolt-vm"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const path_1 = require("path");
     const chalk_1 = __importDefault(require("chalk"));
-    const adm_zip_1 = __importDefault(require("adm-zip"));
+    const node_stream_zip_1 = __importDefault(require("node-stream-zip"));
     const execute_detached_1 = require("../helpers/execute-detached");
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const fs_exists_1 = require("../helpers/fs-exists");
@@ -44,9 +44,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             return __awaiter(this, void 0, void 0, function* () {
                 const imagePath = (0, path_1.join)(bolt_vm_1.VM_INTERNALS_PATH, bolt_vm_1.VM_BINARIES.IMAGE_NAME);
                 // Create an instance of AdmZip
-                const zip = new adm_zip_1.default(imagePath);
+                const zip = new node_stream_zip_1.default.async({ file: imagePath });
                 // Extract all files to a specified directory
-                zip.extractAllTo(bolt_vm_1.VM_INTERNALS_PATH, true, true);
+                yield zip.extract(null, bolt_vm_1.VM_INTERNALS_PATH);
                 // Remove downloaded zip file
                 yield (0, fs_removefile_1.removefile)(imagePath);
             });

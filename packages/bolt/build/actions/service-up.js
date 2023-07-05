@@ -52,6 +52,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             return __awaiter(this, void 0, void 0, function* () {
                 try {
                     let { serviceRunner: srOption, cache } = options;
+                    // Validations for metadata and services
+                    yield (0, validate_metadata_1.validateMetadata)();
+                    yield (0, validate_services_1.validateServices)();
                     if (srOption === "docker") {
                         const isDockerRunning = yield (0, docker_info_1.getDockerStatus)();
                         if (!isDockerRunning) {
@@ -59,9 +62,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         }
                     }
                     const { _yamlContent } = yield common_1.default.validateServiceInBoltYaml(serviceName);
-                    // Validations for metadata and services
-                    yield (0, validate_metadata_1.validateMetadata)();
-                    yield (0, validate_services_1.validateServices)();
                     yield this.checkIfAlreadyUp(_yamlContent, serviceName);
                     const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
                     if (!content.supported_service_runners.includes(srOption)) {
