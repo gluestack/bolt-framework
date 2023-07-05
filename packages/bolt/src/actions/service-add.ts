@@ -131,6 +131,7 @@ export default class ServiceAdd {
     const json: StoreService = {
       status: "down",
       serviceRunner: null,
+      projectRunner: null,
       port: null,
       processId: null,
     };

@@ -3,10 +3,12 @@ import Create from "./actions/create";
 import Doctor from "./actions/doctor";
 import Down from "./actions/down";
 import Exec from "./actions/exec";
+import ExecuteCommand from "./actions/executeCommand";
+import ExposePort from "./actions/exposePort";
 import Log from "./actions/log";
 import Run from "./actions/run";
 import Status from "./actions/status";
-import { IBoltVm } from "./typings/boltvm";
+import { ExecutionOptions, IBoltVm } from "./typings/boltvm";
 
 export default class BoltVm implements IBoltVm {
   location: string;
@@ -24,9 +26,14 @@ export default class BoltVm implements IBoltVm {
     await create.handle(this.location, cache);
   }
 
-  public async run(detached: boolean) {
+  public async run(command: string, detached: boolean) {
     const run = new Run();
-    await run.handle(this.location, detached);
+    await run.handle(command, this.location, detached);
+  }
+
+  public async exposePort(ports: string[]) {
+    const exposePort = new ExposePort();
+    await exposePort.handle(this.location, ports);
   }
 
   public async exec() {
@@ -52,5 +59,14 @@ export default class BoltVm implements IBoltVm {
   public async doctor() {
     const doctor = new Doctor();
     await doctor.handle();
+  }
+
+  public async executeCommand(
+    command: string,
+    detached: boolean,
+    options: ExecutionOptions
+  ) {
+    const executeCommand = new ExecuteCommand(options.boltInstall);
+    await executeCommand.handle(command, this.location, detached);
   }
 }

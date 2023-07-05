@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../common", "../constants/bolt-configs", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/project", "../validations/bolt-vm"], factory);
+        define(["require", "exports", "../common", "../constants/bolt-configs", "../helpers/exit-with-msg", "../helpers/get-store-data", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/service/vm", "../validations/bolt-vm"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,10 +24,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const common_1 = __importDefault(require("../common"));
     const bolt_configs_1 = require("../constants/bolt-configs");
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
-    const get_store_1 = __importDefault(require("../helpers/get-store"));
+    const get_store_data_1 = require("../helpers/get-store-data");
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
-    const project_1 = __importDefault(require("../runners/project"));
+    const vm_1 = __importDefault(require("../runners/service/vm"));
     const bolt_vm_1 = require("../validations/bolt-vm");
     class Exec {
         validateBoltYaml() {
@@ -43,29 +43,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 return { _yamlContent, vmConfig };
             });
         }
-        validateMetadataForVM(_yamlContent, projectRunner) {
-            if (!projectRunner) {
-                (0, exit_with_msg_1.exitWithMsg)("Either environment or server not found in metadata");
-            }
-            if (projectRunner === "none") {
-                (0, exit_with_msg_1.exitWithMsg)(`${_yamlContent.project_name} is not running`);
-            }
-            if (projectRunner !== "vm") {
-                (0, exit_with_msg_1.exitWithMsg)(`${_yamlContent.project_name} is running on host machine`);
-            }
+        validateMetadataForVM(_yamlContent) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const vmStatus = yield (0, get_store_data_1.getStoreData)("vm");
+                if (vmStatus !== "up") {
+                    (0, exit_with_msg_1.exitWithMsg)(`VM is not running. Please run bolt vm up`);
+                }
+            });
         }
         handle() {
             return __awaiter(this, void 0, void 0, function* () {
                 try {
-                    const { _yamlContent, vmConfig } = yield this.validateBoltYaml();
+                    const { _yamlContent } = yield this.validateBoltYaml();
                     // Validations for metadata and services
                     yield (0, validate_metadata_1.validateMetadata)();
                     yield (0, validate_services_1.validateServices)();
-                    const store = yield (0, get_store_1.default)();
-                    const currentProjectRunner = yield store.get("project_runner");
-                    this.validateMetadataForVM(_yamlContent, currentProjectRunner);
-                    const projectRunner = new project_1.default(_yamlContent);
-                    yield projectRunner.vm({ action: "exec" });
+                    this.validateMetadataForVM(_yamlContent);
+                    yield vm_1.default.exec();
                 }
                 catch (error) {
                     (0, exit_with_msg_1.exitWithMsg)("Error occured executing bolt exec: ", error.message);

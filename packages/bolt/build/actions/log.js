@@ -80,19 +80,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             envFile: envfile,
                             ports: [],
                             volumes: [],
-                            isFollow: isFollow,
                         };
-                        yield serviceRunner.docker(dockerConfig, { action: "logs" });
+                        yield serviceRunner.docker(dockerConfig, {
+                            action: "logs",
+                            serviceName: serviceName,
+                            isFollow: isFollow,
+                        });
                         break;
                     case "local":
                         const localConfig = {
                             servicePath: servicePath,
-                            serviceName: serviceName,
                             build: content.service_runners[currentServiceRunner].build,
-                            isFollow: isFollow,
                             processId: 0,
                         };
-                        serviceRunner.local(localConfig, { action: "logs" });
+                        yield serviceRunner.local(localConfig, {
+                            action: "logs",
+                            serviceName: serviceName,
+                            isFollow: isFollow,
+                        });
+                        break;
+                    case "vmlocal":
+                        const vmConfig = {
+                            serviceContent: content,
+                            serviceName: serviceName,
+                            cache: false,
+                            runnerType: "vmlocal",
+                        };
+                        yield serviceRunner.vm(vmConfig, {
+                            action: "logs",
+                            serviceName: serviceName,
+                            isFollow: isFollow,
+                        });
+                        break;
+                    case "vmdocker":
+                        const vmDockerConfig = {
+                            serviceContent: content,
+                            serviceName: serviceName,
+                            cache: false,
+                            runnerType: "vmdocker",
+                        };
+                        yield serviceRunner.vm(vmDockerConfig, {
+                            action: "logs",
+                            serviceName: serviceName,
+                            isFollow: isFollow,
+                        });
                         break;
                     default:
                         yield (0, exit_with_msg_1.exitWithMsg)(">> Platform not supported");

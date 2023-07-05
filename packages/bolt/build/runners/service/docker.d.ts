@@ -1,12 +1,13 @@
 import BoltServiceRunner from "../../typings/bolt-service-runner";
 export default class ServiceRunnerDocker implements BoltServiceRunner {
     volume: string;
-    private container_name;
+    container_name: string;
     build: string;
-    private envfile;
-    private ports;
-    private volumes;
-    constructor(container_name: string, servicePath: string, build: string, ports: string[], envfile?: string, volumes?: string[]);
+    envfile: string;
+    ports: string[];
+    volumes: string[];
+    serviceName: string;
+    constructor(serviceName: string, container_name: string, servicePath: string, build: string, ports: string[], envfile?: string, volumes?: string[]);
     private create;
     private run;
     stopExec(): Promise<void>;

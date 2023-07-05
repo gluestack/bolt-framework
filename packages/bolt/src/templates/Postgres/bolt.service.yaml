@@ -1,5 +1,8 @@
 container_name: SERVICE_NAME
 stateless: false
+default_service_runner: docker
+supported_service_runners:
+  - docker
 service_runners:
   docker:
     envfile: .env

@@ -16,22 +16,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../libraries/ingress", "../runners/project", "../constants/bolt-configs"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/fs-exists", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../libraries/ingress", "../constants/bolt-configs", "../helpers/get-store-data", "./service-down"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const chalk_1 = __importDefault(require("chalk"));
     const path_1 = require("path");
-    const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const fs_exists_1 = require("../helpers/fs-exists");
-    const get_store_1 = __importDefault(require("../helpers/get-store"));
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
     const ingress_1 = __importDefault(require("../libraries/ingress"));
-    const project_1 = __importDefault(require("../runners/project"));
     const bolt_configs_1 = require("../constants/bolt-configs");
+    const get_store_data_1 = require("../helpers/get-store-data");
+    const service_down_1 = __importDefault(require("./service-down"));
     class Down {
         handle() {
             return __awaiter(this, void 0, void 0, function* () {
@@ -40,31 +39,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield (0, validate_metadata_1.validateMetadata)();
                 yield (0, validate_services_1.validateServices)();
                 console.log(`>> Stopping ${_yamlContent.project_name}...`);
-                const store = yield (0, get_store_1.default)();
-                const projectRunnerEnv = yield store.get("project_runner");
-                if (!projectRunnerEnv) {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> Project runner not found. Please run the project first.`);
-                }
-                // 1. creating a project runner instance
-                const projectRunner = new project_1.default(_yamlContent);
-                // 2. stops the services on particular project runner platform
-                switch (projectRunnerEnv) {
-                    case "none":
-                        (0, exit_with_msg_1.exitWithMsg)(`>> ${_yamlContent.project_name} is not running. Please run "bolt up" first.`);
-                        break;
-                    case "host":
-                        yield projectRunner.host({ action: "down" });
-                        break;
-                    case "vm":
-                        yield projectRunner.vm({ action: "down" });
-                        break;
-                    default:
-                        (0, exit_with_msg_1.exitWithMsg)(`>> Unknown server environment for ${_yamlContent.project_name}`);
-                        break;
-                }
+                const data = yield (0, get_store_data_1.getStoreData)("services");
+                const serviceDownPromises = [];
+                Object.entries(_yamlContent.services).forEach(([serviceName]) => __awaiter(this, void 0, void 0, function* () {
+                    if (data[serviceName] && data[serviceName].status === "down") {
+                        return;
+                    }
+                    const serviceDown = new service_down_1.default();
+                    serviceDownPromises.push(serviceDown.handle(serviceName));
+                }));
+                yield Promise.all(serviceDownPromises);
                 // 3. stops the nginx container if it is running
-                if (projectRunnerEnv !== "vm") {
-                    if (yield (0, fs_exists_1.exists)((0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME))) {
+                if (_yamlContent.ingress) {
+                    const nginxConfig = (0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME);
+                    if (yield (0, fs_exists_1.exists)(nginxConfig)) {
                         yield ingress_1.default.stop(bolt_configs_1.BOLT.NGINX_CONTAINER_NAME);
                     }
                 }

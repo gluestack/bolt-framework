@@ -23,8 +23,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const ConfigSchema = zod_1.z.object({
         name: zod_1.z.string(),
-        ports: zod_1.z.array(zod_1.z.string()),
-        command: zod_1.z.string(),
     });
     const validateVmConfig = (context) => __awaiter(void 0, void 0, void 0, function* () {
         try {

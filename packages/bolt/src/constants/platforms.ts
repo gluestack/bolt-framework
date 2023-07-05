@@ -1,3 +1,9 @@
 // readonly variable
 
-export const serviceRunners = ["docker", "local"] as const;
+export const hostServiceRunners = ["docker", "local"] as const;
+export const supportedServiceRunners = [
+  "local",
+  "docker",
+  "vmlocal",
+  "vmdocker",
+] as const;
