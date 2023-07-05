@@ -27,12 +27,7 @@ export default class Run {
     // Configuring command to run inside VM
     const mainCommand = `${projectCdCommand} && ${command}`;
 
-    const args = [
-      "-p",
-      `${vmPort}`,
-      ...SSH_CONFIG,
-      `"${boltInstallationCommand} && ${mainCommand}"`,
-    ];
+    const args = ["-p", `${vmPort}`, ...SSH_CONFIG, `"${mainCommand}"`];
 
     if (isDetatched) {
       // Runs the project in detatch mode and store its logs into log files

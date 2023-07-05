@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "@gluestack/boltvm", "../common", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/service"], factory);
+        define(["require", "exports", "@gluestack/boltvm", "../common", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/get-store-data", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/service"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -25,6 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const common_1 = __importDefault(require("../common"));
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const get_store_1 = __importDefault(require("../helpers/get-store"));
+    const get_store_data_1 = require("../helpers/get-store-data");
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const service_1 = __importDefault(require("../runners/service"));
@@ -54,13 +55,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
                 const service = yield this.checkIfServiceIsUp(_yamlContent, serviceName);
                 const currentServiceRunner = service.serviceRunner;
-                const store = yield (0, get_store_1.default)();
-                const projectRunner = yield store.get("project_runner");
-                if (projectRunner === "none") {
-                    yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" is not running`);
-                }
-                if (isVM && projectRunner !== "vm") {
-                    yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" is not running on vm`);
+                const vmStatus = yield (0, get_store_data_1.getStoreData)("vm");
+                if (isVM && vmStatus !== "up") {
+                    yield (0, exit_with_msg_1.exitWithMsg)(`>> VM is not running!`);
                 }
                 if (isVM) {
                     const boltVm = new boltvm_1.default(process.cwd());

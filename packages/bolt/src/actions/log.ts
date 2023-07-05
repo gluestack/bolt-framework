@@ -3,6 +3,7 @@ import chalk from "chalk";
 import Common from "../common";
 import { exitWithMsg } from "../helpers/exit-with-msg";
 import getStore from "../helpers/get-store";
+import { getStoreData } from "../helpers/get-store-data";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
 import ServiceRunner from "../runners/service";
@@ -51,13 +52,9 @@ export default class Log {
     );
     const currentServiceRunner = service.serviceRunner;
 
-    const store = await getStore();
-    const projectRunner = await store.get("project_runner");
-    if (projectRunner === "none") {
-      await exitWithMsg(`>> "${serviceName}" is not running`);
-    }
-    if (isVM && projectRunner !== "vm") {
-      await exitWithMsg(`>> "${serviceName}" is not running on vm`);
+    const vmStatus = await getStoreData("vm");
+    if (isVM && vmStatus !== "up") {
+      await exitWithMsg(`>> VM is not running!`);
     }
 
     if (isVM) {

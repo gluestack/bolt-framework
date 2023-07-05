@@ -48,7 +48,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const fs_mkdir_1 = require("./fs-mkdir");
     const fs = __importStar(require("fs"));
     const fs_writefile_1 = require("./fs-writefile");
-    const executeDetachedWithLogs = (command, args, logFileLocation, options, customMessage) => __awaiter(void 0, void 0, void 0, function* () {
+    const executeDetachedWithLogs = (command, args, logFileLocation, options, customMessage, noMessage) => __awaiter(void 0, void 0, void 0, function* () {
         if (!(yield (0, fs_exists_1.exists)(logFileLocation))) {
             yield (0, fs_mkdir_1.createFolder)(logFileLocation);
         }
@@ -67,7 +67,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         fs.closeSync(stdErr);
         // Optionally, listen for events
         child.on("error", (err) => {
-            if (customMessage) {
+            if (noMessage) {
+                process.exit();
+            }
+            if (customMessage && customMessage === "Command Runner") {
                 console.log(`>> (detached) ${customMessage} Error:`, err);
                 process.exit();
             }
@@ -75,6 +78,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             process.exit();
         });
         child.on("exit", (code, signal) => {
+            if (noMessage) {
+                process.exit();
+            }
             if (customMessage) {
                 console.log(`>> (detached) ${customMessage} Process exited with code:`, code);
             }
