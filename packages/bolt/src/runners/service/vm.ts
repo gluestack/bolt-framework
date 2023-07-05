@@ -155,7 +155,7 @@ export default class ServiceRunnerVM implements BoltServiceRunner {
       // Command to stop service in vm
       let servicelogCommand = `bolt log ${this.serviceName}`;
       if (isFollow) {
-        servicelogCommand += "--follow";
+        servicelogCommand += " --follow";
       }
 
       // Running service in vm

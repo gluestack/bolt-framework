@@ -10,7 +10,8 @@ export const executeDetachedWithLogs = async (
   args: string[],
   logFileLocation: string,
   options: any,
-  customMessage?: string
+  customMessage?: string,
+  noMessage?: boolean
 ): Promise<number> => {
   if (!(await exists(logFileLocation))) {
     await createFolder(logFileLocation);
@@ -41,7 +42,10 @@ export const executeDetachedWithLogs = async (
 
   // Optionally, listen for events
   child.on("error", (err: any) => {
-    if (customMessage) {
+    if (noMessage) {
+      process.exit();
+    }
+    if (customMessage && customMessage === "Command Runner") {
       console.log(`>> (detached) ${customMessage} Error:`, err);
       process.exit();
     }
@@ -50,6 +54,9 @@ export const executeDetachedWithLogs = async (
   });
 
   child.on("exit", (code: number, signal: string) => {
+    if (noMessage) {
+      process.exit();
+    }
     if (customMessage) {
       console.log(
         `>> (detached) ${customMessage} Process exited with code:`,
