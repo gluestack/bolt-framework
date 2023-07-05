@@ -25,8 +25,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         envfile: zod_1.z.string(),
         project_id: zod_1.z.string(),
         project_name: zod_1.z.string(),
-        default_project_runner: zod_1.z.string(),
-        default_service_runner: zod_1.z.string(),
         services: zod_1.z.nullable(zod_1.z.record(zod_1.z.string(), zod_1.z.object({
             path: zod_1.z.string(),
         }))),

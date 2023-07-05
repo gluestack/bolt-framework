@@ -26,5 +26,6 @@ export declare const IMAGE_BUCKET_CONFIGS: {
 };
 export declare const VM_INTERNALS_CONFIG: {
     destination: string;
-    command: string;
+    boltInstallationCommand: string;
+    projectCdCommand: string;
 };

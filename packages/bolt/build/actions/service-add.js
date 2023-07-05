@@ -127,6 +127,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const json = {
                     status: "down",
                     serviceRunner: null,
+                    projectRunner: null,
                     port: null,
                     processId: null,
                 };

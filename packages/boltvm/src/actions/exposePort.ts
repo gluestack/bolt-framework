@@ -31,10 +31,11 @@ export default class ExposePort {
       { detached: true },
       "ssh"
     );
+    console.log(chalk.green(`>> Port ${port} exposed!`));
     return sshPid;
   }
 
-  public async handle(localPath: string, port: string) {
+  public async handle(localPath: string, ports: string[]) {
     try {
       // Check for file path exists or not
       if (!(await exists(localPath))) {
@@ -50,8 +51,13 @@ export default class ExposePort {
       const project = await validateProjectStatus("exec", boltConfig);
 
       const vmPort = project.sshPort as number;
-      const sshPortExposeId = await this.exposePort(vmPort, port);
-      console.log(chalk.green(`>> Port ${port} exposed`));
+
+      const portExposePromises: any = [];
+      for (const port of ports) {
+        portExposePromises.push(this.exposePort(vmPort, port));
+      }
+
+      const sshPids: number[] | null[] = await Promise.all(portExposePromises);
 
       if (!project.sshProcessIds) {
         project.sshProcessIds = [];
@@ -59,7 +65,7 @@ export default class ExposePort {
 
       const json: IMetadata = {
         ...project,
-        sshProcessIds: [...project.sshProcessIds, sshPortExposeId],
+        sshProcessIds: sshPids,
       };
 
       await updateStore("projects", project_id, json);

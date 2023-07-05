@@ -35,15 +35,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     class Run {
         runProjectInsideVm(vmPort, command, localPath, isDetatched) {
             return __awaiter(this, void 0, void 0, function* () {
+                const { projectCdCommand, boltInstallationCommand } = bolt_vm_1.VM_INTERNALS_CONFIG;
+                // Configuring command to run inside VM
+                const mainCommand = `${projectCdCommand} && ${command}`;
                 const args = [
                     "-p",
                     `${vmPort}`,
                     ...bolt_vm_1.SSH_CONFIG,
-                    `"${bolt_vm_1.VM_INTERNALS_CONFIG.command} && ${command}"`,
+                    `"${boltInstallationCommand} && ${mainCommand}"`,
                 ];
                 if (isDetatched) {
                     // Runs the project in detatch mode and store its logs into log files
-                    return yield (0, execute_detached_1.executeDetachedWithLogs)("ssh", args, (0, path_1.join)(localPath, bolt_vm_1.BOLTVM.LOG_FOLDER, "project_runner"), {
+                    return yield (0, execute_detached_1.executeDetachedWithLogs)("ssh", args, (0, path_1.join)(localPath, bolt_vm_1.BOLTVM.LOG_FOLDER, "project_logs"), {
                         shell: true,
                         detached: true,
                     }, "Project Runner");
@@ -59,7 +62,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             });
         }
         handle(command, localPath, detatched) {
-            var _a;
             return __awaiter(this, void 0, void 0, function* () {
                 try {
                     // Check for file path exists or not
@@ -71,22 +73,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     const boltConfig = yield (0, validate_bolt_file_1.validateBoltYaml)(localPath);
                     const { project_id } = boltConfig;
                     // Check if boltvm is up or not
-                    const project = yield (0, validate_project_status_1.validateProjectStatus)("run", boltConfig);
+                    const project = yield (0, validate_project_status_1.validateProjectStatus)("exec", boltConfig);
                     const vmPort = project.sshPort;
                     const conn = yield vm_1.default.connectOnce(vmPort);
                     yield conn.end();
+                    let serviceName = command.split("bolt service:up ")[1];
+                    serviceName = serviceName.split(" ")[0];
+                    console.log(chalk_1.default.green(`>> Started running ${serviceName} inside VM...`));
                     // Run project inside vm
-                    console.log(chalk_1.default.yellow(">> Started running project inside VM..."));
-                    const projectRunnerId = (_a = (yield this.runProjectInsideVm(vmPort, command, localPath, detatched))) !== null && _a !== void 0 ? _a : 0;
-                    console.log(chalk_1.default.green(">> Project running inside VM"));
+                    yield this.runProjectInsideVm(vmPort, command, localPath, detatched);
+                    console.log(chalk_1.default.green(`>> Started ${serviceName} successfully in VM!`));
                     // Update project status
-                    const json = Object.assign(Object.assign({}, project), { status: "up", projectRunnerId: projectRunnerId });
+                    const json = Object.assign(Object.assign({}, project), { status: "up" });
                     yield (0, update_store_1.updateStore)("projects", project_id, json);
                     // Kill process on ctrl+c
                     process.on("SIGINT", () => {
                         (() => __awaiter(this, void 0, void 0, function* () {
-                            console.log(chalk_1.default.yellow(">> Killing process..."));
-                            yield (0, update_store_1.updateStore)("projects", project_id, Object.assign(Object.assign({}, project), { status: "build", sshProcessIds: null, projectRunnerId: null }));
                             process.exit(0);
                         }))();
                     });

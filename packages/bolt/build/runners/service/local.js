@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "path", "chalk", "../../helpers/execute-detached", "../../helpers/kill-process", "../../helpers/get-local-logs"], factory);
+        define(["require", "exports", "path", "chalk", "../../helpers/execute-detached", "../../helpers/kill-process", "../../helpers/get-local-logs", "../../helpers/update-store"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -26,8 +26,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const execute_detached_1 = require("../../helpers/execute-detached");
     const kill_process_1 = require("../../helpers/kill-process");
     const get_local_logs_1 = require("../../helpers/get-local-logs");
+    const update_store_1 = require("../../helpers/update-store");
     class ServiceRunnerLocal {
-        constructor(servicePath, build) {
+        constructor(serviceName, servicePath, build) {
+            this.serviceName = serviceName;
             this.build = build;
             this.volume = (0, path_1.join)(servicePath);
         }
@@ -46,20 +48,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 console.log(chalk_1.default.gray("$ sh", args.join(" ")));
             });
         }
-        start(serviceName) {
+        start() {
             return __awaiter(this, void 0, void 0, function* () {
-                const PID = yield this.run(serviceName);
-                return PID;
+                const PID = yield this.run(this.serviceName);
+                const json = {
+                    status: "up",
+                    serviceRunner: "local",
+                    projectRunner: "host",
+                    port: null,
+                    processId: PID,
+                };
+                yield (0, update_store_1.updateStore)("services", this.serviceName, json);
             });
         }
         stop(processId) {
             return __awaiter(this, void 0, void 0, function* () {
                 yield (0, kill_process_1.killProcess)(processId);
+                const json = {
+                    status: "down",
+                    serviceRunner: null,
+                    projectRunner: null,
+                    port: null,
+                    processId: null,
+                };
+                yield (0, update_store_1.updateStore)("services", this.serviceName, json);
             });
         }
-        logs(isFollow, serviceName) {
+        logs(isFollow) {
             return __awaiter(this, void 0, void 0, function* () {
-                yield (0, get_local_logs_1.getLogs)(serviceName, isFollow, (0, path_1.join)(".logs", serviceName));
+                yield (0, get_local_logs_1.getLogs)(this.serviceName, isFollow, (0, path_1.join)(".logs", this.serviceName));
             });
         }
     }

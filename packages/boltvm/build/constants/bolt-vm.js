@@ -48,6 +48,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     };
     exports.VM_INTERNALS_CONFIG = {
         destination: "/home/boltvm/projects",
-        command: `sudo npm update -g @gluestack/bolt && cd /home/boltvm/projects`,
+        boltInstallationCommand: "sudo npm update -g @gluestack/bolt",
+        projectCdCommand: `cd /home/boltvm/projects`,
     };
 });

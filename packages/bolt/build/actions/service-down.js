@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/update-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../helpers/get-store-data"], factory);
+        define(["require", "exports", "chalk", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/update-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../runners/service/vm", "../helpers/get-store-data"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -29,6 +29,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
     const service_1 = __importDefault(require("../runners/service"));
+    const vm_1 = __importDefault(require("../runners/service/vm"));
     const get_store_data_1 = require("../helpers/get-store-data");
     class ServiceDown {
         checkIfAlreadyDown(_yamlContent, serviceName) {
@@ -70,15 +71,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" service is not running`);
                     return;
                 }
-                const projectRunner = yield (0, get_store_data_1.getStoreData)("project_runner");
-                if (projectRunner === "vm") {
-                    yield (0, exit_with_msg_1.exitWithMsg)(`>> ${_yamlContent.project_name} is running in VM. Run "bolt down" to stop the project!`);
-                    return;
-                }
-                const { envfile, build } = content.service_runners[currentServiceRunner];
                 const serviceRunner = new service_1.default();
                 switch (currentServiceRunner) {
                     case "docker":
+                        const { envfile, build } = content.service_runners.docker;
                         const dockerConfig = {
                             containerName: content.container_name,
                             servicePath: servicePath,
@@ -86,36 +82,55 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             envFile: envfile,
                             ports: [],
                             volumes: [],
-                            isFollow: false,
                         };
                         yield serviceRunner.docker(dockerConfig, {
                             action: "stop",
+                            serviceName: serviceName,
                         });
                         break;
                     case "local":
                         const processId = Number(service.processId) || 0;
+                        const { build: localBuild } = content.service_runners.local;
                         const localConfig = {
                             servicePath: servicePath,
-                            serviceName: serviceName,
-                            build: build,
+                            build: localBuild,
                             processId: processId,
-                            isFollow: false,
                         };
                         yield serviceRunner.local(localConfig, {
                             action: "stop",
+                            serviceName: serviceName,
+                        });
+                        break;
+                    case "vmlocal":
+                        const vmConfig = {
+                            serviceContent: content,
+                            serviceName: serviceName,
+                            cache: false,
+                            runnerType: "vmlocal",
+                        };
+                        yield serviceRunner.vm(vmConfig, {
+                            action: "stop",
+                            serviceName: serviceName,
+                        });
+                        break;
+                    case "vmdocker":
+                        const vmDockerConfig = {
+                            serviceContent: content,
+                            serviceName: serviceName,
+                            cache: false,
+                            runnerType: "vmdocker",
+                        };
+                        yield serviceRunner.vm(vmDockerConfig, {
+                            action: "stop",
+                            serviceName: serviceName,
                         });
                         break;
                 }
-                const json = {
-                    status: "down",
-                    serviceRunner: null,
-                    port: null,
-                    processId: null,
-                };
-                yield (0, update_store_1.updateStore)("services", serviceName, json);
                 const isAllServiceDown = yield this.checkAllServiceDown(_yamlContent);
-                if (isAllServiceDown) {
-                    yield (0, update_store_1.updateStore)("project_runner", "none");
+                const vmStaus = yield (0, get_store_data_1.getStoreData)("vm");
+                if (isAllServiceDown && vmStaus === "up") {
+                    yield vm_1.default.down();
+                    yield (0, update_store_1.updateStore)("vm", "down");
                 }
                 console.log(chalk_1.default.green(`\n"${serviceName}" is down from ${currentServiceRunner} platform\n`));
             });

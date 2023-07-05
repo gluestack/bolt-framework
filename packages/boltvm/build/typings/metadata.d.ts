@@ -2,7 +2,7 @@ export interface IMetadata {
     projectName: string;
     containerPath: string | null;
     sshPort: number | null;
-    status: "up" | "down" | "build";
+    status: "up" | "down";
     vmProcessId: number | null;
     mountProcessId: number | null;
     sshProcessIds: (number | null)[] | null;

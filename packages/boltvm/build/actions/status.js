@@ -39,9 +39,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     const project = yield (0, validate_project_status_1.validateProjectStatus)("status", boltConfig);
                     const status = project.status;
                     switch (status) {
-                        case "build":
-                            console.log(chalk_1.default.green(`>> ${project_name}'s image has been build on boltvm. `));
-                            break;
                         case "up":
                             console.log(chalk_1.default.green(`>> ${project_name} is up & running on boltvm. `));
                             break;

@@ -11,11 +11,11 @@ import Common from "../common";
 
 import Ingress from "../libraries/ingress";
 
-import ProjectRunner from "../runners/project";
-
 import { BOLT } from "../constants/bolt-configs";
 
-import { ProjectRunners } from "../typings/store-service";
+import { ProjectRunners, StoreServices } from "../typings/store-service";
+import { getStoreData } from "../helpers/get-store-data";
+import ServiceDown from "./service-down";
 
 export default class Down {
   public async handle() {
@@ -27,39 +27,25 @@ export default class Down {
 
     console.log(`>> Stopping ${_yamlContent.project_name}...`);
 
-    const store = await getStore();
-    const projectRunnerEnv: ProjectRunners = await store.get("project_runner");
+    const data: StoreServices = await getStoreData("services");
 
-    if (!projectRunnerEnv) {
-      exitWithMsg(`>> Project runner not found. Please run the project first.`);
-    }
+    const serviceDownPromises: any = [];
 
-    // 1. creating a project runner instance
-    const projectRunner = new ProjectRunner(_yamlContent);
+    Object.entries(_yamlContent.services).forEach(async ([serviceName]) => {
+      if (data[serviceName] && data[serviceName].status === "down") {
+        return;
+      }
 
-    // 2. stops the services on particular project runner platform
-    switch (projectRunnerEnv) {
-      case "none":
-        exitWithMsg(
-          `>> ${_yamlContent.project_name} is not running. Please run "bolt up" first.`
-        );
-        break;
-      case "host":
-        await projectRunner.host({ action: "down" });
-        break;
-      case "vm":
-        await projectRunner.vm({ action: "down" });
-        break;
-      default:
-        exitWithMsg(
-          `>> Unknown server environment for ${_yamlContent.project_name}`
-        );
-        break;
-    }
+      const serviceDown = new ServiceDown();
+      serviceDownPromises.push(serviceDown.handle(serviceName));
+    });
+
+    await Promise.all(serviceDownPromises);
 
     // 3. stops the nginx container if it is running
-    if (projectRunnerEnv !== "vm") {
-      if (await exists(join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME))) {
+    if (_yamlContent.ingress) {
+      const nginxConfig = join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME);
+      if (await exists(nginxConfig)) {
         await Ingress.stop(BOLT.NGINX_CONTAINER_NAME);
       }
     }

@@ -69,7 +69,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
         static stop(containerName) {
             return __awaiter(this, void 0, void 0, function* () {
-                const docker = new docker_1.default(containerName, "", "", []);
+                const docker = new docker_1.default("", containerName, "", "", []);
                 yield docker.stopExec();
                 yield docker.remove();
             });

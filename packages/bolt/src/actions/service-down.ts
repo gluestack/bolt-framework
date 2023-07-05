@@ -8,14 +8,15 @@ import { validateServices } from "../helpers/validate-services";
 
 import Common from "../common";
 
-import {
-  ProjectRunners,
-  StoreService,
-  StoreServices,
-} from "../typings/store-service";
+import { StoreService, StoreServices } from "../typings/store-service";
 import { Bolt } from "../typings/bolt";
 import ServiceRunner from "../runners/service";
-import { DockerConfig, LocalConfig } from "../typings/project-runner-config";
+import {
+  DockerConfig,
+  LocalConfig,
+  VMConfig,
+} from "../typings/service-runner-config";
+import ServiceRunnerVM from "../runners/service/vm";
 import { getStoreData } from "../helpers/get-store-data";
 
 export default class ServiceDown {
@@ -37,6 +38,7 @@ export default class ServiceDown {
     const services = _yamlContent.services;
 
     let allServiceDown = true;
+
     Object.entries(services).forEach(([serviceName]) => {
       if (data[serviceName] && data[serviceName].status !== "down") {
         allServiceDown = false;
@@ -73,19 +75,10 @@ export default class ServiceDown {
       return;
     }
 
-    const projectRunner: ProjectRunners = await getStoreData("project_runner");
-    if (projectRunner === "vm") {
-      await exitWithMsg(
-        `>> ${_yamlContent.project_name} is running in VM. Run "bolt down" to stop the project!`
-      );
-      return;
-    }
-
-    const { envfile, build } = content.service_runners[currentServiceRunner];
-
     const serviceRunner = new ServiceRunner();
     switch (currentServiceRunner) {
       case "docker":
+        const { envfile, build } = content.service_runners.docker;
         const dockerConfig: DockerConfig = {
           containerName: content.container_name,
           servicePath: servicePath,
@@ -93,40 +86,64 @@ export default class ServiceDown {
           envFile: envfile,
           ports: [],
           volumes: [],
-          isFollow: false,
         };
+
         await serviceRunner.docker(dockerConfig, {
           action: "stop",
+          serviceName: serviceName,
         });
         break;
+
       case "local":
         const processId: number = Number(service.processId) || 0;
+        const { build: localBuild } = content.service_runners.local;
         const localConfig: LocalConfig = {
           servicePath: servicePath,
-          serviceName: serviceName,
-          build: build,
+          build: localBuild,
           processId: processId,
-          isFollow: false,
         };
         await serviceRunner.local(localConfig, {
           action: "stop",
+          serviceName: serviceName,
+        });
+        break;
+
+      case "vmlocal":
+        const vmConfig: VMConfig = {
+          serviceContent: content,
+          serviceName: serviceName,
+          cache: false,
+          runnerType: "vmlocal",
+        };
+        await serviceRunner.vm(vmConfig, {
+          action: "stop",
+          serviceName: serviceName,
+        });
+        break;
+
+      case "vmdocker":
+        const vmDockerConfig: VMConfig = {
+          serviceContent: content,
+          serviceName: serviceName,
+          cache: false,
+          runnerType: "vmdocker",
+        };
+
+        await serviceRunner.vm(vmDockerConfig, {
+          action: "stop",
+          serviceName: serviceName,
         });
         break;
     }
 
-    const json: StoreService = {
-      status: "down",
-      serviceRunner: null,
-      port: null,
-      processId: null,
-    };
-
-    await updateStore("services", serviceName, json);
-
     const isAllServiceDown = await this.checkAllServiceDown(_yamlContent);
 
-    if (isAllServiceDown) {
-      await updateStore("project_runner", "none");
+    const vmStaus = await getStoreData("vm");
+
+    if (isAllServiceDown && vmStaus === "up") {
+      await ServiceRunnerVM.down();
+
+      await updateStore("vm", "down");
     }
 
     console.log(

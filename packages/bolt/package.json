@@ -38,7 +38,7 @@
   "author": "gluestack.io",
   "license": "ISC",
   "dependencies": {
-    "@gluestack/boltvm": "^0.0.4",
+    "@gluestack/boltvm": "^0.0.5",
     "@gluestack/glue-server-sdk-js": "^0.0.7",
     "@gluestack/helpers": "^0.0.17",
     "archiver": "^5.3.1",

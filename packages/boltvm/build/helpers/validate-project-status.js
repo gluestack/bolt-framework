@@ -36,16 +36,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
         switch (action) {
             case "create":
-                if (project && (project.status === "build" || project.status === "up")) {
+                if (project && project.status === "up") {
                     (0, exit_with_msg_1.exitWithMsg)(`>> "${projectName}"'s image has already been built and boltvm is running.`);
                 }
                 break;
             case "run":
                 if (project && project.status === "down") {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> boltvm is down, please create the project first!!!`);
-                }
-                if (project && project.status === "up") {
-                    (0, exit_with_msg_1.exitWithMsg)(`>> "${projectName}" is already running`);
+                    (0, exit_with_msg_1.exitWithMsg)(`>> boltvm is down!`);
                 }
                 break;
             case "down":

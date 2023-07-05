@@ -7,16 +7,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "path", "../../helpers/execute", "../../helpers/fs-exists", "chalk"], factory);
+        define(["require", "exports", "path", "../../helpers/execute", "../../helpers/fs-exists", "../../helpers/update-store"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,9 +21,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const path_1 = require("path");
     const execute_1 = require("../../helpers/execute");
     const fs_exists_1 = require("../../helpers/fs-exists");
-    const chalk_1 = __importDefault(require("chalk"));
+    const update_store_1 = require("../../helpers/update-store");
     class ServiceRunnerDocker {
-        constructor(container_name, servicePath, build, ports, envfile = "", volumes) {
+        constructor(serviceName, container_name, servicePath, build, ports, envfile = "", volumes) {
+            this.serviceName = serviceName;
             this.ports = ports;
             this.container_name = container_name;
             this.build = (0, path_1.join)(servicePath, build);
@@ -36,7 +34,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
         create() {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log(">> Creating Docker Build...");
+                console.log(">> Creating Docker build...");
                 const args = [
                     "build",
                     "--no-cache",
@@ -52,12 +50,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     stdio: "inherit",
                     shell: true,
                 });
-                console.log(">> Done with Creating Docker Build...");
+                console.log(">> Done with creating Docker build...");
             });
         }
         run() {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log(">> Initiaiting Docker Run...");
+                console.log(">> Initiaiting Docker run...");
                 const args = [
                     "run",
                     "--detach",
@@ -92,7 +90,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     stdio: "inherit",
                     shell: true,
                 });
-                console.log(">> Done with Initiating Docker Run...");
+                console.log(">> Done with initiating Docker run...");
             });
         }
         stopExec() {
@@ -105,7 +103,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     stdio: "inherit",
                     shell: true,
                 });
-                console.log(">> Done with Stopping Docker Container...");
+                console.log(">> Done with stopping Docker Container...");
             });
         }
         remove() {
@@ -118,12 +116,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     stdio: "inherit",
                     shell: true,
                 });
-                console.log(">> Done with Removing Docker Container...");
+                console.log(">> Done with removing Docker Container...");
             });
         }
         printCommand(args) {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log(chalk_1.default.gray("$ docker", args.join(" ")));
+                // console.log(chalk.gray("$ docker", args.join(" ")));
             });
         }
         getLog(isFollow) {
@@ -142,12 +140,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             return __awaiter(this, void 0, void 0, function* () {
                 yield this.create();
                 yield this.run();
+                const json = {
+                    status: "up",
+                    serviceRunner: "docker",
+                    projectRunner: "host",
+                    port: this.ports,
+                    processId: this.container_name,
+                };
+                yield (0, update_store_1.updateStore)("services", this.serviceName, json);
             });
         }
         stop() {
             return __awaiter(this, void 0, void 0, function* () {
                 yield this.stopExec();
                 yield this.remove();
+                const json = {
+                    status: "down",
+                    serviceRunner: null,
+                    projectRunner: null,
+                    port: null,
+                    processId: null,
+                };
+                yield (0, update_store_1.updateStore)("services", this.serviceName, json);
             });
         }
         logs(isFollow) {

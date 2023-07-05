@@ -1,50 +1,30 @@
 import { exists } from "fs-extra";
 import { join } from "path";
 
-import { serviceRunners } from "../constants/platforms";
-
-import { exitWithMsg } from "../helpers/exit-with-msg";
 import generateRoutes from "../helpers/generate-routes";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
 
 import Common from "../common";
 
-import ProjectRunner from "../runners/project";
 import { BOLT } from "../constants/bolt-configs";
-import { stringifyYAML } from "../helpers/stringify-yaml";
+
 import Ingress from "../libraries/ingress";
+import { getStoreData } from "../helpers/get-store-data";
+import { StoreServices } from "../typings/store-service";
+import ServiceUp from "./service-up";
+import { serviceRunners } from "../typings/bolt-service";
+import chalk from "chalk";
 
 export default class Up {
   public async handle(options: any): Promise<void> {
-    let projectRunnerOption: "host" | "vm" | undefined;
+    let projectRunnerOption: "host" | "vm" | "default" = "default";
+    const cache = options.cache || false;
     if (options.host || options.vm) {
       projectRunnerOption = options.host ? "host" : "vm";
     }
 
     const _yamlContent = await Common.getAndValidateBoltYaml();
-
-    if (!projectRunnerOption) {
-      projectRunnerOption = _yamlContent.default_project_runner;
-    } else {
-      _yamlContent.default_project_runner = projectRunnerOption;
-      await stringifyYAML(
-        _yamlContent,
-        join(process.cwd(), BOLT.YAML_FILE_NAME)
-      );
-    }
-
-    const defaultServiceRunner = _yamlContent.default_service_runner;
-
-    if (!defaultServiceRunner) {
-      exitWithMsg("Please Specify a default runner for the app.");
-    }
-
-    if (!serviceRunners.includes(defaultServiceRunner)) {
-      exitWithMsg(
-        `Invalid runner "${_yamlContent.default_service_runner}" specified in bolt.yaml`
-      );
-    }
 
     // Validations for metadata and services
     await validateMetadata();
@@ -54,30 +34,67 @@ export default class Up {
     console.log(`>> Creating Ingress...`);
     const ports = await generateRoutes(_yamlContent);
 
+    const data: StoreServices = await getStoreData("services");
+
+    const serviceUpPromises: any = [];
+
+    const localRunner = ["local", "docker"];
+    const vmRunners = ["vmlocal", "vmdocker"];
+
+    Object.entries(_yamlContent.services).forEach(async ([serviceName]) => {
+      if (data[serviceName] && data[serviceName].status !== "down") {
+        return;
+      }
+
+      // Validating and getting content from bolt.service.yaml
+      const { content } = await Common.getAndValidateService(
+        serviceName,
+        _yamlContent
+      );
+
+      if (
+        projectRunnerOption === "host" &&
+        !localRunner.includes(content.default_service_runner)
+      ) {
+        console.log(
+          chalk.red(
+            `>> ${serviceName} does not includes host runners. Skipping...`
+          )
+        );
+        return;
+      }
+
+      if (
+        projectRunnerOption === "vm" &&
+        !vmRunners.includes(content.default_service_runner)
+      ) {
+        console.log(
+          chalk.red(
+            `>> ${serviceName} does not includes vm runners. Skipping...`
+          )
+        );
+        return;
+      }
+
+      const serviceRunner = content.default_service_runner;
+      const serviceUp = new ServiceUp();
+
+      serviceUpPromises.push(
+        serviceUp.handle(serviceName, {
+          serviceRunner,
+          cache: cache,
+          ports,
+        })
+      );
+    });
+
+    await Promise.all(serviceUpPromises);
+
     // 2. generates .env
     await Common.generateEnv();
 
-    // 3. creating a project runner instance
-    const projectRunner = new ProjectRunner(_yamlContent);
-
-    // 4. starts the services on specified project runner
-    switch (projectRunnerOption) {
-      case "host":
-        await projectRunner.host({ action: "up" });
-        break;
-      case "vm":
-        const cache = options.cache ? true : false;
-        await projectRunner.vm({ action: "up" }, cache);
-        break;
-      default:
-        exitWithMsg(
-          `Invalid runner "${projectRunnerOption}" specified in ${BOLT.YAML_FILE_NAME}`
-        );
-        break;
-    }
-
     // 5. starts nginx if the project runner is not vm and nginx config exists in bolt.yaml
-    if (projectRunnerOption !== "vm" && _yamlContent.ingress) {
+    if (_yamlContent.ingress) {
       const nginxConfig = join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME);
       if (await exists(nginxConfig)) {
         await Ingress.start(

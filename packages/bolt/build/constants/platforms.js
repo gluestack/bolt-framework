@@ -10,6 +10,12 @@
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.serviceRunners = void 0;
-    exports.serviceRunners = ["docker", "local"];
+    exports.supportedServiceRunners = exports.hostServiceRunners = void 0;
+    exports.hostServiceRunners = ["docker", "local"];
+    exports.supportedServiceRunners = [
+        "local",
+        "docker",
+        "vmlocal",
+        "vmdocker",
+    ];
 });

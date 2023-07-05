@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./actions/addMetadata", "./actions/create", "./actions/doctor", "./actions/down", "./actions/exec", "./actions/exposePort", "./actions/log", "./actions/run", "./actions/status"], factory);
+        define(["require", "exports", "./actions/addMetadata", "./actions/create", "./actions/doctor", "./actions/down", "./actions/exec", "./actions/executeCommand", "./actions/exposePort", "./actions/log", "./actions/run", "./actions/status"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const doctor_1 = __importDefault(require("./actions/doctor"));
     const down_1 = __importDefault(require("./actions/down"));
     const exec_1 = __importDefault(require("./actions/exec"));
+    const executeCommand_1 = __importDefault(require("./actions/executeCommand"));
     const exposePort_1 = __importDefault(require("./actions/exposePort"));
     const log_1 = __importDefault(require("./actions/log"));
     const run_1 = __importDefault(require("./actions/run"));
@@ -52,10 +53,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield run.handle(command, this.location, detached);
             });
         }
-        exposePort(port) {
+        exposePort(ports) {
             return __awaiter(this, void 0, void 0, function* () {
                 const exposePort = new exposePort_1.default();
-                yield exposePort.handle(this.location, port);
+                yield exposePort.handle(this.location, ports);
             });
         }
         exec() {
@@ -86,6 +87,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             return __awaiter(this, void 0, void 0, function* () {
                 const doctor = new doctor_1.default();
                 yield doctor.handle();
+            });
+        }
+        executeCommand(command, detached, options) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const executeCommand = new executeCommand_1.default(options.boltInstall);
+                yield executeCommand.handle(command, this.location, detached);
             });
         }
     }

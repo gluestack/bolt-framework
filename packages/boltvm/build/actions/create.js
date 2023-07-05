@@ -96,7 +96,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield (0, execute_1.execute)("chmod", ["+x", (0, path_1.join)(bolt_vm_1.VM_BINARIES.NOTIFY_SCRIPT)], {});
                     // Check for valid boltvm yml file
                     const boltConfig = yield (0, validate_bolt_file_1.validateBoltYaml)(localPath);
-                    const { project_id, project_name, vm } = boltConfig;
+                    const { project_id, project_name } = boltConfig;
                     // Check if image is already built
                     const project = yield (0, validate_project_status_1.validateProjectStatus)("create", boltConfig);
                     // Getting ssh port
@@ -119,7 +119,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         detatched: true,
                     }, "mount");
                     // Adding project to metadata
-                    const json = Object.assign(Object.assign({}, project), { containerPath: contianerPath, sshPort: sshPort, status: "build", vmProcessId: vmPid, mountProcessId: mountPid, createdAt: Date.now(), updatedAt: Date.now() });
+                    const json = Object.assign(Object.assign({}, project), { containerPath: contianerPath, sshPort: sshPort, status: "up", vmProcessId: vmPid, mountProcessId: mountPid, createdAt: Date.now(), updatedAt: Date.now() });
                     yield (0, update_store_1.updateStore)("projects", project_id, json);
                 }
                 catch (error) {

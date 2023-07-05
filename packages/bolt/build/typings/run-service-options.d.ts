@@ -1,4 +1,5 @@
 export type RunServiceOptions = {
-    serviceRunner: "docker" | "local";
+    serviceRunner: "docker" | "local" | "vmlocal" | "vmdocker";
+    cache?: boolean;
     ports: string[];
 };

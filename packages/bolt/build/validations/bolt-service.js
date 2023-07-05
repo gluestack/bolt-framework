@@ -25,7 +25,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const bolt_configs_1 = require("../constants/bolt-configs");
     const ServiceConfigSchema = zod_1.z.object({
         container_name: zod_1.z.string(),
-        service_runners: zod_1.z.record(zod_1.z.enum(platforms_1.serviceRunners), zod_1.z.object({
+        default_service_runner: zod_1.z.enum(platforms_1.supportedServiceRunners),
+        supported_service_runners: zod_1.z.array(zod_1.z.enum(platforms_1.supportedServiceRunners)),
+        service_runners: zod_1.z.record(zod_1.z.enum(platforms_1.hostServiceRunners), zod_1.z.object({
             envfile: zod_1.z.string(),
             build: zod_1.z.string(),
             // context: z.string().optional(),
@@ -37,7 +39,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         }
         catch (error) {
             // @ts-ignore ZodError
-            yield (0, exit_with_msg_1.exitWithMsg)(`Error while validating ${bolt_configs_1.BOLT.SERVICE_YAML_FILE_NAME}: ${error.errors}`);
+            yield (0, exit_with_msg_1.exitWithMsg)(`Error while validating ${bolt_configs_1.BOLT.SERVICE_YAML_FILE_NAME}: ${error.message}`);
         }
         return context;
     });

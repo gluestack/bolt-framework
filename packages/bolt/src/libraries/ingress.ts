@@ -59,7 +59,7 @@ export default class Ingress {
   }
 
   public static async stop(containerName: string) {
-    const docker = new ServiceRunnerDocker(containerName, "", "", []);
+    const docker = new ServiceRunnerDocker("", containerName, "", "", []);
     await docker.stopExec();
     await docker.remove();
   }
