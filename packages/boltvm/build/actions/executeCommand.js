@@ -49,7 +49,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     return yield (0, execute_detached_1.executeDetachedWithLogs)("ssh", args, (0, path_1.join)(localPath, bolt_vm_1.BOLTVM.LOG_FOLDER, "command_logs"), {
                         shell: true,
                         detached: true,
-                    }, "Command Runner");
+                    }, "Command Runner", false);
                 }
                 else {
                     // Runs the command in foreground mode
