@@ -6,8 +6,6 @@ const ConfigSchema = z.object({
   envfile: z.string(),
   project_id: z.string(),
   project_name: z.string(),
-  default_project_runner: z.string(),
-  default_service_runner: z.string(),
   services: z.nullable(
     z.record(
       z.string(),

@@ -4,8 +4,6 @@ import { exitWithMsg } from "../helpers/exit-with-msg";
 
 const ConfigSchema = z.object({
   name: z.string(),
-  ports: z.array(z.string()),
-  command: z.string(),
 });
 
 export const validateVmConfig = async (context: VM): Promise<VM> => {

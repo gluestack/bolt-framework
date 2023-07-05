@@ -13,15 +13,16 @@ export const validateServices = async (option?: any) => {
 
     const store = await getStore();
     const data: StoreServices = store.get("services");
-    const projectRunner = await store.get("project_runner");
+    const vmStatus = await store.get("vm");
 
-    if (!projectRunner) {
-      updateStore("project_runner", "none");
+    if (!vmStatus) {
+      updateStore("vm", "down");
     }
 
     const json: StoreService = {
       status: "down",
       serviceRunner: null,
+      projectRunner: null,
       port: null,
       processId: null,
     };

@@ -8,7 +8,7 @@ import getStore from "../helpers/get-store";
 import { parseYAML } from "../helpers/parse-yaml";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
-import { ProjectRunners, StoreServices } from "../typings/store-service";
+import { StoreServices } from "../typings/store-service";
 import { validateBolt } from "../validations/bolt";
 
 export default class List {
@@ -33,19 +33,11 @@ export default class List {
 
     const store = await getStore();
     const data: StoreServices = store.get("services") || [];
-    let projectRunner = store.get("project_runner") || {};
-    projectRunner = projectRunner === "none" ? "NA" : projectRunner;
-
-    // Work from here
-    if (!projectRunner) {
-      await exitWithMsg(`>> Project runner not found`);
-    }
 
     const head: string[] = [
       "#",
       "Service Name",
       "Status",
-      "Project Runner",
       "Service Runner",
       "Port",
       "ProcessId",
@@ -69,7 +61,6 @@ export default class List {
         counter || "NA",
         key || "NA",
         data[key].status || "NA",
-        projectRunner || "NA",
         data[key].serviceRunner || "NA",
         port || "NA",
         data[key].processId || "NA",

@@ -22,11 +22,6 @@ export default class Status {
       const status = project.status;
 
       switch (status) {
-        case "build":
-          console.log(
-            chalk.green(`>> ${project_name}'s image has been build on boltvm. `)
-          );
-          break;
         case "up":
           console.log(
             chalk.green(`>> ${project_name} is up & running on boltvm. `)

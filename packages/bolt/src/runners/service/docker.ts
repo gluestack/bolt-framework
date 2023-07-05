@@ -3,16 +3,20 @@ import { execute } from "../../helpers/execute";
 import { exists } from "../../helpers/fs-exists";
 import chalk from "chalk";
 import BoltServiceRunner from "../../typings/bolt-service-runner";
+import { StoreService } from "../../typings/store-service";
+import { updateStore } from "../../helpers/update-store";
 
 export default class ServiceRunnerDocker implements BoltServiceRunner {
   volume: string;
-  private container_name: string;
+  container_name: string;
   build: string;
-  private envfile: string;
-  private ports: string[];
-  private volumes: string[];
+  envfile: string;
+  ports: string[];
+  volumes: string[];
+  serviceName: string;
 
   constructor(
+    serviceName: string,
     container_name: string,
     servicePath: string,
     build: string,
@@ -20,6 +24,7 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
     envfile: string = "",
     volumes?: string[]
   ) {
+    this.serviceName = serviceName;
     this.ports = ports;
     this.container_name = container_name;
     this.build = join(servicePath, build);
@@ -29,7 +34,7 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
   }
 
   private async create() {
-    console.log(">> Creating Docker Build...");
+    console.log(">> Creating Docker build...");
     const args: string[] = [
       "build",
       "--no-cache",
@@ -45,11 +50,11 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
       stdio: "inherit",
       shell: true,
     });
-    console.log(">> Done with Creating Docker Build...");
+    console.log(">> Done with creating Docker build...");
   }
 
   private async run() {
-    console.log(">> Initiaiting Docker Run...");
+    console.log(">> Initiaiting Docker run...");
     const args: string[] = [
       "run",
       "--detach",
@@ -87,7 +92,7 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
       shell: true,
     });
 
-    console.log(">> Done with Initiating Docker Run...");
+    console.log(">> Done with initiating Docker run...");
   }
 
   public async stopExec() {
@@ -103,7 +108,7 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
       shell: true,
     });
 
-    console.log(">> Done with Stopping Docker Container...");
+    console.log(">> Done with stopping Docker Container...");
   }
 
   public async remove() {
@@ -119,11 +124,11 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
       shell: true,
     });
 
-    console.log(">> Done with Removing Docker Container...");
+    console.log(">> Done with removing Docker Container...");
   }
 
   private async printCommand(args: string[]) {
-    console.log(chalk.gray("$ docker", args.join(" ")));
+    // console.log(chalk.gray("$ docker", args.join(" ")));
   }
 
   private async getLog(isFollow: boolean) {
@@ -142,11 +147,31 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
   public async start() {
     await this.create();
     await this.run();
+
+    const json: StoreService = {
+      status: "up",
+      serviceRunner: "docker",
+      projectRunner: "host",
+      port: this.ports,
+      processId: this.container_name,
+    };
+
+    await updateStore("services", this.serviceName, json);
   }
 
   public async stop() {
     await this.stopExec();
     await this.remove();
+
+    const json: StoreService = {
+      status: "down",
+      serviceRunner: null,
+      projectRunner: null,
+      port: null,
+      processId: null,
+    };
+
+    await updateStore("services", this.serviceName, json);
   }
 
   public async logs(isFollow: boolean) {

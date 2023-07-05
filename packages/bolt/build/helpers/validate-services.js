@@ -33,13 +33,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             let _yamlContent = yield common_1.default.getAndValidateBoltYaml();
             const store = yield (0, get_store_1.default)();
             const data = store.get("services");
-            const projectRunner = yield store.get("project_runner");
-            if (!projectRunner) {
-                (0, update_store_1.updateStore)("project_runner", "none");
+            const vmStatus = yield store.get("vm");
+            if (!vmStatus) {
+                (0, update_store_1.updateStore)("vm", "down");
             }
             const json = {
                 status: "down",
                 serviceRunner: null,
+                projectRunner: null,
                 port: null,
                 processId: null,
             };

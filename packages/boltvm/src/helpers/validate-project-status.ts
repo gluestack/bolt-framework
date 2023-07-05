@@ -22,7 +22,7 @@ export const validateProjectStatus = async (
 
   switch (action) {
     case "create":
-      if (project && (project.status === "build" || project.status === "up")) {
+      if (project && project.status === "up") {
         exitWithMsg(
           `>> "${projectName}"'s image has already been built and boltvm is running.`
         );
@@ -30,10 +30,7 @@ export const validateProjectStatus = async (
       break;
     case "run":
       if (project && project.status === "down") {
-        exitWithMsg(`>> boltvm is down, please create the project first!!!`);
-      }
-      if (project && project.status === "up") {
-        exitWithMsg(`>> "${projectName}" is already running`);
+        exitWithMsg(`>> boltvm is down!`);
       }
       break;
     case "down":

@@ -96,7 +96,7 @@ export default class Create {
       // Check for valid boltvm yml file
       const boltConfig = await validateBoltYaml(localPath);
 
-      const { project_id, project_name, vm } = boltConfig;
+      const { project_id, project_name } = boltConfig;
       // Check if image is already built
       const project = await validateProjectStatus("create", boltConfig);
 
@@ -134,7 +134,7 @@ export default class Create {
         ...project,
         containerPath: contianerPath,
         sshPort: sshPort,
-        status: "build",
+        status: "up",
         vmProcessId: vmPid,
         mountProcessId: mountPid,
         createdAt: Date.now(),

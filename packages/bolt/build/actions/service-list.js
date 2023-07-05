@@ -50,17 +50,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield (0, validate_services_1.validateServices)();
                 const store = yield (0, get_store_1.default)();
                 const data = store.get("services") || [];
-                let projectRunner = store.get("project_runner") || {};
-                projectRunner = projectRunner === "none" ? "NA" : projectRunner;
-                // Work from here
-                if (!projectRunner) {
-                    yield (0, exit_with_msg_1.exitWithMsg)(`>> Project runner not found`);
-                }
                 const head = [
                     "#",
                     "Service Name",
                     "Status",
-                    "Project Runner",
                     "Service Runner",
                     "Port",
                     "ProcessId",
@@ -82,7 +75,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         counter || "NA",
                         key || "NA",
                         data[key].status || "NA",
-                        projectRunner || "NA",
                         data[key].serviceRunner || "NA",
                         port || "NA",
                         data[key].processId || "NA",

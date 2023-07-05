@@ -16,20 +16,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../constants/bolt-configs", "../runners/service"], factory);
+        define(["require", "exports", "chalk", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const chalk_1 = __importDefault(require("chalk"));
-    const path_1 = require("path");
     const docker_info_1 = require("../helpers/docker-info");
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const get_store_1 = __importDefault(require("../helpers/get-store"));
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
-    const bolt_configs_1 = require("../constants/bolt-configs");
     const service_1 = __importDefault(require("../runners/service"));
     class ServiceUp {
         //
@@ -43,61 +41,115 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 }
             });
         }
+        validateServiceRunnerConfig(content, serviceRunnerKey) {
+            const config = content.service_runners[serviceRunnerKey];
+            if (!config) {
+                return false;
+            }
+            return true;
+        }
         handle(serviceName, options) {
             return __awaiter(this, void 0, void 0, function* () {
-                const { serviceRunner } = options;
-                if (serviceRunner === "docker") {
-                    const isDockerRunning = yield (0, docker_info_1.getDockerStatus)();
-                    if (!isDockerRunning) {
-                        (0, exit_with_msg_1.exitWithMsg)("Unable to connect with docker!");
+                try {
+                    let { serviceRunner: srOption, cache } = options;
+                    if (srOption === "docker") {
+                        const isDockerRunning = yield (0, docker_info_1.getDockerStatus)();
+                        if (!isDockerRunning) {
+                            (0, exit_with_msg_1.exitWithMsg)("Unable to connect with docker!");
+                        }
                     }
+                    const { _yamlContent } = yield common_1.default.validateServiceInBoltYaml(serviceName);
+                    // Validations for metadata and services
+                    yield (0, validate_metadata_1.validateMetadata)();
+                    yield (0, validate_services_1.validateServices)();
+                    yield this.checkIfAlreadyUp(_yamlContent, serviceName);
+                    const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
+                    if (!content.supported_service_runners.includes(srOption)) {
+                        console.log(chalk_1.default.yellow(`>> Given "${srOption}" service runner is not supported for ${serviceName}, using "${content.supported_service_runners[0]}" instead!`));
+                        srOption = content.supported_service_runners[0];
+                    }
+                    // generates .env
+                    yield common_1.default.generateEnv();
+                    let isConfigValid = false;
+                    const serviceRunner = new service_1.default();
+                    switch (srOption) {
+                        case "local":
+                            isConfigValid = this.validateServiceRunnerConfig(content, "local");
+                            if (!isConfigValid) {
+                                console.log(chalk_1.default.red(`>> No config found for local in bolt.service.yaml`));
+                                return;
+                            }
+                            const localBuild = content.service_runners.local.build;
+                            const localConfig = {
+                                servicePath: servicePath,
+                                build: localBuild,
+                                processId: 0,
+                            };
+                            yield serviceRunner.local(localConfig, {
+                                action: "start",
+                                serviceName: serviceName,
+                            });
+                            break;
+                        case "docker":
+                            isConfigValid = this.validateServiceRunnerConfig(content, "docker");
+                            if (!isConfigValid) {
+                                console.log(chalk_1.default.red(`>> No config found for docker in bolt.service.yaml`));
+                                return;
+                            }
+                            const { build: dockerBuild, ports, volumes, envfile, } = content.service_runners.docker;
+                            const dockerConfig = {
+                                containerName: content.container_name,
+                                servicePath: servicePath,
+                                build: dockerBuild,
+                                ports: ports || [],
+                                envFile: envfile,
+                                volumes: volumes || [],
+                            };
+                            yield serviceRunner.docker(dockerConfig, {
+                                action: "start",
+                                serviceName: serviceName,
+                            });
+                            break;
+                        case "vmlocal":
+                            isConfigValid = this.validateServiceRunnerConfig(content, "local");
+                            if (!isConfigValid) {
+                                console.log(chalk_1.default.red(`>> To run service on VM, no config found for local in bolt.service.yaml`));
+                                return;
+                            }
+                            const vmConfig = {
+                                serviceContent: content,
+                                serviceName: serviceName,
+                                cache: cache || false,
+                                runnerType: "vmlocal",
+                            };
+                            yield serviceRunner.vm(vmConfig, {
+                                action: "start",
+                                serviceName: serviceName,
+                            });
+                            break;
+                        case "vmdocker":
+                            isConfigValid = this.validateServiceRunnerConfig(content, "docker");
+                            if (!isConfigValid) {
+                                console.log(chalk_1.default.red(`>> To run service on vmdocker, no config found for docker in bolt.service.yaml`));
+                                return;
+                            }
+                            const vmdockerConfig = {
+                                serviceContent: content,
+                                serviceName: serviceName,
+                                cache: cache || false,
+                                runnerType: "vmdocker",
+                            };
+                            yield serviceRunner.vm(vmdockerConfig, {
+                                action: "start",
+                                serviceName: serviceName,
+                            });
+                            break;
+                    }
+                    console.log(chalk_1.default.green(`\n"${serviceName}" service is up on ${srOption} platform\n`));
                 }
-                const { _yamlContent } = yield common_1.default.validateServiceInBoltYaml(serviceName);
-                // Validations for metadata and services
-                yield (0, validate_metadata_1.validateMetadata)();
-                yield (0, validate_services_1.validateServices)();
-                yield this.checkIfAlreadyUp(_yamlContent, serviceName);
-                const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
-                // if service doesn't contain given platform, exit
-                if (!content.service_runners[serviceRunner]) {
-                    yield (0, exit_with_msg_1.exitWithMsg)(`>> service ${serviceName}: "${(0, path_1.relative)(".", (0, path_1.join)(servicePath, bolt_configs_1.BOLT.SERVICE_YAML_FILE_NAME))}" doesn't support ${serviceRunner} platform`);
+                catch (error) {
+                    (0, exit_with_msg_1.exitWithMsg)(`>> Errorwhile running service-up: ${error.message}`);
                 }
-                const { envfile, build, ports, volumes } = content.service_runners[serviceRunner];
-                // generates .env
-                yield common_1.default.generateEnv();
-                let PID = null;
-                const runnerService = new service_1.default();
-                switch (serviceRunner) {
-                    case "docker":
-                        const dockerConfig = {
-                            containerName: content.container_name,
-                            servicePath: servicePath,
-                            build: build,
-                            ports: ports || [],
-                            envFile: envfile,
-                            volumes: volumes || [],
-                            isFollow: false,
-                        };
-                        yield runnerService.docker(dockerConfig, {
-                            action: "start",
-                            serviceName: serviceName,
-                        });
-                        PID = content.container_name;
-                        break;
-                    case "local":
-                        const localConfig = {
-                            servicePath: servicePath,
-                            build: build,
-                            serviceName: serviceName,
-                            isFollow: false,
-                            processId: 0,
-                        };
-                        PID = yield runnerService.local(localConfig, {
-                            action: "start",
-                        });
-                        break;
-                }
-                console.log(chalk_1.default.green(`\n"${serviceName}" service is up on ${serviceRunner} platform\n`));
             });
         }
     }

@@ -6,7 +6,11 @@ import getStore from "../helpers/get-store";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
 import ServiceRunner from "../runners/service";
-import { DockerConfig, LocalConfig } from "../typings/project-runner-config";
+import {
+  DockerConfig,
+  LocalConfig,
+  VMConfig,
+} from "../typings/service-runner-config";
 import { StoreService } from "../typings/store-service";
 
 export default class Log {
@@ -78,19 +82,57 @@ export default class Log {
           envFile: envfile,
           ports: [],
           volumes: [],
-          isFollow: isFollow,
         };
-        await serviceRunner.docker(dockerConfig, { action: "logs" });
+
+        await serviceRunner.docker(dockerConfig, {
+          action: "logs",
+          serviceName: serviceName,
+          isFollow: isFollow,
+        });
         break;
+
       case "local":
         const localConfig: LocalConfig = {
           servicePath: servicePath,
-          serviceName: serviceName,
           build: content.service_runners[currentServiceRunner].build,
-          isFollow: isFollow,
           processId: 0,
         };
-        serviceRunner.local(localConfig, { action: "logs" });
+
+        await serviceRunner.local(localConfig, {
+          action: "logs",
+          serviceName: serviceName,
+          isFollow: isFollow,
+        });
+        break;
+
+      case "vmlocal":
+        const vmConfig: VMConfig = {
+          serviceContent: content,
+          serviceName: serviceName,
+          cache: false,
+          runnerType: "vmlocal",
+        };
+
+        await serviceRunner.vm(vmConfig, {
+          action: "logs",
+          serviceName: serviceName,
+          isFollow: isFollow,
+        });
+        break;
+
+      case "vmdocker":
+        const vmDockerConfig: VMConfig = {
+          serviceContent: content,
+          serviceName: serviceName,
+          cache: false,
+          runnerType: "vmdocker",
+        };
+
+        await serviceRunner.vm(vmDockerConfig, {
+          action: "logs",
+          serviceName: serviceName,
+          isFollow: isFollow,
+        });
         break;
       default:
         await exitWithMsg(">> Platform not supported");
