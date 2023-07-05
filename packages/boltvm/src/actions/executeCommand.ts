@@ -43,7 +43,7 @@ export default class ExecuteCommand {
           detached: true,
         },
         "Command Runner",
-        false
+        true
       );
     } else {
       // Runs the command in foreground mode
