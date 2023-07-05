@@ -127,7 +127,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     // Command to stop service in vm
                     let servicelogCommand = `bolt log ${this.serviceName}`;
                     if (isFollow) {
-                        servicelogCommand += "--follow";
+                        servicelogCommand += " --follow";
                     }
                     // Running service in vm
                     yield this.boltVM.executeCommand(`${servicelogCommand}`, false, {
