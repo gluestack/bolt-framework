@@ -26,7 +26,7 @@ export const VM_INTERNALS_PATH = join(
 export const VM_CONFIG = {
   host: "127.0.0.1",
   port: 2222,
-  username: "boltvm",
+  username: "root",
   password: "",
 };
 
@@ -42,7 +42,7 @@ export const VM_BINARIES = {
 export const SSH_CONFIG = [
   "-o",
   "StrictHostKeyChecking=accept-new",
-  "boltvm@localhost",
+  "root@localhost",
 ];
 
 export const IMAGE_BUCKET_CONFIGS = {

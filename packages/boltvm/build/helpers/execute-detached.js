@@ -77,20 +77,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             console.log(">> (detached) Error:", err.message);
             process.exit();
         });
-        child.on("exit", (code, signal) => {
-            if (noMessage) {
-                process.exit();
-            }
-            if (customMessage) {
-                console.log(`>> (detached) ${customMessage} Process exited with code:`, code);
-            }
-            else {
-                console.log(">> (detached) Process exited with code:", code);
-            }
-            if (code !== 0) {
-                process.exit();
-            }
-        });
+        // child.on("exit", (code: number, signal: string) => {
+        //   if (noMessage) {
+        //     process.exit();
+        //   }
+        //   if (customMessage) {
+        //     console.log(
+        //       `>> (detached) ${customMessage} Process exited with code:`,
+        //       code
+        //     );
+        //   } else {
+        //     console.log(">> (detached) Process exited with code:", code);
+        //   }
+        //   if (code !== 0) {
+        //     process.exit();
+        //   }
+        // });
         return child.pid || 0;
     });
     exports.executeDetachedWithLogs = executeDetachedWithLogs;
@@ -108,17 +110,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             console.log(">> (detached) Error:", err.message);
             process.exit();
         });
-        child.on("exit", (code, _signal) => {
-            if (customMessage) {
-                console.log(`>> (detached) ${customMessage} process exited with code:`);
-            }
-            else {
-                console.log(">> (detached) process exited with code:", code);
-            }
-            if (code !== 0) {
-                process.exit();
-            }
-        });
+        // child.on("exit", (code, _signal) => {
+        //   if (customMessage) {
+        //     console.log(`>> (detached) ${customMessage} process exited with code:`);
+        //   } else {
+        //     console.log(">> (detached) process exited with code:", code);
+        //   }
+        //   if (code !== 0) {
+        //     process.exit();
+        //   }
+        // });
         return child.pid || 0;
     });
     exports.executeDetached = executeDetached;

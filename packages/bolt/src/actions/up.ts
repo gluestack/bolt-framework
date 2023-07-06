@@ -11,10 +11,13 @@ import { BOLT } from "../constants/bolt-configs";
 
 import Ingress from "../libraries/ingress";
 import { getStoreData } from "../helpers/get-store-data";
-import { StoreServices } from "../typings/store-service";
+import { ServiceRunners, StoreServices } from "../typings/store-service";
 import ServiceUp from "./service-up";
 import { serviceRunners } from "../typings/bolt-service";
 import chalk from "chalk";
+import BoltVm from "@gluestack/boltvm";
+import { updateStore } from "../helpers/update-store";
+import { supportedServiceRunners } from "../constants/platforms";
 
 export default class Up {
   public async handle(options: any): Promise<void> {
@@ -38,8 +41,38 @@ export default class Up {
 
     const serviceUpPromises: any = [];
 
-    const localRunner = ["local", "docker"];
+    const localRunners = ["local", "docker"];
     const vmRunners = ["vmlocal", "vmdocker"];
+
+    let isVmPresent = false;
+    for await (const [serviceName, service] of Object.entries(
+      _yamlContent.services
+    )) {
+      if (data[serviceName] && data[serviceName].status !== "down") {
+        continue;
+      }
+
+      // Validating and getting content from bolt.service.yaml
+      const { content } = await Common.getAndValidateService(
+        serviceName,
+        _yamlContent
+      );
+
+      if (
+        content.default_service_runner === "vmlocal" ||
+        content.default_service_runner === "vmdocker"
+      ) {
+        isVmPresent = true;
+        break;
+      }
+    }
+
+    if (isVmPresent) {
+      const cache = options.cache || false;
+      const boltVm = new BoltVm(process.cwd());
+      await boltVm.create(cache);
+      await updateStore("vm", "up");
+    }
 
     Object.entries(_yamlContent.services).forEach(async ([serviceName]) => {
       if (data[serviceName] && data[serviceName].status !== "down") {
@@ -52,36 +85,52 @@ export default class Up {
         _yamlContent
       );
 
-      if (
-        projectRunnerOption === "host" &&
-        !localRunner.includes(content.default_service_runner)
-      ) {
-        console.log(
-          chalk.red(
-            `>> ${serviceName} does not includes host runners. Skipping...`
-          )
-        );
-        return;
+      const { default_service_runner, supported_service_runners } = content;
+      let prepared_service_runner: ServiceRunners = default_service_runner;
+
+      if (projectRunnerOption === "host") {
+        if (
+          !supported_service_runners.includes("local") &&
+          !supported_service_runners.includes("docker")
+        ) {
+          console.log(
+            chalk.red(
+              `>> ${serviceName} does not includes host service runners. Skipping...`
+            )
+          );
+          return;
+        } else {
+          const availableRunners = supported_service_runners.filter(
+            (e) => !vmRunners.includes(e)
+          );
+          prepared_service_runner = availableRunners[0];
+        }
       }
 
-      if (
-        projectRunnerOption === "vm" &&
-        !vmRunners.includes(content.default_service_runner)
-      ) {
-        console.log(
-          chalk.red(
-            `>> ${serviceName} does not includes vm runners. Skipping...`
-          )
-        );
-        return;
+      if (projectRunnerOption === "vm") {
+        if (
+          !supported_service_runners.includes("vmlocal") &&
+          !supported_service_runners.includes("vmdocker")
+        ) {
+          console.log(
+            chalk.red(
+              `>> ${serviceName} does not includes vm service runners. Skipping...`
+            )
+          );
+          return;
+        } else {
+          const availableRunners = supported_service_runners.filter(
+            (e) => !localRunners.includes(e)
+          );
+          prepared_service_runner = availableRunners[0];
+        }
       }
 
-      const serviceRunner = content.default_service_runner;
       const serviceUp = new ServiceUp();
 
       serviceUpPromises.push(
         serviceUp.handle(serviceName, {
-          serviceRunner,
+          serviceRunner: prepared_service_runner,
           cache: cache,
           ports,
         })

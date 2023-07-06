@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "path", "chalk", "node-stream-zip", "../helpers/execute-detached", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/update-store", "../helpers/validate-bolt-file", "../helpers/get-ssh-port", "../helpers/fs-remove-folder", "../helpers/fs-mkdir", "../helpers/download-base-image", "../helpers/fs-removefile", "../helpers/validate-project-status", "../helpers/execute", "../libraries/container", "../runners/vm", "../constants/bolt-vm"], factory);
+        define(["require", "exports", "path", "chalk", "node-stream-zip", "../helpers/execute-detached", "../helpers/exit-with-msg", "../helpers/fs-exists", "../helpers/update-store", "../helpers/validate-bolt-file", "../helpers/get-ssh-port", "../helpers/fs-remove-folder", "../helpers/fs-mkdir", "../helpers/download-base-image", "../helpers/fs-removefile", "../helpers/validate-project-status", "../helpers/execute", "../libraries/container", "../runners/vm", "../constants/bolt-vm", "../helpers/run-command-in-vm"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -39,6 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const container_1 = __importDefault(require("../libraries/container"));
     const vm_1 = __importDefault(require("../runners/vm"));
     const bolt_vm_1 = require("../constants/bolt-vm");
+    const run_command_in_vm_1 = require("../helpers/run-command-in-vm");
     class Create {
         extractDownloadedImage() {
             return __awaiter(this, void 0, void 0, function* () {
@@ -121,6 +122,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     // Adding project to metadata
                     const json = Object.assign(Object.assign({}, project), { containerPath: contianerPath, sshPort: sshPort, status: "up", vmProcessId: vmPid, mountProcessId: mountPid, createdAt: Date.now(), updatedAt: Date.now() });
                     yield (0, update_store_1.updateStore)("projects", project_id, json);
+                    // Install bolt
+                    yield (0, run_command_in_vm_1.runCommandInVM)("npm", ["install", "-g", "@gluestack/bolt@latest"], sshPort);
                 }
                 catch (error) {
                     yield (0, exit_with_msg_1.exitWithMsg)(`>> Error while creating : ${error.message}`);

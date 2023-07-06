@@ -10,25 +10,16 @@ import { validateProjectStatus } from "../helpers/validate-project-status";
 import Vm from "../runners/vm";
 
 export default class ExecuteCommand {
-  boltInstall: boolean;
-
-  constructor(boltInstall: boolean) {
-    this.boltInstall = boltInstall;
-  }
-
   private async runCommandInsideVm(
     vmPort: number,
     command: String,
     localPath: string,
     isDetatched: boolean
   ) {
-    const { projectCdCommand, boltInstallationCommand } = VM_INTERNALS_CONFIG;
+    const { projectCdCommand } = VM_INTERNALS_CONFIG;
 
     // Configuring command to run inside VM
     let mainCommand = `${projectCdCommand} && ${command}`;
-    mainCommand = this.boltInstall
-      ? `${boltInstallationCommand} && ${mainCommand}`
-      : mainCommand;
 
     const args = ["-p", `${vmPort}`, ...SSH_CONFIG, `"${mainCommand}"`];
 

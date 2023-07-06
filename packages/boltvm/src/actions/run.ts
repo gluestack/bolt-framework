@@ -22,17 +22,12 @@ export default class Run {
     localPath: string,
     isDetatched: boolean
   ) {
-    const { projectCdCommand, boltInstallationCommand } = VM_INTERNALS_CONFIG;
+    const { projectCdCommand } = VM_INTERNALS_CONFIG;
 
     // Configuring command to run inside VM
     const mainCommand = `${projectCdCommand} && ${command}`;
 
-    const args = [
-      "-p",
-      `${vmPort}`,
-      ...SSH_CONFIG,
-      `"${boltInstallationCommand} && ${mainCommand}"`,
-    ];
+    const args = ["-p", `${vmPort}`, ...SSH_CONFIG, `"${mainCommand}"`];
 
     if (isDetatched) {
       // Runs the project in detatch mode and store its logs into log files

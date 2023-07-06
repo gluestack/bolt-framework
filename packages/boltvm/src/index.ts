@@ -8,7 +8,7 @@ import ExposePort from "./actions/exposePort";
 import Log from "./actions/log";
 import Run from "./actions/run";
 import Status from "./actions/status";
-import { ExecutionOptions, IBoltVm } from "./typings/boltvm";
+import { IBoltVm } from "./typings/boltvm";
 
 export default class BoltVm implements IBoltVm {
   location: string;
@@ -61,12 +61,8 @@ export default class BoltVm implements IBoltVm {
     await doctor.handle();
   }
 
-  public async executeCommand(
-    command: string,
-    detached: boolean,
-    options: ExecutionOptions
-  ) {
-    const executeCommand = new ExecuteCommand(options.boltInstall);
+  public async executeCommand(command: string, detached: boolean) {
+    const executeCommand = new ExecuteCommand();
     await executeCommand.handle(command, this.location, detached);
   }
 }

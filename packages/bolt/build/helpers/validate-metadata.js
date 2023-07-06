@@ -58,10 +58,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 };
             }
             yield (0, fs_writefile_1.writefile)(_projectListPath, JSON.stringify(data) + os_1.default.EOL);
-            if (_yamlContent.vm) {
-                const boltVm = new boltvm_1.default(process.cwd());
-                yield boltVm.addMetadata();
-            }
+            const boltVm = new boltvm_1.default(process.cwd());
+            yield boltVm.addMetadata();
         }
         catch (error) {
             (0, exit_with_msg_1.exitWithMsg)(`Error while validating metatdata: ${error}`);
