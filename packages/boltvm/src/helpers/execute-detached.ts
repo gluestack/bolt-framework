@@ -53,22 +53,22 @@ export const executeDetachedWithLogs = async (
     process.exit();
   });
 
-  child.on("exit", (code: number, signal: string) => {
-    if (noMessage) {
-      process.exit();
-    }
-    if (customMessage) {
-      console.log(
-        `>> (detached) ${customMessage} Process exited with code:`,
-        code
-      );
-    } else {
-      console.log(">> (detached) Process exited with code:", code);
-    }
-    if (code !== 0) {
-      process.exit();
-    }
-  });
+  // child.on("exit", (code: number, signal: string) => {
+  //   if (noMessage) {
+  //     process.exit();
+  //   }
+  //   if (customMessage) {
+  //     console.log(
+  //       `>> (detached) ${customMessage} Process exited with code:`,
+  //       code
+  //     );
+  //   } else {
+  //     console.log(">> (detached) Process exited with code:", code);
+  //   }
+  //   if (code !== 0) {
+  //     process.exit();
+  //   }
+  // });
 
   return child.pid || 0;
 };
@@ -99,16 +99,16 @@ export const executeDetached = async (
     process.exit();
   });
 
-  child.on("exit", (code, _signal) => {
-    if (customMessage) {
-      console.log(`>> (detached) ${customMessage} process exited with code:`);
-    } else {
-      console.log(">> (detached) process exited with code:", code);
-    }
-    if (code !== 0) {
-      process.exit();
-    }
-  });
+  // child.on("exit", (code, _signal) => {
+  //   if (customMessage) {
+  //     console.log(`>> (detached) ${customMessage} process exited with code:`);
+  //   } else {
+  //     console.log(">> (detached) process exited with code:", code);
+  //   }
+  //   if (code !== 0) {
+  //     process.exit();
+  //   }
+  // });
 
   return child.pid || 0;
 };

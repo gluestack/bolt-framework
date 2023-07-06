@@ -33,7 +33,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         // Expose port to host machine
         exposePort(vmPort, port) {
             return __awaiter(this, void 0, void 0, function* () {
-                console.log(chalk_1.default.yellow(`>> Exposing port ${port}`));
                 if (!port.includes(":")) {
                     console.log(chalk_1.default.red(`>> Invalid port mapping ${port}`));
                     return null;
@@ -42,7 +41,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 port = `${portMap[0]}:localhost:${portMap[1]}`;
                 const args = ["-p", `${vmPort}`, "-N", "-L", port, ...bolt_vm_1.SSH_CONFIG];
                 const sshPid = yield (0, execute_detached_1.executeDetached)("ssh", args, { detached: true }, "ssh");
-                console.log(chalk_1.default.green(`>> Port ${port} exposed!`));
                 return sshPid;
             });
         }
@@ -60,9 +58,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     const project = yield (0, validate_project_status_1.validateProjectStatus)("exec", boltConfig);
                     const vmPort = project.sshPort;
                     const portExposePromises = [];
+                    console.log(chalk_1.default.yellow(">> Exposing ports, if available..."));
                     for (const port of ports) {
                         portExposePromises.push(this.exposePort(vmPort, port));
                     }
+                    console.log(chalk_1.default.green(`>> Ports Tunnel Created!`));
                     const sshPids = yield Promise.all(portExposePromises);
                     if (!project.sshProcessIds) {
                         project.sshProcessIds = [];

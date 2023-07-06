@@ -3,7 +3,6 @@ import BoltVm from "@gluestack/boltvm";
 import { updateStore } from "../../helpers/update-store";
 import { getStoreData } from "../../helpers/get-store-data";
 
-import { Bolt } from "../../typings/bolt";
 import BoltServiceRunner from "../../typings/bolt-service-runner";
 import { StoreService } from "../../typings/store-service";
 import { BoltService } from "../../typings/bolt-service";
@@ -116,9 +115,7 @@ export default class ServiceRunnerVM implements BoltServiceRunner {
       const serviceDownCommand = `bolt service:down ${this.serviceName}`;
 
       // Running service in vm
-      await this.boltVM.executeCommand(`${serviceDownCommand}`, true, {
-        boltInstall: false,
-      });
+      await this.boltVM.executeCommand(`${serviceDownCommand}`, true);
 
       // Updating store
       const json: StoreService = {
@@ -159,9 +156,7 @@ export default class ServiceRunnerVM implements BoltServiceRunner {
       }
 
       // Running service in vm
-      await this.boltVM.executeCommand(`${servicelogCommand}`, false, {
-        boltInstall: false,
-      });
+      await this.boltVM.executeCommand(`${servicelogCommand}`, false);
     } catch (error: any) {
       console.log(
         chalk.red(

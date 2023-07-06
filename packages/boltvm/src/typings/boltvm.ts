@@ -10,13 +10,5 @@ export interface IBoltVm {
   down(): Promise<void>;
   status(): Promise<void>;
   doctor(): Promise<void>;
-  executeCommand(
-    command: string,
-    detached: boolean,
-    options: ExecutionOptions
-  ): Promise<void>;
-}
-
-export interface ExecutionOptions {
-  boltInstall: boolean;
+  executeCommand(command: string, detached: boolean): Promise<void>;
 }

@@ -1,4 +1,4 @@
-import { ExecutionOptions, IBoltVm } from "./typings/boltvm";
+import { IBoltVm } from "./typings/boltvm";
 export default class BoltVm implements IBoltVm {
     location: string;
     constructor(location: string);
@@ -11,5 +11,5 @@ export default class BoltVm implements IBoltVm {
     down(): Promise<void>;
     status(): Promise<void>;
     doctor(): Promise<void>;
-    executeCommand(command: string, detached: boolean, options: ExecutionOptions): Promise<void>;
+    executeCommand(command: string, detached: boolean): Promise<void>;
 }

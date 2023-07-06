@@ -31,24 +31,6 @@ export default class ServiceDown {
     return service;
   }
 
-  public async checkAllServiceDown(_yamlContent: Bolt) {
-    const store = await getStore();
-    const data: StoreServices = store.get("services") || {};
-
-    const services = _yamlContent.services;
-
-    let allServiceDown = true;
-
-    Object.entries(services).forEach(([serviceName]) => {
-      if (data[serviceName] && data[serviceName].status !== "down") {
-        allServiceDown = false;
-        return;
-      }
-    });
-
-    return allServiceDown;
-  }
-
   public async handle(serviceName: string) {
     const { _yamlContent } = await Common.validateServiceInBoltYaml(
       serviceName
@@ -134,16 +116,6 @@ export default class ServiceDown {
           serviceName: serviceName,
         });
         break;
-    }
-
-    const isAllServiceDown = await this.checkAllServiceDown(_yamlContent);
-
-    const vmStaus = await getStoreData("vm");
-
-    if (isAllServiceDown && vmStaus === "up") {
-      await ServiceRunnerVM.down();
-
-      await updateStore("vm", "down");
     }
 
     console.log(

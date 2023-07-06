@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.VM_CONFIG = {
         host: "127.0.0.1",
         port: 2222,
-        username: "boltvm",
+        username: "root",
         password: "",
     };
     exports.VM_BINARIES = {
@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.SSH_CONFIG = [
         "-o",
         "StrictHostKeyChecking=accept-new",
-        "boltvm@localhost",
+        "root@localhost",
     ];
     exports.IMAGE_BUCKET_CONFIGS = {
         cdnEndpoint: "http://static.gluestack.io/bolt/v0.1.0/qemu-images/apple-silicon/images.zip",

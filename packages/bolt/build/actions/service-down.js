@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/update-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../runners/service/vm", "../helpers/get-store-data"], factory);
+        define(["require", "exports", "chalk", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,13 +24,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const chalk_1 = __importDefault(require("chalk"));
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const get_store_1 = __importDefault(require("../helpers/get-store"));
-    const update_store_1 = require("../helpers/update-store");
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
     const service_1 = __importDefault(require("../runners/service"));
-    const vm_1 = __importDefault(require("../runners/service/vm"));
-    const get_store_data_1 = require("../helpers/get-store-data");
     class ServiceDown {
         checkIfAlreadyDown(_yamlContent, serviceName) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -41,21 +38,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" service is already down`);
                 }
                 return service;
-            });
-        }
-        checkAllServiceDown(_yamlContent) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const store = yield (0, get_store_1.default)();
-                const data = store.get("services") || {};
-                const services = _yamlContent.services;
-                let allServiceDown = true;
-                Object.entries(services).forEach(([serviceName]) => {
-                    if (data[serviceName] && data[serviceName].status !== "down") {
-                        allServiceDown = false;
-                        return;
-                    }
-                });
-                return allServiceDown;
             });
         }
         handle(serviceName) {
@@ -125,12 +107,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             serviceName: serviceName,
                         });
                         break;
-                }
-                const isAllServiceDown = yield this.checkAllServiceDown(_yamlContent);
-                const vmStaus = yield (0, get_store_data_1.getStoreData)("vm");
-                if (isAllServiceDown && vmStaus === "up") {
-                    yield vm_1.default.down();
-                    yield (0, update_store_1.updateStore)("vm", "down");
                 }
                 console.log(chalk_1.default.green(`\n"${serviceName}" is down from ${currentServiceRunner} platform\n`));
             });

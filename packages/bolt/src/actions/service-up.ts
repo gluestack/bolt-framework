@@ -150,7 +150,7 @@ export default class ServiceUp {
           if (!isConfigValid) {
             console.log(
               chalk.red(
-                `>> To run service on VM, no config found for local in bolt.service.yaml`
+                `>> To run service in vmlocal, no config found for local in bolt.service.yaml`
               )
             );
             return;
@@ -174,7 +174,7 @@ export default class ServiceUp {
           if (!isConfigValid) {
             console.log(
               chalk.red(
-                `>> To run service on vmdocker, no config found for docker in bolt.service.yaml`
+                `>> To run service in vmdocker, no config found for docker in bolt.service.yaml`
               )
             );
             return;
