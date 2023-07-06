@@ -44,10 +44,8 @@ export const validateMetadata = async (option?: any) => {
 
     await writefile(_projectListPath, JSON.stringify(data) + os.EOL);
 
-    if (_yamlContent.vm) {
-      const boltVm = new BoltVm(process.cwd());
-      await boltVm.addMetadata();
-    }
+    const boltVm = new BoltVm(process.cwd());
+    await boltVm.addMetadata();
   } catch (error: any) {
     exitWithMsg(`Error while validating metatdata: ${error}`);
   }

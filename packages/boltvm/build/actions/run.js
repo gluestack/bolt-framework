@@ -35,15 +35,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     class Run {
         runProjectInsideVm(vmPort, command, localPath, isDetatched) {
             return __awaiter(this, void 0, void 0, function* () {
-                const { projectCdCommand, boltInstallationCommand } = bolt_vm_1.VM_INTERNALS_CONFIG;
+                const { projectCdCommand } = bolt_vm_1.VM_INTERNALS_CONFIG;
                 // Configuring command to run inside VM
                 const mainCommand = `${projectCdCommand} && ${command}`;
-                const args = [
-                    "-p",
-                    `${vmPort}`,
-                    ...bolt_vm_1.SSH_CONFIG,
-                    `"${boltInstallationCommand} && ${mainCommand}"`,
-                ];
+                const args = ["-p", `${vmPort}`, ...bolt_vm_1.SSH_CONFIG, `"${mainCommand}"`];
                 if (isDetatched) {
                     // Runs the project in detatch mode and store its logs into log files
                     return yield (0, execute_detached_1.executeDetachedWithLogs)("ssh", args, (0, path_1.join)(localPath, bolt_vm_1.BOLTVM.LOG_FOLDER, "project_logs"), {

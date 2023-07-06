@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/fs-exists", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../libraries/ingress", "../constants/bolt-configs", "../helpers/get-store-data", "./service-down"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/fs-exists", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../libraries/ingress", "../constants/bolt-configs", "../helpers/get-store-data", "./service-down", "../runners/service/vm", "../helpers/update-store"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -31,6 +31,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const bolt_configs_1 = require("../constants/bolt-configs");
     const get_store_data_1 = require("../helpers/get-store-data");
     const service_down_1 = __importDefault(require("./service-down"));
+    const vm_1 = __importDefault(require("../runners/service/vm"));
+    const update_store_1 = require("../helpers/update-store");
     class Down {
         handle() {
             return __awaiter(this, void 0, void 0, function* () {
@@ -49,6 +51,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     serviceDownPromises.push(serviceDown.handle(serviceName));
                 }));
                 yield Promise.all(serviceDownPromises);
+                const vmStatus = yield (0, get_store_data_1.getStoreData)("vm");
+                if (vmStatus === "up") {
+                    yield vm_1.default.down();
+                    yield (0, update_store_1.updateStore)("vm", "down");
+                }
                 // 3. stops the nginx container if it is running
                 if (_yamlContent.ingress) {
                     const nginxConfig = (0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME);

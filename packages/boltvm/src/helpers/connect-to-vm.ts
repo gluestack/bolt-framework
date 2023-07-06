@@ -28,7 +28,7 @@ export const connecToVm = async (portNumber: number = 2222) => {
           }
 
           isReady = true;
-          console.log(chalk.green(">> Successfully connected to VM..."));
+          // console.log(chalk.green(">> Successfully connected to VM..."));
           return resolve(conn);
         });
 
@@ -36,7 +36,7 @@ export const connecToVm = async (portNumber: number = 2222) => {
 
         if (currentCounter >= maxIterations) {
           clearInterval(pollConnection);
-          exitWithMsg(">> Maximum Tries exceeded!");
+          exitWithMsg(">> Maximum retries exceeded. Could not connect to VM!");
         }
       }, interval);
     } catch (error: any) {

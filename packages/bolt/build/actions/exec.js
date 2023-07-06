@@ -16,31 +16,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../common", "../constants/bolt-configs", "../helpers/exit-with-msg", "../helpers/get-store-data", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/service/vm", "../validations/bolt-vm"], factory);
+        define(["require", "exports", "../common", "../helpers/exit-with-msg", "../helpers/get-store-data", "../helpers/validate-metadata", "../helpers/validate-services", "../runners/service/vm"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const common_1 = __importDefault(require("../common"));
-    const bolt_configs_1 = require("../constants/bolt-configs");
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const get_store_data_1 = require("../helpers/get-store-data");
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const vm_1 = __importDefault(require("../runners/service/vm"));
-    const bolt_vm_1 = require("../validations/bolt-vm");
     class Exec {
         validateBoltYaml() {
             return __awaiter(this, void 0, void 0, function* () {
                 //Validate bolt.yaml file
                 const _yamlContent = yield common_1.default.getAndValidateBoltYaml();
-                const vmServerConfig = _yamlContent.vm;
-                if (!vmServerConfig) {
-                    (0, exit_with_msg_1.exitWithMsg)(`VM server config not found in ${bolt_configs_1.BOLT.YAML_FILE_NAME}`);
-                    process.exit();
-                }
-                const vmConfig = yield (0, bolt_vm_1.validateVmConfig)(vmServerConfig);
-                return { _yamlContent, vmConfig };
+                return { _yamlContent };
             });
         }
         validateMetadataForVM(_yamlContent) {

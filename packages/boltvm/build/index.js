@@ -89,9 +89,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield doctor.handle();
             });
         }
-        executeCommand(command, detached, options) {
+        executeCommand(command, detached) {
             return __awaiter(this, void 0, void 0, function* () {
-                const executeCommand = new executeCommand_1.default(options.boltInstall);
+                const executeCommand = new executeCommand_1.default();
                 yield executeCommand.handle(command, this.location, detached);
             });
         }

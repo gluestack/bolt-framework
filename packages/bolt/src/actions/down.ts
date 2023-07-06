@@ -16,6 +16,8 @@ import { BOLT } from "../constants/bolt-configs";
 import { ProjectRunners, StoreServices } from "../typings/store-service";
 import { getStoreData } from "../helpers/get-store-data";
 import ServiceDown from "./service-down";
+import ServiceRunnerVM from "../runners/service/vm";
+import { updateStore } from "../helpers/update-store";
 
 export default class Down {
   public async handle() {
@@ -41,6 +43,13 @@ export default class Down {
     });
 
     await Promise.all(serviceDownPromises);
+
+    const vmStatus = await getStoreData("vm");
+
+    if (vmStatus === "up") {
+      await ServiceRunnerVM.down();
+      await updateStore("vm", "down");
+    }
 
     // 3. stops the nginx container if it is running
     if (_yamlContent.ingress) {

@@ -26,6 +26,7 @@ import {
   VM_INTERNALS_CONFIG,
   VM_INTERNALS_PATH,
 } from "../constants/bolt-vm";
+import { runCommandInVM } from "../helpers/run-command-in-vm";
 
 export default class Create {
   private async extractDownloadedImage() {
@@ -142,6 +143,13 @@ export default class Create {
       };
 
       await updateStore("projects", project_id, json);
+
+      // Install bolt
+      await runCommandInVM(
+        "npm",
+        ["install", "-g", "@gluestack/bolt@latest"],
+        sshPort
+      );
     } catch (error: any) {
       await exitWithMsg(`>> Error while creating : ${error.message}`);
     }

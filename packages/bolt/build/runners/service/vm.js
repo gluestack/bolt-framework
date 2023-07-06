@@ -97,9 +97,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     // Command to stop service in vm
                     const serviceDownCommand = `bolt service:down ${this.serviceName}`;
                     // Running service in vm
-                    yield this.boltVM.executeCommand(`${serviceDownCommand}`, true, {
-                        boltInstall: false,
-                    });
+                    yield this.boltVM.executeCommand(`${serviceDownCommand}`, true);
                     // Updating store
                     const json = {
                         status: "down",
@@ -130,9 +128,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         servicelogCommand += " --follow";
                     }
                     // Running service in vm
-                    yield this.boltVM.executeCommand(`${servicelogCommand}`, false, {
-                        boltInstall: false,
-                    });
+                    yield this.boltVM.executeCommand(`${servicelogCommand}`, false);
                 }
                 catch (error) {
                     console.log(chalk_1.default.red(`>> Some error occured while getting logs for service ${this.serviceName} in VM: ${error.message}`));

@@ -113,7 +113,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         case "vmlocal":
                             isConfigValid = this.validateServiceRunnerConfig(content, "local");
                             if (!isConfigValid) {
-                                console.log(chalk_1.default.red(`>> To run service on VM, no config found for local in bolt.service.yaml`));
+                                console.log(chalk_1.default.red(`>> To run service in vmlocal, no config found for local in bolt.service.yaml`));
                                 return;
                             }
                             const vmConfig = {
@@ -130,7 +130,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         case "vmdocker":
                             isConfigValid = this.validateServiceRunnerConfig(content, "docker");
                             if (!isConfigValid) {
-                                console.log(chalk_1.default.red(`>> To run service on vmdocker, no config found for docker in bolt.service.yaml`));
+                                console.log(chalk_1.default.red(`>> To run service in vmdocker, no config found for docker in bolt.service.yaml`));
                                 return;
                             }
                             const vmdockerConfig = {

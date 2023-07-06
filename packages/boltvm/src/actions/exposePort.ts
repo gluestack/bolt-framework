@@ -14,8 +14,6 @@ import { IMetadata } from "../typings/metadata";
 export default class ExposePort {
   // Expose port to host machine
   private async exposePort(vmPort: number, port: string) {
-    console.log(chalk.yellow(`>> Exposing port ${port}`));
-
     if (!port.includes(":")) {
       console.log(chalk.red(`>> Invalid port mapping ${port}`));
       return null;
@@ -31,7 +29,7 @@ export default class ExposePort {
       { detached: true },
       "ssh"
     );
-    console.log(chalk.green(`>> Port ${port} exposed!`));
+
     return sshPid;
   }
 
@@ -53,9 +51,14 @@ export default class ExposePort {
       const vmPort = project.sshPort as number;
 
       const portExposePromises: any = [];
+
+      console.log(chalk.yellow(">> Exposing ports, if available..."));
+
       for (const port of ports) {
         portExposePromises.push(this.exposePort(vmPort, port));
       }
+
+      console.log(chalk.green(`>> Ports Tunnel Created!`));
 
       const sshPids: number[] | null[] = await Promise.all(portExposePromises);
 

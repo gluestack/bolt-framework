@@ -14,13 +14,8 @@ export default class Exec {
   private async validateBoltYaml() {
     //Validate bolt.yaml file
     const _yamlContent = await Common.getAndValidateBoltYaml();
-    const vmServerConfig = _yamlContent.vm;
-    if (!vmServerConfig) {
-      exitWithMsg(`VM server config not found in ${BOLT.YAML_FILE_NAME}`);
-      process.exit();
-    }
-    const vmConfig = await validateVmConfig(vmServerConfig);
-    return { _yamlContent, vmConfig };
+
+    return { _yamlContent };
   }
 
   private async validateMetadataForVM(_yamlContent: Bolt): Promise<void> {

@@ -32,17 +32,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const validate_project_status_1 = require("../helpers/validate-project-status");
     const vm_1 = __importDefault(require("../runners/vm"));
     class ExecuteCommand {
-        constructor(boltInstall) {
-            this.boltInstall = boltInstall;
-        }
         runCommandInsideVm(vmPort, command, localPath, isDetatched) {
             return __awaiter(this, void 0, void 0, function* () {
-                const { projectCdCommand, boltInstallationCommand } = bolt_vm_1.VM_INTERNALS_CONFIG;
+                const { projectCdCommand } = bolt_vm_1.VM_INTERNALS_CONFIG;
                 // Configuring command to run inside VM
                 let mainCommand = `${projectCdCommand} && ${command}`;
-                mainCommand = this.boltInstall
-                    ? `${boltInstallationCommand} && ${mainCommand}`
-                    : mainCommand;
                 const args = ["-p", `${vmPort}`, ...bolt_vm_1.SSH_CONFIG, `"${mainCommand}"`];
                 if (isDetatched) {
                     // Runs the command in detatch mode and store its logs into log files
