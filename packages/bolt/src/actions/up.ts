@@ -74,9 +74,9 @@ export default class Up {
       await updateStore("vm", "up");
     }
 
-    Object.entries(_yamlContent.services).forEach(async ([serviceName]) => {
+    for await (const [serviceName] of Object.entries(_yamlContent.services)) {
       if (data[serviceName] && data[serviceName].status !== "down") {
-        return;
+        continue;
       }
 
       // Validating and getting content from bolt.service.yaml
@@ -98,7 +98,7 @@ export default class Up {
               `>> ${serviceName} does not includes host service runners. Skipping...`
             )
           );
-          return;
+          continue;
         } else {
           const availableRunners = supported_service_runners.filter(
             (e) => !vmRunners.includes(e)
@@ -117,7 +117,7 @@ export default class Up {
               `>> ${serviceName} does not includes vm service runners. Skipping...`
             )
           );
-          return;
+          continue;
         } else {
           const availableRunners = supported_service_runners.filter(
             (e) => !localRunners.includes(e)
@@ -135,12 +135,9 @@ export default class Up {
           ports,
         })
       );
-    });
+    }
 
     await Promise.all(serviceUpPromises);
-
-    // 2. generates .env
-    await Common.generateEnv();
 
     // 5. starts nginx if the project runner is not vm and nginx config exists in bolt.yaml
     if (_yamlContent.ingress) {

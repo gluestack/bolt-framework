@@ -20,9 +20,7 @@ export default class Common {
 
     const _yamlContent = await validateBolt(await parseYAML(_yamlPath));
     if (
-      !_yamlContent ||
-      !_yamlContent.services ||
-      isEmpty(_yamlContent.services)
+      !_yamlContent?.services || isEmpty(_yamlContent.services)
     ) {
       await exitWithMsg(`>> "${BOLT.YAML_FILE_NAME}" services does not exists`);
     }

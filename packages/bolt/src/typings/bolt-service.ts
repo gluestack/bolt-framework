@@ -1,9 +1,9 @@
 export interface BoltServicePlatform {
   envfile: string;
   build: string;
-  // depends_on?: any;
   ports?: any[];
   volumes?: any[];
+  // depends_on?: any;
   // context?: string;
 }
 

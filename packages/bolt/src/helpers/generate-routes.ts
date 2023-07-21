@@ -6,6 +6,7 @@ import { removefile } from "./fs-removefile";
 import { map } from "lodash";
 import { Bolt } from "../typings/bolt";
 import { BOLT } from "../constants/bolt-configs";
+import interpolate from "./data-interpolate";
 
 export default async function generateRoutes(_yamlContent: Bolt): Promise<any> {
   await removefile(join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME));
@@ -17,6 +18,7 @@ export default async function generateRoutes(_yamlContent: Bolt): Promise<any> {
     return [];
   }
 
+  // construct all servers
   const serverBlocks = _yamlContent.ingress
     .map((ingress: Ingress) => {
       const domain = ingress.domain || undefined;
@@ -78,6 +80,7 @@ export default async function generateRoutes(_yamlContent: Bolt): Promise<any> {
     })
     .join("\n");
 
+  // prepare bolt.nginx.conf file's content
   const nginxConfig = `
 user nginx;
 worker_processes auto;
@@ -116,9 +119,14 @@ http {
 }
 `;
 
+  // prepare bolt.nginx.conf file's path
   const nginxFile = join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME);
 
-  await writeFile(nginxFile, nginxConfig);
+  // interpolate all variables from yaml and inject .env file's vars
+  const { content } = await interpolate({ content: nginxConfig }, join(process.cwd(), ".env"));
+
+  // write bolt.nginx.conf file
+  await writeFile(nginxFile, content);
 
   console.log(
     chalk.green(
