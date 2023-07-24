@@ -86,17 +86,14 @@ export default class ServiceUp {
         srOption = content.supported_service_runners[0];
       }
 
-      const { envfile: localENV } = content.service_runners["local"];
-      const { envfile: dockerENV } = content.service_runners["docker"];
-
-      const localENVPath = join(servicePath, localENV);
-      const dockerENVPath = join(servicePath, dockerENV);
-
       // generates .env
       await Common.generateEnv();
 
       // Make data interpolate into service-runner's yaml content from given env file :: LOCAL
       if (content?.service_runners?.local) {
+        const { envfile } = content.service_runners["local"];
+        const localENVPath = join(servicePath, envfile);
+
         content.service_runners.local = await interpolate(
           content.service_runners.local, localENVPath
         );
@@ -104,6 +101,9 @@ export default class ServiceUp {
 
       // Make data interpolate into service-runner's yaml content from given env file :: DOCKER
       if (content?.service_runners?.docker) {
+        const { envfile } = content.service_runners["docker"];
+        const dockerENVPath = join(servicePath, envfile);
+
         content.service_runners.docker = await interpolate(
           content.service_runners.docker, dockerENVPath
         );

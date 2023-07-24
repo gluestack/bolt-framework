@@ -71,18 +71,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         console.log(chalk_1.default.yellow(`>> Given "${srOption}" service runner is not supported for ${serviceName}, using "${content.supported_service_runners[0]}" instead!`));
                         srOption = content.supported_service_runners[0];
                     }
-                    const { envfile: localENV } = content.service_runners["local"];
-                    const { envfile: dockerENV } = content.service_runners["docker"];
-                    const localENVPath = (0, path_1.join)(servicePath, localENV);
-                    const dockerENVPath = (0, path_1.join)(servicePath, dockerENV);
                     // generates .env
                     yield common_1.default.generateEnv();
                     // Make data interpolate into service-runner's yaml content from given env file :: LOCAL
                     if ((_a = content === null || content === void 0 ? void 0 : content.service_runners) === null || _a === void 0 ? void 0 : _a.local) {
+                        const { envfile } = content.service_runners["local"];
+                        const localENVPath = (0, path_1.join)(servicePath, envfile);
                         content.service_runners.local = yield (0, data_interpolate_1.default)(content.service_runners.local, localENVPath);
                     }
                     // Make data interpolate into service-runner's yaml content from given env file :: DOCKER
                     if ((_b = content === null || content === void 0 ? void 0 : content.service_runners) === null || _b === void 0 ? void 0 : _b.docker) {
+                        const { envfile } = content.service_runners["docker"];
+                        const dockerENVPath = (0, path_1.join)(servicePath, envfile);
                         content.service_runners.docker = yield (0, data_interpolate_1.default)(content.service_runners.docker, dockerENVPath);
                     }
                     let isConfigValid = false;
