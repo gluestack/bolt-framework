@@ -6,12 +6,13 @@
   "scripts": {
     "install:all": "npm install --workspaces --if-present",
     "link:all": "npm link --workspaces --if-present && npm run fix:permission",
-    "build:all": "npm run build:boltvm && npm run build:bolt && npm run fix:permission",
+    "build:all": "npm run sync:readme && npm run build:boltvm && npm run build:bolt && npm run fix:permission",
     "build:boltvm": "npm run build --workspace @gluestack/boltvm",
     "build:bolt": "npm run build --workspace @gluestack/bolt",
     "watch:boltvm": "npm run watch --workspace @gluestack/boltvm",
     "watch:bolt": "npm run watch --workspace @gluestack/bolt",
     "fix:permission": "chmod +x ./packages/bolt/build/index.js",
+    "sync:readme": "cp -f README.md ./packages/bolt/README.md && cp -f README.md ./packages/boltvm/README.md",
     "publish:boltvm": "npm run build:boltvm && cd packages/boltvm && npm publish --access public",
     "publish:bolt": "npm run build:all && cd packages/bolt && npm publish --access public"
   },

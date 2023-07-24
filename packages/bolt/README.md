@@ -67,6 +67,6 @@ Checkout our [documentation](https://bolt.gluestack.io/docs) to find out more an
 
 We are currently very much an Alpha product. To file an issue if you face any problems or to discuss your use-case, please join our [Discord](https://discord.gg/GEP2gWgd).
 
-## :telephone_receiver: For Contributing or connecting with us
+## :telephone_receiver: For contributing or connecting with us
 
 Join our [Discord](https://discord.gg/GEP2gWgd)
