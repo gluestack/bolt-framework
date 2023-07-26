@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { join, relative } from "path";
+import { join } from "path";
 
 import { getDockerStatus } from "../helpers/docker-info";
 import { exitWithMsg } from "../helpers/exit-with-msg";
@@ -20,6 +20,7 @@ import {
   VMConfig,
 } from "../typings/service-runner-config";
 import { BoltService, hostServicerunner } from "../typings/bolt-service";
+import interpolate from "../helpers/data-interpolate";
 
 export default class ServiceUp {
   //
@@ -87,6 +88,26 @@ export default class ServiceUp {
 
       // generates .env
       await Common.generateEnv();
+
+      // Make data interpolate into service-runner's yaml content from given env file :: LOCAL
+      if (content?.service_runners?.local) {
+        const { envfile } = content.service_runners["local"];
+        const localENVPath = join(servicePath, envfile);
+
+        content.service_runners.local = await interpolate(
+          content.service_runners.local, localENVPath
+        );
+      }
+
+      // Make data interpolate into service-runner's yaml content from given env file :: DOCKER
+      if (content?.service_runners?.docker) {
+        const { envfile } = content.service_runners["docker"];
+        const dockerENVPath = join(servicePath, envfile);
+
+        content.service_runners.docker = await interpolate(
+          content.service_runners.docker, dockerENVPath
+        );
+      }
 
       let isConfigValid = false;
       const serviceRunner = new ServiceRunner();

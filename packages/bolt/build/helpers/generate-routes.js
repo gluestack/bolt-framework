@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "@gluestack/helpers", "path", "./fs-removefile", "lodash", "../constants/bolt-configs"], factory);
+        define(["require", "exports", "chalk", "@gluestack/helpers", "path", "./fs-removefile", "lodash", "../constants/bolt-configs", "./data-interpolate"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -27,6 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const fs_removefile_1 = require("./fs-removefile");
     const lodash_1 = require("lodash");
     const bolt_configs_1 = require("../constants/bolt-configs");
+    const data_interpolate_1 = __importDefault(require("./data-interpolate"));
     function generateRoutes(_yamlContent) {
         return __awaiter(this, void 0, void 0, function* () {
             yield (0, fs_removefile_1.removefile)((0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME));
@@ -34,6 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 console.log(chalk_1.default.gray(">> No ingress found in config. Skipping route generation..."));
                 return [];
             }
+            // construct all servers
             const serverBlocks = _yamlContent.ingress
                 .map((ingress) => {
                 const domain = ingress.domain || undefined;
@@ -83,6 +85,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
   }`;
             })
                 .join("\n");
+            // prepare bolt.nginx.conf file's content
             const nginxConfig = `
 user nginx;
 worker_processes auto;
@@ -120,8 +123,12 @@ http {
   ${serverBlocks}
 }
 `;
+            // prepare bolt.nginx.conf file's path
             const nginxFile = (0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME);
-            yield (0, helpers_1.writeFile)(nginxFile, nginxConfig);
+            // interpolate all variables from yaml and inject .env file's vars
+            const { content } = yield (0, data_interpolate_1.default)({ content: nginxConfig }, (0, path_1.join)(process.cwd(), ".env"));
+            // write bolt.nginx.conf file
+            yield (0, helpers_1.writeFile)(nginxFile, content);
             console.log(chalk_1.default.green(`>> ${_yamlContent.project_name} created "${bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME}".`));
             const ports = (0, lodash_1.map)(_yamlContent.ingress, "port");
             return ports;

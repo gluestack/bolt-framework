@@ -16,12 +16,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../helpers/data-interpolate"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const chalk_1 = __importDefault(require("chalk"));
+    const path_1 = require("path");
     const docker_info_1 = require("../helpers/docker-info");
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const get_store_1 = __importDefault(require("../helpers/get-store"));
@@ -29,6 +30,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const validate_services_1 = require("../helpers/validate-services");
     const common_1 = __importDefault(require("../common"));
     const service_1 = __importDefault(require("../runners/service"));
+    const data_interpolate_1 = __importDefault(require("../helpers/data-interpolate"));
     class ServiceUp {
         //
         checkIfAlreadyUp(_yamlContent, serviceName) {
@@ -49,6 +51,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             return true;
         }
         handle(serviceName, options) {
+            var _a, _b;
             return __awaiter(this, void 0, void 0, function* () {
                 try {
                     let { serviceRunner: srOption, cache } = options;
@@ -70,6 +73,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     }
                     // generates .env
                     yield common_1.default.generateEnv();
+                    // Make data interpolate into service-runner's yaml content from given env file :: LOCAL
+                    if ((_a = content === null || content === void 0 ? void 0 : content.service_runners) === null || _a === void 0 ? void 0 : _a.local) {
+                        const { envfile } = content.service_runners["local"];
+                        const localENVPath = (0, path_1.join)(servicePath, envfile);
+                        content.service_runners.local = yield (0, data_interpolate_1.default)(content.service_runners.local, localENVPath);
+                    }
+                    // Make data interpolate into service-runner's yaml content from given env file :: DOCKER
+                    if ((_b = content === null || content === void 0 ? void 0 : content.service_runners) === null || _b === void 0 ? void 0 : _b.docker) {
+                        const { envfile } = content.service_runners["docker"];
+                        const dockerENVPath = (0, path_1.join)(servicePath, envfile);
+                        content.service_runners.docker = yield (0, data_interpolate_1.default)(content.service_runners.docker, dockerENVPath);
+                    }
                     let isConfigValid = false;
                     const serviceRunner = new service_1.default();
                     switch (srOption) {

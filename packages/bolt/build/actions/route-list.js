@@ -16,16 +16,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "@gluestack/helpers", "../common", "../helpers/exit-with-msg", "../helpers/validate-metadata", "../helpers/validate-services"], factory);
+        define(["require", "exports", "path", "@gluestack/helpers", "../common", "../helpers/exit-with-msg", "../helpers/validate-metadata", "../helpers/validate-services", "../helpers/data-interpolate"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const path_1 = require("path");
     const helpers_1 = require("@gluestack/helpers");
     const common_1 = __importDefault(require("../common"));
     const exit_with_msg_1 = require("../helpers/exit-with-msg");
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
+    const data_interpolate_1 = __importDefault(require("../helpers/data-interpolate"));
     class RouteList {
         handle() {
             return __awaiter(this, void 0, void 0, function* () {
@@ -36,6 +38,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 if (!_yamlContent.ingress || _yamlContent.ingress.length === 0) {
                     return (0, exit_with_msg_1.exitWithMsg)(">> No ingress found in config. Skipping route generation...");
                 }
+                // interpolate all variables from yaml and inject .env file's vars
+                const content = yield (0, data_interpolate_1.default)(_yamlContent, (0, path_1.join)(process.cwd(), ".env"));
                 const rows = [];
                 const head = [
                     "Domain",
@@ -46,7 +50,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     "Rewrite Value",
                     "Client MaxBody (in MB)",
                 ];
-                _yamlContent.ingress.forEach((ingress) => {
+                content.ingress.forEach((ingress) => {
                     const domain = ingress.domain || undefined;
                     const port = ingress.port || undefined;
                     if (!domain || !port) {

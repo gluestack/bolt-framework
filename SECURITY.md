@@ -6,8 +6,8 @@ Current supported version of [@gluestack/bolt](https://www.npmjs.com/package/@gl
 
 | Version | Supported          |
 | ------- | ------------------ |
-| > 0.1.12   | :white_check_mark: |
-| <= 0.1.11   | :x:                |
+| > 0.1.15   | :white_check_mark: |
+| <= 0.1.14   | :x:                |
 
 ## Reporting a Vulnerability
 

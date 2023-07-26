@@ -1,3 +1,4 @@
+import { join } from "path";
 import { ConsoleTable } from "@gluestack/helpers";
 
 import Common from "../common";
@@ -6,6 +7,7 @@ import { exitWithMsg } from "../helpers/exit-with-msg";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
 import { Ingress, Option } from "../typings/ingress";
+import interpolate from "../helpers/data-interpolate";
 
 export default class RouteList {
   public async handle() {
@@ -21,6 +23,9 @@ export default class RouteList {
       );
     }
 
+    // interpolate all variables from yaml and inject .env file's vars
+    const content = await interpolate(_yamlContent, join(process.cwd(), ".env"));
+
     const rows = [] as Array<Array<string>>;
     const head: Array<string> = [
       "Domain",
@@ -32,7 +37,7 @@ export default class RouteList {
       "Client MaxBody (in MB)",
     ];
 
-    _yamlContent.ingress.forEach((ingress: Ingress) => {
+    content.ingress.forEach((ingress: Ingress) => {
       const domain = ingress.domain || undefined;
       const port = ingress.port || undefined;
       if (!domain || !port) {

@@ -60,7 +60,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 }
                 args.push(image);
                 yield Ingress.removeIfExist(containerName);
-                console.log("Running docker", args.join(" "));
+                console.log(">> Running boltingress");
                 yield (0, execute_1.execute)("docker", args, {
                     stdio: "inherit",
                     shell: true,

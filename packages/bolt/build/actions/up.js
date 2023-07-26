@@ -43,7 +43,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const update_store_1 = require("../helpers/update-store");
     class Up {
         handle(options) {
-            var _a, e_1, _b, _c;
+            var _a, e_1, _b, _c, _d, e_2, _e, _f;
             return __awaiter(this, void 0, void 0, function* () {
                 let projectRunnerOption = "default";
                 const cache = options.cache || false;
@@ -63,9 +63,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const vmRunners = ["vmlocal", "vmdocker"];
                 let isVmPresent = false;
                 try {
-                    for (var _d = true, _e = __asyncValues(Object.entries(_yamlContent.services)), _f; _f = yield _e.next(), _a = _f.done, !_a;) {
-                        _c = _f.value;
-                        _d = false;
+                    for (var _g = true, _h = __asyncValues(Object.entries(_yamlContent.services)), _j; _j = yield _h.next(), _a = _j.done, !_a;) {
+                        _c = _j.value;
+                        _g = false;
                         try {
                             const [serviceName, service] = _c;
                             if (data[serviceName] && data[serviceName].status !== "down") {
@@ -80,14 +80,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             }
                         }
                         finally {
-                            _d = true;
+                            _g = true;
                         }
                     }
                 }
                 catch (e_1_1) { e_1 = { error: e_1_1 }; }
                 finally {
                     try {
-                        if (!_d && !_a && (_b = _e.return)) yield _b.call(_e);
+                        if (!_g && !_a && (_b = _h.return)) yield _b.call(_h);
                     }
                     finally { if (e_1) throw e_1.error; }
                 }
@@ -97,46 +97,61 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield boltVm.create(cache);
                     yield (0, update_store_1.updateStore)("vm", "up");
                 }
-                Object.entries(_yamlContent.services).forEach(([serviceName]) => __awaiter(this, void 0, void 0, function* () {
-                    if (data[serviceName] && data[serviceName].status !== "down") {
-                        return;
+                try {
+                    for (var _k = true, _l = __asyncValues(Object.entries(_yamlContent.services)), _m; _m = yield _l.next(), _d = _m.done, !_d;) {
+                        _f = _m.value;
+                        _k = false;
+                        try {
+                            const [serviceName] = _f;
+                            if (data[serviceName] && data[serviceName].status !== "down") {
+                                continue;
+                            }
+                            // Validating and getting content from bolt.service.yaml
+                            const { content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
+                            const { default_service_runner, supported_service_runners } = content;
+                            let prepared_service_runner = default_service_runner;
+                            if (projectRunnerOption === "host") {
+                                if (!supported_service_runners.includes("local") &&
+                                    !supported_service_runners.includes("docker")) {
+                                    console.log(chalk_1.default.red(`>> ${serviceName} does not includes host service runners. Skipping...`));
+                                    continue;
+                                }
+                                else {
+                                    const availableRunners = supported_service_runners.filter((e) => !vmRunners.includes(e));
+                                    prepared_service_runner = availableRunners[0];
+                                }
+                            }
+                            if (projectRunnerOption === "vm") {
+                                if (!supported_service_runners.includes("vmlocal") &&
+                                    !supported_service_runners.includes("vmdocker")) {
+                                    console.log(chalk_1.default.red(`>> ${serviceName} does not includes vm service runners. Skipping...`));
+                                    continue;
+                                }
+                                else {
+                                    const availableRunners = supported_service_runners.filter((e) => !localRunners.includes(e));
+                                    prepared_service_runner = availableRunners[0];
+                                }
+                            }
+                            const serviceUp = new service_up_1.default();
+                            serviceUpPromises.push(serviceUp.handle(serviceName, {
+                                serviceRunner: prepared_service_runner,
+                                cache: cache,
+                                ports,
+                            }));
+                        }
+                        finally {
+                            _k = true;
+                        }
                     }
-                    // Validating and getting content from bolt.service.yaml
-                    const { content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
-                    const { default_service_runner, supported_service_runners } = content;
-                    let prepared_service_runner = default_service_runner;
-                    if (projectRunnerOption === "host") {
-                        if (!supported_service_runners.includes("local") &&
-                            !supported_service_runners.includes("docker")) {
-                            console.log(chalk_1.default.red(`>> ${serviceName} does not includes host service runners. Skipping...`));
-                            return;
-                        }
-                        else {
-                            const availableRunners = supported_service_runners.filter((e) => !vmRunners.includes(e));
-                            prepared_service_runner = availableRunners[0];
-                        }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (!_k && !_d && (_e = _l.return)) yield _e.call(_l);
                     }
-                    if (projectRunnerOption === "vm") {
-                        if (!supported_service_runners.includes("vmlocal") &&
-                            !supported_service_runners.includes("vmdocker")) {
-                            console.log(chalk_1.default.red(`>> ${serviceName} does not includes vm service runners. Skipping...`));
-                            return;
-                        }
-                        else {
-                            const availableRunners = supported_service_runners.filter((e) => !localRunners.includes(e));
-                            prepared_service_runner = availableRunners[0];
-                        }
-                    }
-                    const serviceUp = new service_up_1.default();
-                    serviceUpPromises.push(serviceUp.handle(serviceName, {
-                        serviceRunner: prepared_service_runner,
-                        cache: cache,
-                        ports,
-                    }));
-                }));
+                    finally { if (e_2) throw e_2.error; }
+                }
                 yield Promise.all(serviceUpPromises);
-                // 2. generates .env
-                yield common_1.default.generateEnv();
                 // 5. starts nginx if the project runner is not vm and nginx config exists in bolt.yaml
                 if (_yamlContent.ingress) {
                     const nginxConfig = (0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME);

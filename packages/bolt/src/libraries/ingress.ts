@@ -50,7 +50,7 @@ export default class Ingress {
 
     await Ingress.removeIfExist(containerName);
 
-    console.log("Running docker", args.join(" "));
+    console.log(">> Running boltingress");
 
     await execute("docker", args, {
       stdio: "inherit",
