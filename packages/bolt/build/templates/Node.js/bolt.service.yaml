@@ -1,6 +1,8 @@
 container_name: SERVICE_NAME
 stateless: true
 default_service_runner: local
+service_discovery_offset: 
+  - 9000
 supported_service_runners:
   - local
   - docker
@@ -8,11 +10,13 @@ service_runners:
   local:
     envfile: .env
     build: npm install && node app.js
+    ports:
+      - ${ASSIGNED_PORT}:${ASSIGNED_PORT}
   docker:
     envfile: .env
     build: ./run.Dockerfile
     ports:
-      - PORT:9000
+      - ${ASSIGNED_PORT}:${ASSIGNED_PORT}
     volumes:
       - DIRECTORY_PATH:/app
       - /app/node_modules

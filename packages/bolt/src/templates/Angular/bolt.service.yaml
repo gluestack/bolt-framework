@@ -1,15 +1,19 @@
 container_name: SERVICE_NAME
 stateless: true
 default_service_runner: local
+service_discovery_offset: 
+  - 4200
 supported_service_runners:
   - local
   - docker
 service_runners:
   local:
     envfile: .env
-    build: npm install && ng serve
+    build: npm install && ng serve --port ${ASSIGNED_PORT}
+    ports:
+      - ${ASSIGNED_PORT}:${ASSIGNED_PORT}
   docker:
     envfile: .env
     build: ./run.Dockerfile
     ports:
-      - PORT:4200
+      - ${ASSIGNED_PORT}:4200

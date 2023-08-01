@@ -3,7 +3,8 @@ export default class ServiceRunnerLocal implements BoltServiceRunner {
     volume: string;
     build: string;
     serviceName: string;
-    constructor(serviceName: string, servicePath: string, build: string);
+    ports: string[];
+    constructor(serviceName: string, servicePath: string, build: string, ports: string[]);
     private run;
     private printCommand;
     start(): Promise<void>;

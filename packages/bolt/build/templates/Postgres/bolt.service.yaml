@@ -1,6 +1,8 @@
 container_name: SERVICE_NAME
 stateless: false
 default_service_runner: docker
+service_discovery_offset: 
+  - 5432
 supported_service_runners:
   - docker
 service_runners:
@@ -16,6 +18,6 @@ service_runners:
       retries: 50
       start_period: 30s
     ports:
-      - PORT:5432
+      - ${ASSIGNED_PORT}:5432
     volumes:
       - DIRECTORY_PATH/db:/var/lib/postgresql/data/

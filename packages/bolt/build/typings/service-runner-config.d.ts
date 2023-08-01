@@ -11,6 +11,7 @@ export interface LocalConfig {
     servicePath: string;
     build: string;
     processId: number;
+    ports: string[];
 }
 export interface VMConfig {
     serviceContent: BoltService;

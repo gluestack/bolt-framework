@@ -26,20 +26,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const ServiceConfigSchema = zod_1.z.object({
         container_name: zod_1.z.string(),
         default_service_runner: zod_1.z.enum(platforms_1.supportedServiceRunners),
+        depends_on: zod_1.z.string().array().optional(),
         supported_service_runners: zod_1.z.array(zod_1.z.enum(platforms_1.supportedServiceRunners)),
+        service_discovery_offset: zod_1.z.number().array().nonempty({
+            message: "atleast one service discovery port is required",
+        }),
         service_runners: zod_1.z.record(zod_1.z.enum(platforms_1.hostServiceRunners), zod_1.z.object({
             envfile: zod_1.z.string(),
             build: zod_1.z.string(),
             // context: z.string().optional(),
         })),
     });
-    const validateBoltService = (context) => __awaiter(void 0, void 0, void 0, function* () {
+    const validateBoltService = (context, servicePath) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield ServiceConfigSchema.parseAsync(context);
         }
         catch (error) {
             // @ts-ignore ZodError
-            yield (0, exit_with_msg_1.exitWithMsg)(`Error while validating ${bolt_configs_1.BOLT.SERVICE_YAML_FILE_NAME}: ${error.message}`);
+            yield (0, exit_with_msg_1.exitWithMsg)(`Error while validating ${bolt_configs_1.BOLT.SERVICE_YAML_FILE_NAME} in ${servicePath} : ${error.message}`);
         }
         return context;
     });

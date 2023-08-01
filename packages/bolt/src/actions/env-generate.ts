@@ -1,16 +1,29 @@
-import { envToJson } from "@gluestack/helpers";
+import { envToJson, jsonToEnv } from "@gluestack/helpers";
 import { join } from "path";
 
 import Common from "../common";
 
-import { exists } from "../helpers/fs-exists";
+import { writefile } from "../helpers/fs-writefile";
+import { getOs } from "../helpers/get-os";
+import { rewriteEnvViaRegExpression } from "../helpers/rewrite-env";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
 
 import Env from "../libraries/env";
+import ServiceDiscovery from "../libraries/service-discovery";
+import PortDiscovery from "./port-discovery";
 
 export default class EnvGenerate {
-  public async handle({ build }: { build: "prod" | "dev" }): Promise<void> {
+  public async handle({
+    build,
+    discoveredPorts,
+  }: {
+    build: "prod" | "dev";
+    discoveredPorts?: {
+      ports: any;
+      serviceName: String;
+    };
+  }): Promise<void> {
     const _yamlContent = await Common.getAndValidateBoltYaml();
 
     // Validations for metadata and services
@@ -24,26 +37,57 @@ export default class EnvGenerate {
       build,
       ingress
     );
+
     // Gather all the availables services
-    for await (const [serviceName, service] of Object.entries(
-      _yamlContent.services
-    )) {
-      const { servicePath } = await Common.getAndValidateService(
+    for await (const [serviceName] of Object.entries(_yamlContent.services)) {
+      const { servicePath, content } = await Common.getAndValidateService(
         serviceName,
         _yamlContent
       );
 
-      const _envPath: string | boolean = await exists(
-        join(servicePath, ".env.tpl")
-      );
-      let _envJson = {};
-      if (typeof _envPath === "string") {
-        _envJson = await envToJson(_envPath);
+      let serviceEnvJSON = await envToJson(join(servicePath, ".env.tpl"));
+      const defaultEnv = {
+        ...serviceEnvJSON,
+        ["ASSIGNED_HOST"]: "localhost",
+      };
+
+      let envContent = jsonToEnv({
+        ...defaultEnv,
+      });
+
+      if (discoveredPorts?.serviceName === serviceName) {
+        envContent = jsonToEnv({
+          ...defaultEnv,
+          ...(discoveredPorts.ports || {}),
+        });
       }
 
-      await env.addEnv(serviceName, _envJson, servicePath);
-    }
+      if (build === "prod") {
+        const portDiscovery = new PortDiscovery(content);
+        const productionPorts = await portDiscovery.production();
 
+        envContent = jsonToEnv({
+          ...defaultEnv,
+          ...(productionPorts.ports || {}),
+        });
+      }
+
+      await writefile(join(servicePath, ".env.tpl"), envContent);
+
+      serviceEnvJSON = await envToJson(join(servicePath, ".env.tpl"));
+
+      if (build === "prod") {
+        const productionHosts = await ServiceDiscovery.discoverProductionHost(
+          servicePath
+        );
+        serviceEnvJSON = {
+          ...serviceEnvJSON,
+          ...productionHosts,
+        };
+      }
+
+      await env.addEnv(serviceName, serviceEnvJSON, servicePath);
+    }
     await env.generate();
   }
 }

@@ -21,6 +21,10 @@ import {
 } from "../typings/service-runner-config";
 import { BoltService, hostServicerunner } from "../typings/bolt-service";
 import interpolate from "../helpers/data-interpolate";
+import PortDiscovery from "./port-discovery";
+import EnvGenerate from "./env-generate";
+import { rewriteEnvViaRegExpression } from "../helpers/rewrite-env";
+import { getOs } from "../helpers/get-os";
 
 export default class ServiceUp {
   //
@@ -86,8 +90,16 @@ export default class ServiceUp {
         srOption = content.supported_service_runners[0];
       }
 
+      const portDiscovery = new PortDiscovery(content);
+      const discoveredPorts = await portDiscovery.handle();
+
       // generates .env
-      await Common.generateEnv();
+      console.log(`>> Generating .env files...`);
+      const generateEnv = new EnvGenerate();
+      await generateEnv.handle({
+        build: "dev",
+        discoveredPorts: discoveredPorts,
+      });
 
       // Make data interpolate into service-runner's yaml content from given env file :: LOCAL
       if (content?.service_runners?.local) {
@@ -95,7 +107,8 @@ export default class ServiceUp {
         const localENVPath = join(servicePath, envfile);
 
         content.service_runners.local = await interpolate(
-          content.service_runners.local, localENVPath
+          content.service_runners.local,
+          localENVPath
         );
       }
 
@@ -105,7 +118,8 @@ export default class ServiceUp {
         const dockerENVPath = join(servicePath, envfile);
 
         content.service_runners.docker = await interpolate(
-          content.service_runners.docker, dockerENVPath
+          content.service_runners.docker,
+          dockerENVPath
         );
       }
 
@@ -127,6 +141,7 @@ export default class ServiceUp {
             servicePath: servicePath,
             build: localBuild,
             processId: 0,
+            ports: content.service_runners.local.ports || [],
           };
 
           await serviceRunner.local(localConfig, {
@@ -142,6 +157,17 @@ export default class ServiceUp {
               chalk.red(`>> No config found for docker in bolt.service.yaml`)
             );
             return;
+          }
+
+          // Replace %_ASSIGNED_HOST% with host.docker.internal in .env file for mac
+          const operatingSystem = getOs();
+          if (operatingSystem !== "linux") {
+            const regularExpression = /%[^%]+_ASSIGNED_HOST%/g;
+            await rewriteEnvViaRegExpression(
+              servicePath,
+              regularExpression,
+              "host.docker.internal"
+            );
           }
 
           const {

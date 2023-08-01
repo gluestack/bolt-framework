@@ -23,11 +23,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs-extra", "path", "../helpers/generate-routes", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../constants/bolt-configs", "../libraries/ingress", "../helpers/get-store-data", "./service-up", "chalk", "@gluestack/boltvm", "../helpers/update-store"], factory);
+        define(["require", "exports", "fs-extra", "path", "../helpers/generate-routes", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../constants/bolt-configs", "../libraries/ingress", "../helpers/get-store-data", "./service-up", "chalk", "@gluestack/boltvm", "../helpers/update-store", "../helpers/exit-with-msg"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.validateDependencies = void 0;
     const fs_extra_1 = require("fs-extra");
     const path_1 = require("path");
     const generate_routes_1 = __importDefault(require("../helpers/generate-routes"));
@@ -41,9 +42,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const chalk_1 = __importDefault(require("chalk"));
     const boltvm_1 = __importDefault(require("@gluestack/boltvm"));
     const update_store_1 = require("../helpers/update-store");
+    const exit_with_msg_1 = require("../helpers/exit-with-msg");
+    const validateDependencies = (arr, arb) => __awaiter(void 0, void 0, void 0, function* () {
+        const arrSet = new Set(arr);
+        for (const value of arb) {
+            if (!arrSet.has(value)) {
+                yield (0, exit_with_msg_1.exitWithMsg)(`>> Error: '${value}' is not a valid service name to depend on`);
+            }
+        }
+    });
+    exports.validateDependencies = validateDependencies;
+    function sortObjectsByDependencies(jsonObject) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const visited = {};
+            const sortedObjects = [];
+            function visit(nodeKey, inProgress = {}) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    if (inProgress[nodeKey]) {
+                        yield (0, exit_with_msg_1.exitWithMsg)(`Circular dependency detected in ${nodeKey}!`);
+                    }
+                    if (visited[nodeKey])
+                        return;
+                    inProgress[nodeKey] = true;
+                    const node = jsonObject[nodeKey];
+                    if (node.depends_on) {
+                        for (const dependency of node.depends_on) {
+                            visit(dependency, Object.assign({}, inProgress)); // Pass a copy of inProgress to avoid modification
+                        }
+                    }
+                    visited[nodeKey] = true;
+                    sortedObjects.push(node);
+                });
+            }
+            for (const key in jsonObject) {
+                yield visit(key);
+            }
+            return sortedObjects;
+        });
+    }
     class Up {
         handle(options) {
-            var _a, e_1, _b, _c, _d, e_2, _e, _f;
+            var _a, e_1, _b, _c, _d, e_2, _e, _f, _g, e_3, _h, _j;
             return __awaiter(this, void 0, void 0, function* () {
                 let projectRunnerOption = "default";
                 const cache = options.cache || false;
@@ -58,16 +97,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 console.log(`>> Creating Ingress...`);
                 const ports = yield (0, generate_routes_1.default)(_yamlContent);
                 const data = yield (0, get_store_data_1.getStoreData)("services");
-                const serviceUpPromises = [];
                 const localRunners = ["local", "docker"];
                 const vmRunners = ["vmlocal", "vmdocker"];
-                let isVmPresent = false;
+                // TODO: Sort services based on their dependencies
+                const validServices = Object.keys(_yamlContent.services);
+                let tree = {};
                 try {
-                    for (var _g = true, _h = __asyncValues(Object.entries(_yamlContent.services)), _j; _j = yield _h.next(), _a = _j.done, !_a;) {
-                        _c = _j.value;
-                        _g = false;
+                    for (var _k = true, _l = __asyncValues(Object.entries(_yamlContent.services)), _m; _m = yield _l.next(), _a = _m.done, !_a;) {
+                        _c = _m.value;
+                        _k = false;
                         try {
                             const [serviceName, service] = _c;
+                            // Validating and getting content from bolt.service.yaml
+                            const { content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
+                            if (content.depends_on) {
+                                yield (0, exports.validateDependencies)(validServices, content.depends_on);
+                            }
+                            tree[serviceName] = Object.assign({}, content);
+                        }
+                        finally {
+                            _k = true;
+                        }
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (!_k && !_a && (_b = _l.return)) yield _b.call(_l);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+                const sortedTree = yield sortObjectsByDependencies(tree);
+                let isVmPresent = false;
+                try {
+                    for (var _o = true, sortedTree_1 = __asyncValues(sortedTree), sortedTree_1_1; sortedTree_1_1 = yield sortedTree_1.next(), _d = sortedTree_1_1.done, !_d;) {
+                        _f = sortedTree_1_1.value;
+                        _o = false;
+                        try {
+                            const service = _f;
+                            const serviceName = service.container_name;
                             if (data[serviceName] && data[serviceName].status !== "down") {
                                 continue;
                             }
@@ -80,16 +148,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             }
                         }
                         finally {
-                            _g = true;
+                            _o = true;
                         }
                     }
                 }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
                 finally {
                     try {
-                        if (!_g && !_a && (_b = _h.return)) yield _b.call(_h);
+                        if (!_o && !_d && (_e = sortedTree_1.return)) yield _e.call(sortedTree_1);
                     }
-                    finally { if (e_1) throw e_1.error; }
+                    finally { if (e_2) throw e_2.error; }
                 }
                 if (isVmPresent) {
                     const cache = options.cache || false;
@@ -98,11 +166,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield (0, update_store_1.updateStore)("vm", "up");
                 }
                 try {
-                    for (var _k = true, _l = __asyncValues(Object.entries(_yamlContent.services)), _m; _m = yield _l.next(), _d = _m.done, !_d;) {
-                        _f = _m.value;
-                        _k = false;
+                    for (var _p = true, sortedTree_2 = __asyncValues(sortedTree), sortedTree_2_1; sortedTree_2_1 = yield sortedTree_2.next(), _g = sortedTree_2_1.done, !_g;) {
+                        _j = sortedTree_2_1.value;
+                        _p = false;
                         try {
-                            const [serviceName] = _f;
+                            const service = _j;
+                            const serviceName = service.container_name;
                             if (data[serviceName] && data[serviceName].status !== "down") {
                                 continue;
                             }
@@ -133,25 +202,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                                 }
                             }
                             const serviceUp = new service_up_1.default();
-                            serviceUpPromises.push(serviceUp.handle(serviceName, {
+                            yield serviceUp.handle(serviceName, {
                                 serviceRunner: prepared_service_runner,
                                 cache: cache,
                                 ports,
-                            }));
+                            });
                         }
                         finally {
-                            _k = true;
+                            _p = true;
                         }
                     }
                 }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                catch (e_3_1) { e_3 = { error: e_3_1 }; }
                 finally {
                     try {
-                        if (!_k && !_d && (_e = _l.return)) yield _e.call(_l);
+                        if (!_p && !_g && (_h = sortedTree_2.return)) yield _h.call(sortedTree_2);
                     }
-                    finally { if (e_2) throw e_2.error; }
+                    finally { if (e_3) throw e_3.error; }
                 }
-                yield Promise.all(serviceUpPromises);
                 // 5. starts nginx if the project runner is not vm and nginx config exists in bolt.yaml
                 if (_yamlContent.ingress) {
                     const nginxConfig = (0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME);

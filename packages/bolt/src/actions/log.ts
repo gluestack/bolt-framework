@@ -93,6 +93,7 @@ export default class Log {
           servicePath: servicePath,
           build: content.service_runners[currentServiceRunner].build,
           processId: 0,
+          ports: [],
         };
 
         await serviceRunner.local(localConfig, {

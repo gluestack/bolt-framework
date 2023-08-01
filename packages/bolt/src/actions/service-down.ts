@@ -9,15 +9,12 @@ import { validateServices } from "../helpers/validate-services";
 import Common from "../common";
 
 import { StoreService, StoreServices } from "../typings/store-service";
-import { Bolt } from "../typings/bolt";
 import ServiceRunner from "../runners/service";
 import {
   DockerConfig,
   LocalConfig,
   VMConfig,
 } from "../typings/service-runner-config";
-import ServiceRunnerVM from "../runners/service/vm";
-import { getStoreData } from "../helpers/get-store-data";
 
 export default class ServiceDown {
   public async checkIfAlreadyDown(_yamlContent: any, serviceName: string) {
@@ -83,6 +80,7 @@ export default class ServiceDown {
           servicePath: servicePath,
           build: localBuild,
           processId: processId,
+          ports: [],
         };
         await serviceRunner.local(localConfig, {
           action: "stop",

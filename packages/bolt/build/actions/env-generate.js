@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "@gluestack/helpers", "path", "../common", "../helpers/fs-exists", "../helpers/validate-metadata", "../helpers/validate-services", "../libraries/env"], factory);
+        define(["require", "exports", "@gluestack/helpers", "path", "../common", "../helpers/fs-writefile", "../helpers/validate-metadata", "../helpers/validate-services", "../libraries/env", "../libraries/service-discovery", "./port-discovery"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -31,12 +31,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const helpers_1 = require("@gluestack/helpers");
     const path_1 = require("path");
     const common_1 = __importDefault(require("../common"));
-    const fs_exists_1 = require("../helpers/fs-exists");
+    const fs_writefile_1 = require("../helpers/fs-writefile");
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     const env_1 = __importDefault(require("../libraries/env"));
+    const service_discovery_1 = __importDefault(require("../libraries/service-discovery"));
+    const port_discovery_1 = __importDefault(require("./port-discovery"));
     class EnvGenerate {
-        handle({ build }) {
+        handle({ build, discoveredPorts, }) {
             var _a, e_1, _b, _c;
             return __awaiter(this, void 0, void 0, function* () {
                 const _yamlContent = yield common_1.default.getAndValidateBoltYaml();
@@ -51,14 +53,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         _c = _f.value;
                         _d = false;
                         try {
-                            const [serviceName, service] = _c;
-                            const { servicePath } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
-                            const _envPath = yield (0, fs_exists_1.exists)((0, path_1.join)(servicePath, ".env.tpl"));
-                            let _envJson = {};
-                            if (typeof _envPath === "string") {
-                                _envJson = yield (0, helpers_1.envToJson)(_envPath);
+                            const [serviceName] = _c;
+                            const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
+                            let serviceEnvJSON = yield (0, helpers_1.envToJson)((0, path_1.join)(servicePath, ".env.tpl"));
+                            const defaultEnv = Object.assign(Object.assign({}, serviceEnvJSON), { ["ASSIGNED_HOST"]: "localhost" });
+                            let envContent = (0, helpers_1.jsonToEnv)(Object.assign({}, defaultEnv));
+                            if ((discoveredPorts === null || discoveredPorts === void 0 ? void 0 : discoveredPorts.serviceName) === serviceName) {
+                                envContent = (0, helpers_1.jsonToEnv)(Object.assign(Object.assign({}, defaultEnv), (discoveredPorts.ports || {})));
                             }
-                            yield env.addEnv(serviceName, _envJson, servicePath);
+                            if (build === "prod") {
+                                const portDiscovery = new port_discovery_1.default(content);
+                                const productionPorts = yield portDiscovery.production();
+                                envContent = (0, helpers_1.jsonToEnv)(Object.assign(Object.assign({}, defaultEnv), (productionPorts.ports || {})));
+                            }
+                            yield (0, fs_writefile_1.writefile)((0, path_1.join)(servicePath, ".env.tpl"), envContent);
+                            serviceEnvJSON = yield (0, helpers_1.envToJson)((0, path_1.join)(servicePath, ".env.tpl"));
+                            if (build === "prod") {
+                                const productionHosts = yield service_discovery_1.default.discoverProductionHost(servicePath);
+                                serviceEnvJSON = Object.assign(Object.assign({}, serviceEnvJSON), productionHosts);
+                            }
+                            yield env.addEnv(serviceName, serviceEnvJSON, servicePath);
                         }
                         finally {
                             _d = true;
