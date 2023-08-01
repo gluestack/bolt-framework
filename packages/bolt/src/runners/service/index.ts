@@ -16,7 +16,7 @@ interface Option {
 
 export default class ServiceRunner {
   public async local(configs: LocalConfig, option: Option) {
-    const { servicePath, build, processId } = configs;
+    const { servicePath, build, processId, ports } = configs;
     const { action, serviceName } = option;
 
     const isFollow = option.isFollow || false;
@@ -24,7 +24,8 @@ export default class ServiceRunner {
     const serviceRunnerLocal = new ServiceRunnerLocal(
       serviceName,
       servicePath,
-      build
+      build,
+      ports
     );
 
     switch (action) {

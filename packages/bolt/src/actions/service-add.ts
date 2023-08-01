@@ -106,20 +106,20 @@ export default class ServiceAdd {
 
     const service_runners = content?.service_runners;
     if (service_runners?.docker?.ports?.length) {
-      for (const port of service_runners?.docker?.ports) {
-        const replacePortBy = port.split(":")[0];
-        const findPortBy = parseInt(port.split(":")[1]);
-        let portFound = findPortBy;
-        try {
-          portFound = await DockerodeHelper.getPort(findPortBy, [], 100);
-        } catch (e) {
-          //
-        }
-        replaceArr.push({
-          source: replacePortBy,
-          replace: portFound.toString(),
-        });
-      }
+      // for (const port of service_runners?.docker?.ports) {
+      // const replacePortBy = port.split(":")[0];
+      // const findPortBy = parseInt(port.split(":")[1]);
+      // let portFound = findPortBy;
+      // try {
+      //   portFound = await DockerodeHelper.getPort(findPortBy, [], 100);
+      // } catch (e) {
+      //   //
+      // }
+      // replaceArr.push({
+      //   source: replacePortBy,
+      //   replace: portFound.toString(),
+      // });
+      // }
     }
 
     await reWriteFile(_serviceYamlPath, replaceArr);

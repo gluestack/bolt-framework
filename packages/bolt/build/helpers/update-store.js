@@ -21,7 +21,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.updateStore = void 0;
+    exports.updateStoreRootData = exports.updateStore = void 0;
     const get_store_1 = __importDefault(require("./get-store"));
     const updateStore = (key, value, data) => __awaiter(void 0, void 0, void 0, function* () {
         const store = yield (0, get_store_1.default)();
@@ -46,4 +46,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         store.save();
     });
     exports.updateStore = updateStore;
+    const updateStoreRootData = (key, value) => __awaiter(void 0, void 0, void 0, function* () {
+        const store = yield (0, get_store_1.default)();
+        store.set(key, value);
+        store.save();
+    });
+    exports.updateStoreRootData = updateStoreRootData;
 });

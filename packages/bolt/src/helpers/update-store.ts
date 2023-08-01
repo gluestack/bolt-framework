@@ -29,3 +29,10 @@ export const updateStore = async (key: string, value: string, data?: any) => {
 
   store.save();
 };
+
+export const updateStoreRootData = async (key: string, value: any) => {
+  const store = await getStore();
+
+  store.set(key, value);
+  store.save();
+};

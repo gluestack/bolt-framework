@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../helpers/data-interpolate"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../helpers/data-interpolate", "./port-discovery", "./env-generate", "../helpers/rewrite-env", "../helpers/get-os"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -31,6 +31,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const common_1 = __importDefault(require("../common"));
     const service_1 = __importDefault(require("../runners/service"));
     const data_interpolate_1 = __importDefault(require("../helpers/data-interpolate"));
+    const port_discovery_1 = __importDefault(require("./port-discovery"));
+    const env_generate_1 = __importDefault(require("./env-generate"));
+    const rewrite_env_1 = require("../helpers/rewrite-env");
+    const get_os_1 = require("../helpers/get-os");
     class ServiceUp {
         //
         checkIfAlreadyUp(_yamlContent, serviceName) {
@@ -71,8 +75,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         console.log(chalk_1.default.yellow(`>> Given "${srOption}" service runner is not supported for ${serviceName}, using "${content.supported_service_runners[0]}" instead!`));
                         srOption = content.supported_service_runners[0];
                     }
+                    const portDiscovery = new port_discovery_1.default(content);
+                    const discoveredPorts = yield portDiscovery.handle();
                     // generates .env
-                    yield common_1.default.generateEnv();
+                    console.log(`>> Generating .env files...`);
+                    const generateEnv = new env_generate_1.default();
+                    yield generateEnv.handle({
+                        build: "dev",
+                        discoveredPorts: discoveredPorts,
+                    });
                     // Make data interpolate into service-runner's yaml content from given env file :: LOCAL
                     if ((_a = content === null || content === void 0 ? void 0 : content.service_runners) === null || _a === void 0 ? void 0 : _a.local) {
                         const { envfile } = content.service_runners["local"];
@@ -99,6 +110,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                                 servicePath: servicePath,
                                 build: localBuild,
                                 processId: 0,
+                                ports: content.service_runners.local.ports || [],
                             };
                             yield serviceRunner.local(localConfig, {
                                 action: "start",
@@ -110,6 +122,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             if (!isConfigValid) {
                                 console.log(chalk_1.default.red(`>> No config found for docker in bolt.service.yaml`));
                                 return;
+                            }
+                            // Replace %_ASSIGNED_HOST% with host.docker.internal in .env file for mac
+                            const operatingSystem = (0, get_os_1.getOs)();
+                            if (operatingSystem !== "linux") {
+                                const regularExpression = /%[^%]+_ASSIGNED_HOST%/g;
+                                yield (0, rewrite_env_1.rewriteEnvViaRegExpression)(servicePath, regularExpression, "host.docker.internal");
                             }
                             const { build: dockerBuild, ports, volumes, envfile, } = content.service_runners.docker;
                             const dockerConfig = {

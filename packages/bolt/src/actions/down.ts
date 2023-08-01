@@ -1,9 +1,7 @@
 import chalk from "chalk";
 import { join } from "path";
 
-import { exitWithMsg } from "../helpers/exit-with-msg";
 import { exists } from "../helpers/fs-exists";
-import getStore from "../helpers/get-store";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
 
@@ -13,11 +11,11 @@ import Ingress from "../libraries/ingress";
 
 import { BOLT } from "../constants/bolt-configs";
 
-import { ProjectRunners, StoreServices } from "../typings/store-service";
+import { StoreServices } from "../typings/store-service";
 import { getStoreData } from "../helpers/get-store-data";
 import ServiceDown from "./service-down";
 import ServiceRunnerVM from "../runners/service/vm";
-import { updateStore } from "../helpers/update-store";
+import { updateStore, updateStoreRootData } from "../helpers/update-store";
 
 export default class Down {
   public async handle() {
@@ -58,6 +56,8 @@ export default class Down {
         await Ingress.stop(BOLT.NGINX_CONTAINER_NAME);
       }
     }
+
+    updateStoreRootData("ports", []);
 
     console.log(chalk.green(`>> ${_yamlContent.project_name} is down.\n`));
   }

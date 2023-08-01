@@ -60,17 +60,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     yield (0, exit_with_msg_1.exitWithMsg)(`>> service ${(0, path_1.relative)(".", (0, path_1.join)(servicePath, "bolt.service.yaml"))} file doesn't exists`);
                 }
                 const yamlPath = _serviceYamlPath;
-                const content = yield (0, bolt_service_1.validateBoltService)(yield (0, parse_yaml_1.parseYAML)(yamlPath));
+                const content = yield (0, bolt_service_1.validateBoltService)(yield (0, parse_yaml_1.parseYAML)(yamlPath), servicePath);
                 return { servicePath, _serviceYamlPath, yamlPath, content };
             });
         }
         static generateEnv() {
             return __awaiter(this, void 0, void 0, function* () {
                 const args = ["env:generate"];
-                console.log(chalk_1.default.gray("$ bolt", args.join(" ")));
+                // console.log(chalk.gray("$ bolt", args.join(" ")));
                 yield (0, execute_1.execute)("bolt", args, {
                     cwd: process.cwd(),
                     shell: true,
+                    stdio: "inherit",
                 });
             });
         }

@@ -1,6 +1,8 @@
 container_name: SERVICE_NAME
 stateless: false
 default_service_runner: docker
+service_discovery_offset: 
+  - 8080
 supported_service_runners:
   - docker
 service_runners:
@@ -8,7 +10,7 @@ service_runners:
     envfile: .env
     build: ./run.Dockerfile
     ports:
-      - PORT:8080
+      - ${ASSIGNED_PORT}:8080
     volumes:
       - DIRECTORY_PATH:/hasura
     # comment this if dependency on postgres service does not exists

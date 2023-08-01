@@ -1,15 +1,19 @@
 container_name: SERVICE_NAME
 stateless: true
 default_service_runner: local
+service_discovery_offset: 
+  - 8000
 supported_service_runners:
   - local
   - docker
 service_runners:
   local:
     envfile: .env
-    build: pip install -r requirements.txt && python manage.py runserver
+    build: pip install -r requirements.txt && python manage.py runserver ${ASSIGNED_PORT}
+    ports:
+      - ${ASSIGNED_PORT}:${ASSIGNED_PORT}
   docker:
     envfile: .env
     build: ./run.Dockerfile
     ports:
-      - PORT:8000
+      - ${ASSIGNED_PORT}:8000

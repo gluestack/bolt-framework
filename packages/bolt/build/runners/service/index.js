@@ -28,10 +28,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     class ServiceRunner {
         local(configs, option) {
             return __awaiter(this, void 0, void 0, function* () {
-                const { servicePath, build, processId } = configs;
+                const { servicePath, build, processId, ports } = configs;
                 const { action, serviceName } = option;
                 const isFollow = option.isFollow || false;
-                const serviceRunnerLocal = new local_1.default(serviceName, servicePath, build);
+                const serviceRunnerLocal = new local_1.default(serviceName, servicePath, build, ports);
                 switch (action) {
                     case "start":
                         yield serviceRunnerLocal.start();

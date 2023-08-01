@@ -16,17 +16,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../actions/deploy"], factory);
+        define(["require", "exports", "chalk"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const deploy_1 = __importDefault(require("../actions/deploy"));
+    const chalk_1 = __importDefault(require("chalk"));
+    // import deploy from "../actions/deploy";
     exports.default = (program) => __awaiter(void 0, void 0, void 0, function* () {
         program
-            .command('deploy:watch')
-            .option('-a, --auth [true]', 'Re-enter credentials, do not use presisted credentials from earlier', false)
-            .description('Prepares the compressed project & initiates the deployment')
-            .action((options) => (0, deploy_1.default)(options));
+            .command("deploy:watch")
+            .option("-a, --auth [true]", "Re-enter credentials, do not use presisted credentials from earlier", false)
+            .description("Prepares the compressed project & initiates the deployment")
+            .action((options) => {
+            console.log(chalk_1.default.green(">> Coming Soon..."));
+            process.exit();
+            // deploy(options, true);
+        });
     });
 });

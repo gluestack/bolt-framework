@@ -28,10 +28,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const get_local_logs_1 = require("../../helpers/get-local-logs");
     const update_store_1 = require("../../helpers/update-store");
     class ServiceRunnerLocal {
-        constructor(serviceName, servicePath, build) {
+        constructor(serviceName, servicePath, build, ports) {
             this.serviceName = serviceName;
             this.build = build;
             this.volume = (0, path_1.join)(servicePath);
+            this.ports = ports;
         }
         run(serviceName) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -55,7 +56,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     status: "up",
                     serviceRunner: "local",
                     projectRunner: "host",
-                    port: null,
+                    port: this.ports,
                     processId: PID,
                 };
                 yield (0, update_store_1.updateStore)("services", this.serviceName, json);

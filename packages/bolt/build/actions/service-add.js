@@ -40,7 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const bolt_service_1 = require("../validations/bolt-service");
     class ServiceAdd {
         handle(serviceName, directoryPath) {
-            var _a, _b, _c;
+            var _a, _b;
             return __awaiter(this, void 0, void 0, function* () {
                 serviceName = (0, helpers_1.removeSpecialChars)(serviceName);
                 directoryPath = (0, path_1.relative)(".", directoryPath).replace(/\/+$/, "");
@@ -104,21 +104,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 const content = yield (0, bolt_service_1.validateBoltService)(yield (0, parse_yaml_1.parseYAML)(_serviceYamlPath));
                 const service_runners = content === null || content === void 0 ? void 0 : content.service_runners;
                 if ((_b = (_a = service_runners === null || service_runners === void 0 ? void 0 : service_runners.docker) === null || _a === void 0 ? void 0 : _a.ports) === null || _b === void 0 ? void 0 : _b.length) {
-                    for (const port of (_c = service_runners === null || service_runners === void 0 ? void 0 : service_runners.docker) === null || _c === void 0 ? void 0 : _c.ports) {
-                        const replacePortBy = port.split(":")[0];
-                        const findPortBy = parseInt(port.split(":")[1]);
-                        let portFound = findPortBy;
-                        try {
-                            portFound = yield helpers_1.DockerodeHelper.getPort(findPortBy, [], 100);
-                        }
-                        catch (e) {
-                            //
-                        }
-                        replaceArr.push({
-                            source: replacePortBy,
-                            replace: portFound.toString(),
-                        });
-                    }
+                    // for (const port of service_runners?.docker?.ports) {
+                    // const replacePortBy = port.split(":")[0];
+                    // const findPortBy = parseInt(port.split(":")[1]);
+                    // let portFound = findPortBy;
+                    // try {
+                    //   portFound = await DockerodeHelper.getPort(findPortBy, [], 100);
+                    // } catch (e) {
+                    //   //
+                    // }
+                    // replaceArr.push({
+                    //   source: replacePortBy,
+                    //   replace: portFound.toString(),
+                    // });
+                    // }
                 }
                 yield (0, reWriteFile_1.default)(_serviceYamlPath, replaceArr);
                 yield (0, reWriteFile_1.default)(_runDockerfilePath, replaceArr);

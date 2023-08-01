@@ -63,6 +63,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         yield ingress_1.default.stop(bolt_configs_1.BOLT.NGINX_CONTAINER_NAME);
                     }
                 }
+                (0, update_store_1.updateStoreRootData)("ports", []);
                 console.log(chalk_1.default.green(`>> ${_yamlContent.project_name} is down.\n`));
             });
         }

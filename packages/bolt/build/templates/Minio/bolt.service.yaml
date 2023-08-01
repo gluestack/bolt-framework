@@ -1,6 +1,9 @@
 container_name: SERVICE_NAME
 stateless: false
 default_service_runner: docker
+service_discovery_offset: 
+  - 9000
+  - 9001
 supported_service_runners:
   - docker
 service_runners:
@@ -8,8 +11,8 @@ service_runners:
     envfile: .env
     build: ./run.Dockerfile
     ports:
-      - MINIO_PORT:9000
-      - CONSOLE_PORT:9001
+      - ${ASSIGNED_PORT}:9000
+      - ${ASSIGNED_PORT_1}:9001
     volumes:
       - DIRECTORY_PATH/data:/data
     healthcheck:
@@ -17,7 +20,7 @@ service_runners:
         - CMD
         - curl
         - -f
-        - http://SERVICE_NAME:9000/minio/health/live
+        - http://SERVICE_NAME:${ASSIGNED_PORT}/minio/health/live
       interval: 5s
       timeout: 2s
       retries: 20

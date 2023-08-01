@@ -26,10 +26,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.default = (program) => __awaiter(void 0, void 0, void 0, function* () {
         program
             .command("route:generate")
+            .option("-p, --prod", "generates routes for deployment")
             .description(`Generates "${bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME}" file against "${bolt_configs_1.BOLT.YAML_FILE_NAME}" ingress`)
-            .action(() => __awaiter(void 0, void 0, void 0, function* () {
+            .action((options) => __awaiter(void 0, void 0, void 0, function* () {
             const routeGenerate = new route_generate_1.default();
-            yield routeGenerate.handle();
+            yield routeGenerate.handle(options);
         }));
     });
 });
