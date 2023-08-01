@@ -11,11 +11,18 @@ export default class ServiceRunnerLocal implements BoltServiceRunner {
   volume: string;
   build: string;
   serviceName: string;
+  ports: string[];
 
-  constructor(serviceName: string, servicePath: string, build: string) {
+  constructor(
+    serviceName: string,
+    servicePath: string,
+    build: string,
+    ports: string[]
+  ) {
     this.serviceName = serviceName;
     this.build = build;
     this.volume = join(servicePath);
+    this.ports = ports;
   }
 
   private async run(serviceName: string) {
@@ -46,7 +53,7 @@ export default class ServiceRunnerLocal implements BoltServiceRunner {
       status: "up",
       serviceRunner: "local",
       projectRunner: "host",
-      port: null,
+      port: this.ports,
       processId: PID,
     };
     await updateStore("services", this.serviceName, json);

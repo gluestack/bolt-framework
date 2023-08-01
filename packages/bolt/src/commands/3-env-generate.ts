@@ -4,6 +4,7 @@ import EnvGenerate from "../actions/env-generate";
 export default async (program: Command) => {
   program
     .command("env:generate")
+    .option("-b, --build <build>", "build type", "dev")
     .description(
       `Generates ".env" for all the services from ".env.tpl" file in each service`
     )

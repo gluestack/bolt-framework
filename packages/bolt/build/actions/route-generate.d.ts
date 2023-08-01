@@ -1,3 +1,3 @@
 export default class RouteGenerate {
-    handle(): Promise<void>;
+    handle(options: any): Promise<void>;
 }

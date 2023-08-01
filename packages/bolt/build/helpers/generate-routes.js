@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "@gluestack/helpers", "path", "./fs-removefile", "lodash", "../constants/bolt-configs", "./data-interpolate"], factory);
+        define(["require", "exports", "chalk", "@gluestack/helpers", "path", "./fs-removefile", "lodash", "../constants/bolt-configs", "./data-interpolate", "./get-os"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -28,7 +28,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const lodash_1 = require("lodash");
     const bolt_configs_1 = require("../constants/bolt-configs");
     const data_interpolate_1 = __importDefault(require("./data-interpolate"));
-    function generateRoutes(_yamlContent) {
+    const get_os_1 = require("./get-os");
+    function generateRoutes(_yamlContent, isProd) {
         return __awaiter(this, void 0, void 0, function* () {
             yield (0, fs_removefile_1.removefile)((0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME));
             if (!_yamlContent.ingress || _yamlContent.ingress.length === 0) {
@@ -51,6 +52,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                         console.log(">> Missing required option in ingress config");
                         return;
                     }
+                    const generatedProxyPass = generateProxyPass(proxy_pass, isProd || false);
                     const client_max_body_size = option.client_max_body_size || 50;
                     const proxy_http_version = option.proxy_http_version || 1.1;
                     const proxy_cache_bypass = option.proxy_cache_bypass || "$http_upgrade";
@@ -73,7 +75,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
       proxy_set_header X-Real-IP ${proxy_set_header_x_real_ip};
       proxy_set_header X-Forwarded-For ${proxy_set_header_x_forwarded_for};
       proxy_set_header X-Forwarded-Proto ${proxy_set_header_x_forwarded_proto};
-      proxy_pass ${proxy_pass};
+      proxy_pass ${generatedProxyPass};
     }`;
                 })
                     .join("\n");
@@ -86,7 +88,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             })
                 .join("\n");
             // prepare bolt.nginx.conf file's content
-            const nginxConfig = `
+            let nginxConfig = `
 user nginx;
 worker_processes auto;
 error_log /var/log/nginx/error.log;
@@ -123,6 +125,9 @@ http {
   ${serverBlocks}
 }
 `;
+            if (isProd) {
+                nginxConfig = `${serverBlocks}`;
+            }
             // prepare bolt.nginx.conf file's path
             const nginxFile = (0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME);
             // interpolate all variables from yaml and inject .env file's vars
@@ -135,4 +140,20 @@ http {
         });
     }
     exports.default = generateRoutes;
+    function generateProxyPass(proxyPass, prod) {
+        let proxyHost = "host.docker.internal";
+        const operatingSystem = (0, get_os_1.getOs)();
+        if (operatingSystem === "linux") {
+            proxyHost = "localhost";
+        }
+        const regex = /\${(.+?)_ASSIGNED_HOST}/g;
+        if (!prod) {
+            proxyPass = proxyPass.replace(regex, proxyHost);
+            return proxyPass;
+        }
+        else {
+            proxyPass = proxyPass.replace(regex, "{$1}");
+            return proxyPass;
+        }
+    }
 });

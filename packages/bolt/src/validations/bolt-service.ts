@@ -10,7 +10,11 @@ import { BOLT } from "../constants/bolt-configs";
 const ServiceConfigSchema = z.object({
   container_name: z.string(),
   default_service_runner: z.enum(supportedServiceRunners),
+  depends_on: z.string().array().optional(),
   supported_service_runners: z.array(z.enum(supportedServiceRunners)),
+  service_discovery_offset: z.number().array().nonempty({
+    message: "atleast one service discovery port is required",
+  }),
   service_runners: z.record(
     z.enum(hostServiceRunners),
     z.object({
@@ -22,14 +26,15 @@ const ServiceConfigSchema = z.object({
 });
 
 export const validateBoltService = async (
-  context: BoltService
+  context: BoltService,
+  servicePath?: string
 ): Promise<BoltService> => {
   try {
     await ServiceConfigSchema.parseAsync(context);
   } catch (error: any) {
     // @ts-ignore ZodError
     await exitWithMsg(
-      `Error while validating ${BOLT.SERVICE_YAML_FILE_NAME}: ${error.message}`
+      `Error while validating ${BOLT.SERVICE_YAML_FILE_NAME} in ${servicePath} : ${error.message}`
     );
   }
 

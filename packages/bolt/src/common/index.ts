@@ -19,9 +19,7 @@ export default class Common {
     }
 
     const _yamlContent = await validateBolt(await parseYAML(_yamlPath));
-    if (
-      !_yamlContent?.services || isEmpty(_yamlContent.services)
-    ) {
+    if (!_yamlContent?.services || isEmpty(_yamlContent.services)) {
       await exitWithMsg(`>> "${BOLT.YAML_FILE_NAME}" services does not exists`);
     }
 
@@ -61,7 +59,10 @@ export default class Common {
 
     const yamlPath = _serviceYamlPath as string;
 
-    const content = await validateBoltService(await parseYAML(yamlPath));
+    const content = await validateBoltService(
+      await parseYAML(yamlPath),
+      servicePath
+    );
 
     return { servicePath, _serviceYamlPath, yamlPath, content };
   }
@@ -69,11 +70,12 @@ export default class Common {
   public static async generateEnv() {
     const args: string[] = ["env:generate"];
 
-    console.log(chalk.gray("$ bolt", args.join(" ")));
+    // console.log(chalk.gray("$ bolt", args.join(" ")));
 
     await execute("bolt", args, {
       cwd: process.cwd(),
       shell: true,
+      stdio: "inherit",
     });
   }
 

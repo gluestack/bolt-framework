@@ -25,6 +25,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     exports.default = (program) => __awaiter(void 0, void 0, void 0, function* () {
         program
             .command("env:generate")
+            .option("-b, --build <build>", "build type", "dev")
             .description(`Generates ".env" for all the services from ".env.tpl" file in each service`)
             .action((option) => __awaiter(void 0, void 0, void 0, function* () {
             const envGenerate = new env_generate_1.default();

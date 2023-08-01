@@ -89,6 +89,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             servicePath: servicePath,
                             build: content.service_runners[currentServiceRunner].build,
                             processId: 0,
+                            ports: [],
                         };
                         yield serviceRunner.local(localConfig, {
                             action: "logs",

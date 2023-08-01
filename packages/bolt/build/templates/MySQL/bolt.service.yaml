@@ -1,6 +1,8 @@
 container_name: SERVICE_NAME
 stateless: false
 default_service_runner: docker
+service_discovery_offset: 
+  - 3306
 supported_service_runners:
   - docker
 service_runners:
@@ -12,4 +14,4 @@ service_runners:
       interval: 1s
       retries: 120
     ports:
-      - PORT:3306
+      - ${ASSIGNED_PORT}:3306

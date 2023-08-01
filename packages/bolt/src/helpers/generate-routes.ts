@@ -7,8 +7,12 @@ import { map } from "lodash";
 import { Bolt } from "../typings/bolt";
 import { BOLT } from "../constants/bolt-configs";
 import interpolate from "./data-interpolate";
+import { getOs } from "./get-os";
 
-export default async function generateRoutes(_yamlContent: Bolt): Promise<any> {
+export default async function generateRoutes(
+  _yamlContent: Bolt,
+  isProd?: boolean
+): Promise<any> {
   await removefile(join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME));
 
   if (!_yamlContent.ingress || _yamlContent.ingress.length === 0) {
@@ -36,6 +40,11 @@ export default async function generateRoutes(_yamlContent: Bolt): Promise<any> {
             console.log(">> Missing required option in ingress config");
             return;
           }
+
+          const generatedProxyPass = generateProxyPass(
+            proxy_pass,
+            isProd || false
+          );
 
           const client_max_body_size = option.client_max_body_size || 50;
           const proxy_http_version = option.proxy_http_version || 1.1;
@@ -66,7 +75,7 @@ export default async function generateRoutes(_yamlContent: Bolt): Promise<any> {
       proxy_set_header X-Real-IP ${proxy_set_header_x_real_ip};
       proxy_set_header X-Forwarded-For ${proxy_set_header_x_forwarded_for};
       proxy_set_header X-Forwarded-Proto ${proxy_set_header_x_forwarded_proto};
-      proxy_pass ${proxy_pass};
+      proxy_pass ${generatedProxyPass};
     }`;
         })
         .join("\n");
@@ -81,7 +90,7 @@ export default async function generateRoutes(_yamlContent: Bolt): Promise<any> {
     .join("\n");
 
   // prepare bolt.nginx.conf file's content
-  const nginxConfig = `
+  let nginxConfig = `
 user nginx;
 worker_processes auto;
 error_log /var/log/nginx/error.log;
@@ -119,11 +128,18 @@ http {
 }
 `;
 
+  if (isProd) {
+    nginxConfig = `${serverBlocks}`;
+  }
+
   // prepare bolt.nginx.conf file's path
   const nginxFile = join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME);
 
   // interpolate all variables from yaml and inject .env file's vars
-  const { content } = await interpolate({ content: nginxConfig }, join(process.cwd(), ".env"));
+  const { content } = await interpolate(
+    { content: nginxConfig },
+    join(process.cwd(), ".env")
+  );
 
   // write bolt.nginx.conf file
   await writeFile(nginxFile, content);
@@ -137,4 +153,21 @@ http {
   const ports = map(_yamlContent.ingress, "port");
 
   return ports;
+}
+
+function generateProxyPass(proxyPass: string, prod: boolean) {
+  let proxyHost: string = "host.docker.internal";
+  const operatingSystem = getOs();
+  if (operatingSystem === "linux") {
+    proxyHost = "localhost";
+  }
+  const regex = /\${(.+?)_ASSIGNED_HOST}/g;
+
+  if (!prod) {
+    proxyPass = proxyPass.replace(regex, proxyHost);
+    return proxyPass;
+  } else {
+    proxyPass = proxyPass.replace(regex, "{$1}");
+    return proxyPass;
+  }
 }

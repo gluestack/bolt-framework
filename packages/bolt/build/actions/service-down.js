@@ -77,6 +77,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             servicePath: servicePath,
                             build: localBuild,
                             processId: processId,
+                            ports: [],
                         };
                         yield serviceRunner.local(localConfig, {
                             action: "stop",
