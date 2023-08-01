@@ -94,7 +94,7 @@ export default class ServiceUp {
       const discoveredPorts = await portDiscovery.handle();
 
       // generates .env
-      console.log(`>> Generating .env files...`);
+      console.log(chalk.gray(`>> Generating .env files...`));
       const generateEnv = new EnvGenerate();
       await generateEnv.handle({
         build: "dev",
