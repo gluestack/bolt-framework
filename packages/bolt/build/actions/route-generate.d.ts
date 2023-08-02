@@ -1,3 +1,3 @@
 export default class RouteGenerate {
-    handle(options: any): Promise<void>;
+    handle(isProd?: boolean): Promise<void>;
 }

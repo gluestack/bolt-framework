@@ -86,10 +86,6 @@ export default class Up {
     await validateMetadata();
     await validateServices();
 
-    // 1. generates routes
-    console.log(`>> Creating Ingress...`);
-    const ports = await generateRoutes(_yamlContent);
-
     const data: StoreServices = await getStoreData("services");
 
     const localRunners = ["local", "docker"];
@@ -211,9 +207,12 @@ export default class Up {
       await serviceUp.handle(serviceName, {
         serviceRunner: prepared_service_runner,
         cache: cache,
-        ports,
       });
     }
+
+    // 1. generates routes
+    console.log(`>> Creating Ingress...`);
+    const ports = await generateRoutes(_yamlContent);
 
     // 5. starts nginx if the project runner is not vm and nginx config exists in bolt.yaml
     if (_yamlContent.ingress) {

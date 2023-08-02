@@ -16,15 +16,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../../helpers/validate-metadata", "../../helpers/validate-services", "./deploy"], factory);
+        define(["require", "exports", "chalk", "../../actions/env-generate", "../../helpers/validate-metadata", "../../helpers/validate-services", "../route-generate", "./deploy"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const chalk_1 = __importDefault(require("chalk"));
+    const env_generate_1 = __importDefault(require("../../actions/env-generate"));
     const validate_metadata_1 = require("../../helpers/validate-metadata");
     const validate_services_1 = require("../../helpers/validate-services");
+    const route_generate_1 = __importDefault(require("../route-generate"));
     const deploy_1 = __importDefault(require("./deploy"));
     exports.default = (options, isWatch = false) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log(chalk_1.default.gray(">> Building Production Envs..."));
+        const envGenerate = new env_generate_1.default();
+        yield envGenerate.handle({ environment: "production" });
+        const routeGenerate = new route_generate_1.default();
+        yield routeGenerate.handle(true);
+        return;
         // validate the project
         console.log(">> Validating project...");
         yield (0, validate_metadata_1.validateMetadata)();

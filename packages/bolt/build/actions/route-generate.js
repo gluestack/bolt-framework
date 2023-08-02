@@ -16,27 +16,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "../common", "../helpers/execute", "../helpers/generate-routes", "../helpers/validate-metadata", "../helpers/validate-services"], factory);
+        define(["require", "exports", "../common", "../helpers/generate-routes", "../helpers/validate-metadata", "../helpers/validate-services"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    const chalk_1 = __importDefault(require("chalk"));
     const common_1 = __importDefault(require("../common"));
-    const execute_1 = require("../helpers/execute");
     const generate_routes_1 = __importDefault(require("../helpers/generate-routes"));
     const validate_metadata_1 = require("../helpers/validate-metadata");
     const validate_services_1 = require("../helpers/validate-services");
     class RouteGenerate {
-        handle(options) {
+        handle(isProd = false) {
             return __awaiter(this, void 0, void 0, function* () {
                 const _yamlContent = yield common_1.default.getAndValidateBoltYaml();
-                const isProd = options.prod || false;
-                if (isProd) {
-                    console.log(chalk_1.default.gray(">> Building Production Envs..."));
-                    const args = ["env:generate", "--build", "prod"];
-                    yield (0, execute_1.execute)("bolt", args, {});
-                }
                 // Validations for metadata and services
                 yield (0, validate_metadata_1.validateMetadata)();
                 yield (0, validate_services_1.validateServices)();

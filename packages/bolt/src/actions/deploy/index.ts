@@ -1,8 +1,19 @@
+import chalk from "chalk";
+import EnvGenerate from "../../actions/env-generate";
 import { validateMetadata } from "../../helpers/validate-metadata";
 import { validateServices } from "../../helpers/validate-services";
+import RouteGenerate from "../route-generate";
 import DeployClass from "./deploy";
 
 export default async (options: any, isWatch: boolean = false) => {
+  console.log(chalk.gray(">> Building Production Envs..."));
+  const envGenerate = new EnvGenerate();
+  await envGenerate.handle({ environment: "production" });
+
+  const routeGenerate = new RouteGenerate();
+  await routeGenerate.handle(true);
+
+  return;
   // validate the project
   console.log(">> Validating project...");
   await validateMetadata();

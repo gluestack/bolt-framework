@@ -17,5 +17,6 @@
         PROCESS_FOLDER_NAME: ".bolt",
         NGINX_CONFIG_FILE_NAME: "bolt.nginx.conf",
         NGINX_CONTAINER_NAME: "boltingress",
+        NGINX_CONFIG_DEPLOY_FILE_NAME: "bolt.nginx.deploy.conf",
     };
 });

@@ -35,7 +35,7 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
      * in your gluestack app
      */
     class Env {
-        constructor(envContent, build, routes = []) {
+        constructor(envContent, routes = [], isProd = false) {
             this.keys = envContent;
             routes.map((route) => {
                 const server = route.domain.split(".")[0] || "";
@@ -43,6 +43,7 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
                     this.keys[`ENDPOINT_${server.toUpperCase()}`] = `http://localhost:${route.port}`;
                 }
             });
+            this.isProd = isProd;
             this.keyCharacter = "%";
             this.envs = [];
             this.filepath = (0, path_1.join)(process.cwd(), ".env");
@@ -52,6 +53,10 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
         addEnv(serviceName, envContent, path) {
             var _a, e_1, _b, _c;
             return __awaiter(this, void 0, void 0, function* () {
+                const previousContent = yield (0, helpers_1.envToJson)((0, path_1.join)(process.cwd(), ".env"));
+                if (!this.isProd) {
+                    this.keys = Object.assign(Object.assign({}, this.keys), previousContent);
+                }
                 try {
                     for (var _d = true, _e = __asyncValues(Object.keys(envContent)), _f; _f = yield _e.next(), _a = _f.done, !_a;) {
                         _c = _f.value;

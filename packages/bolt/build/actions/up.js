@@ -93,9 +93,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 // Validations for metadata and services
                 yield (0, validate_metadata_1.validateMetadata)();
                 yield (0, validate_services_1.validateServices)();
-                // 1. generates routes
-                console.log(`>> Creating Ingress...`);
-                const ports = yield (0, generate_routes_1.default)(_yamlContent);
                 const data = yield (0, get_store_data_1.getStoreData)("services");
                 const localRunners = ["local", "docker"];
                 const vmRunners = ["vmlocal", "vmdocker"];
@@ -205,7 +202,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                             yield serviceUp.handle(serviceName, {
                                 serviceRunner: prepared_service_runner,
                                 cache: cache,
-                                ports,
                             });
                         }
                         finally {
@@ -220,6 +216,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     }
                     finally { if (e_3) throw e_3.error; }
                 }
+                // 1. generates routes
+                console.log(`>> Creating Ingress...`);
+                const ports = yield (0, generate_routes_1.default)(_yamlContent);
                 // 5. starts nginx if the project runner is not vm and nginx config exists in bolt.yaml
                 if (_yamlContent.ingress) {
                     const nginxConfig = (0, path_1.join)(process.cwd(), bolt_configs_1.BOLT.NGINX_CONFIG_FILE_NAME);
