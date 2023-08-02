@@ -128,12 +128,14 @@ http {
 }
 `;
 
+  // prepare bolt.nginx.conf file's path
+  let nginxFile = join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME);
+
+  // if prod, use bolt.nginx.deploy.conf file
   if (isProd) {
     nginxConfig = `${serverBlocks}`;
+    nginxFile = join(process.cwd(), BOLT.NGINX_CONFIG_DEPLOY_FILE_NAME);
   }
-
-  // prepare bolt.nginx.conf file's path
-  const nginxFile = join(process.cwd(), BOLT.NGINX_CONFIG_FILE_NAME);
 
   // interpolate all variables from yaml and inject .env file's vars
   const { content } = await interpolate(

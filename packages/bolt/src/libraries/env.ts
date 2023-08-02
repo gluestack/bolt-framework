@@ -5,6 +5,7 @@ import {
   getPrefix,
   getCrossEnvKey,
   jsonToEnv,
+  envToJson,
 } from "@gluestack/helpers";
 
 /**
@@ -18,8 +19,9 @@ export default class Env {
   public keyCharacter: "%";
   public envs: ChildEnv[];
   public filepath: string;
+  public isProd: boolean;
 
-  constructor(envContent: any, build: "prod" | "dev", routes: any = []) {
+  constructor(envContent: any, routes: any = [], isProd: boolean = false) {
     this.keys = envContent;
     routes.map((route: any) => {
       const server = route.domain.split(".")[0] || "";
@@ -29,6 +31,7 @@ export default class Env {
         ] = `http://localhost:${route.port}`;
       }
     });
+    this.isProd = isProd;
     this.keyCharacter = "%";
     this.envs = [];
     this.filepath = join(process.cwd(), ".env");
@@ -41,6 +44,13 @@ export default class Env {
     envContent: any,
     path: string
   ): Promise<any> {
+    const previousContent = await envToJson(join(process.cwd(), ".env"));
+    if (!this.isProd) {
+      this.keys = {
+        ...this.keys,
+        ...previousContent,
+      };
+    }
     for await (const key of Object.keys(envContent)) {
       this.keys[getCrossEnvKey(serviceName, key)] = envContent[key];
     }

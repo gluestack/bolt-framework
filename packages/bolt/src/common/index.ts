@@ -28,7 +28,7 @@ export default class Common {
 
   public static async getAndValidateService(
     serviceName: string,
-    _yamlContent: any
+    _yamlContent: Bolt
   ) {
     // if service doesn't exists, exit
     const servicePath: string = join(
@@ -64,19 +64,24 @@ export default class Common {
       servicePath
     );
 
+    // check if service has valid dependencies
+    const rootServices = Object.keys(_yamlContent.services);
+
+    if (content.depends_on) {
+      const serviceDependecies = content.depends_on;
+      for (const dependency of serviceDependecies) {
+        if (!rootServices.includes(dependency)) {
+          await exitWithMsg(
+            `>> "${serviceName}" has "${dependency}" as dependency doesn't exist in services`
+          );
+        }
+        if (dependency === serviceName) {
+          await exitWithMsg(`>> "${dependency}" cannot depend on itself`);
+        }
+      }
+    }
+
     return { servicePath, _serviceYamlPath, yamlPath, content };
-  }
-
-  public static async generateEnv() {
-    const args: string[] = ["env:generate"];
-
-    // console.log(chalk.gray("$ bolt", args.join(" ")));
-
-    await execute("bolt", args, {
-      cwd: process.cwd(),
-      shell: true,
-      stdio: "inherit",
-    });
   }
 
   public static async validateServiceInBoltYaml(serviceName: string) {

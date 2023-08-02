@@ -5,18 +5,11 @@ import { execute } from "../helpers/execute";
 import generateRoutes from "../helpers/generate-routes";
 import { validateMetadata } from "../helpers/validate-metadata";
 import { validateServices } from "../helpers/validate-services";
+import EnvGenerate from "./env-generate";
 
 export default class RouteGenerate {
-  public async handle(options: any) {
+  public async handle(isProd: boolean = false) {
     const _yamlContent = await Common.getAndValidateBoltYaml();
-
-    const isProd = options.prod || false;
-
-    if (isProd) {
-      console.log(chalk.gray(">> Building Production Envs..."));
-      const args = ["env:generate", "--build", "prod"];
-      await execute("bolt", args, {});
-    }
 
     // Validations for metadata and services
     await validateMetadata();

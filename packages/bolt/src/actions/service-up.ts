@@ -25,6 +25,7 @@ import PortDiscovery from "./port-discovery";
 import EnvGenerate from "./env-generate";
 import { rewriteEnvViaRegExpression } from "../helpers/rewrite-env";
 import { getOs } from "../helpers/get-os";
+import { getStoreData } from "../helpers/get-store-data";
 
 export default class ServiceUp {
   //
@@ -50,6 +51,23 @@ export default class ServiceUp {
     }
 
     return true;
+  }
+
+  public async checkDependentServicesStatus(
+    serviceName: string,
+    dependentServices: string[]
+  ) {
+    const storeServices: StoreServices = await getStoreData("services");
+    for (const dependentService of dependentServices) {
+      if (
+        !storeServices[dependentService] ||
+        storeServices[dependentService].status !== "up"
+      ) {
+        await exitWithMsg(
+          `>> ${serviceName} is dependent on "${dependentService}" which is not up!`
+        );
+      }
+    }
   }
 
   public async handle(
@@ -81,6 +99,14 @@ export default class ServiceUp {
         _yamlContent
       );
 
+      // Check if service is dependent on other services and dependents are up or not
+      if (content.depends_on) {
+        await this.checkDependentServicesStatus(
+          serviceName,
+          content.depends_on
+        );
+      }
+
       if (!content.supported_service_runners.includes(srOption)) {
         console.log(
           chalk.yellow(
@@ -90,15 +116,21 @@ export default class ServiceUp {
         srOption = content.supported_service_runners[0];
       }
 
+      // Discovering Ports
       const portDiscovery = new PortDiscovery(content);
       const discoveredPorts = await portDiscovery.handle();
 
-      // generates .env
+      // generating envs for the service
       console.log(chalk.gray(`>> Generating .env files...`));
-      const generateEnv = new EnvGenerate();
-      await generateEnv.handle({
-        build: "dev",
-        discoveredPorts: discoveredPorts,
+      const envGenerate = new EnvGenerate();
+      await envGenerate.handle({
+        environment: "local",
+        serviceInfo: {
+          ports: discoveredPorts.ports,
+          serviceName: serviceName,
+          servicePath: servicePath,
+          ingress: _yamlContent.ingress,
+        },
       });
 
       // Make data interpolate into service-runner's yaml content from given env file :: LOCAL

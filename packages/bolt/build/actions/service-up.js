@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "chalk", "path", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../helpers/data-interpolate", "./port-discovery", "./env-generate", "../helpers/rewrite-env", "../helpers/get-os"], factory);
+        define(["require", "exports", "chalk", "path", "../helpers/docker-info", "../helpers/exit-with-msg", "../helpers/get-store", "../helpers/validate-metadata", "../helpers/validate-services", "../common", "../runners/service", "../helpers/data-interpolate", "./port-discovery", "./env-generate", "../helpers/rewrite-env", "../helpers/get-os", "../helpers/get-store-data"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -35,6 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const env_generate_1 = __importDefault(require("./env-generate"));
     const rewrite_env_1 = require("../helpers/rewrite-env");
     const get_os_1 = require("../helpers/get-os");
+    const get_store_data_1 = require("../helpers/get-store-data");
     class ServiceUp {
         //
         checkIfAlreadyUp(_yamlContent, serviceName) {
@@ -54,6 +55,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             }
             return true;
         }
+        checkDependentServicesStatus(serviceName, dependentServices) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const storeServices = yield (0, get_store_data_1.getStoreData)("services");
+                for (const dependentService of dependentServices) {
+                    if (!storeServices[dependentService] ||
+                        storeServices[dependentService].status !== "up") {
+                        yield (0, exit_with_msg_1.exitWithMsg)(`>> ${serviceName} is dependent on "${dependentService}" which is not up!`);
+                    }
+                }
+            });
+        }
         handle(serviceName, options) {
             var _a, _b;
             return __awaiter(this, void 0, void 0, function* () {
@@ -71,18 +83,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     const { _yamlContent } = yield common_1.default.validateServiceInBoltYaml(serviceName);
                     yield this.checkIfAlreadyUp(_yamlContent, serviceName);
                     const { servicePath, content } = yield common_1.default.getAndValidateService(serviceName, _yamlContent);
+                    // Check if service is dependent on other services and dependents are up or not
+                    if (content.depends_on) {
+                        yield this.checkDependentServicesStatus(serviceName, content.depends_on);
+                    }
                     if (!content.supported_service_runners.includes(srOption)) {
                         console.log(chalk_1.default.yellow(`>> Given "${srOption}" service runner is not supported for ${serviceName}, using "${content.supported_service_runners[0]}" instead!`));
                         srOption = content.supported_service_runners[0];
                     }
+                    // Discovering Ports
                     const portDiscovery = new port_discovery_1.default(content);
                     const discoveredPorts = yield portDiscovery.handle();
-                    // generates .env
+                    // generating envs for the service
                     console.log(chalk_1.default.gray(`>> Generating .env files...`));
-                    const generateEnv = new env_generate_1.default();
-                    yield generateEnv.handle({
-                        build: "dev",
-                        discoveredPorts: discoveredPorts,
+                    const envGenerate = new env_generate_1.default();
+                    yield envGenerate.handle({
+                        environment: "local",
+                        serviceInfo: {
+                            ports: discoveredPorts.ports,
+                            serviceName: serviceName,
+                            servicePath: servicePath,
+                            ingress: _yamlContent.ingress,
+                        },
                     });
                     // Make data interpolate into service-runner's yaml content from given env file :: LOCAL
                     if ((_a = content === null || content === void 0 ? void 0 : content.service_runners) === null || _a === void 0 ? void 0 : _a.local) {

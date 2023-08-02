@@ -9,7 +9,8 @@ export default class Env {
     keyCharacter: "%";
     envs: ChildEnv[];
     filepath: string;
-    constructor(envContent: any, build: "prod" | "dev", routes?: any);
+    isProd: boolean;
+    constructor(envContent: any, routes?: any, isProd?: boolean);
     addEnv(serviceName: string, envContent: any, path: string): Promise<any>;
     generate(): Promise<void>;
     writeEnv(): Promise<void>;

@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../helpers/fs-exists", "lodash", "path", "../helpers/exit-with-msg", "../helpers/parse-yaml", "../validations/bolt", "../validations/bolt-service", "chalk", "../helpers/execute", "../constants/bolt-configs", "closest-match"], factory);
+        define(["require", "exports", "../helpers/fs-exists", "lodash", "path", "../helpers/exit-with-msg", "../helpers/parse-yaml", "../validations/bolt", "../validations/bolt-service", "chalk", "../constants/bolt-configs", "closest-match"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -29,7 +29,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const bolt_1 = require("../validations/bolt");
     const bolt_service_1 = require("../validations/bolt-service");
     const chalk_1 = __importDefault(require("chalk"));
-    const execute_1 = require("../helpers/execute");
     const bolt_configs_1 = require("../constants/bolt-configs");
     const closest_match_1 = require("closest-match");
     class Common {
@@ -61,18 +60,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 }
                 const yamlPath = _serviceYamlPath;
                 const content = yield (0, bolt_service_1.validateBoltService)(yield (0, parse_yaml_1.parseYAML)(yamlPath), servicePath);
+                // check if service has valid dependencies
+                const rootServices = Object.keys(_yamlContent.services);
+                if (content.depends_on) {
+                    const serviceDependecies = content.depends_on;
+                    for (const dependency of serviceDependecies) {
+                        if (!rootServices.includes(dependency)) {
+                            yield (0, exit_with_msg_1.exitWithMsg)(`>> "${serviceName}" has "${dependency}" as dependency doesn't exist in services`);
+                        }
+                        if (dependency === serviceName) {
+                            yield (0, exit_with_msg_1.exitWithMsg)(`>> "${dependency}" cannot depend on itself`);
+                        }
+                    }
+                }
                 return { servicePath, _serviceYamlPath, yamlPath, content };
-            });
-        }
-        static generateEnv() {
-            return __awaiter(this, void 0, void 0, function* () {
-                const args = ["env:generate"];
-                // console.log(chalk.gray("$ bolt", args.join(" ")));
-                yield (0, execute_1.execute)("bolt", args, {
-                    cwd: process.cwd(),
-                    shell: true,
-                    stdio: "inherit",
-                });
             });
         }
         static validateServiceInBoltYaml(serviceName) {

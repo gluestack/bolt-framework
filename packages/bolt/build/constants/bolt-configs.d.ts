@@ -5,4 +5,5 @@ export declare const BOLT: {
     PROCESS_FOLDER_NAME: string;
     NGINX_CONFIG_FILE_NAME: string;
     NGINX_CONTAINER_NAME: string;
+    NGINX_CONFIG_DEPLOY_FILE_NAME: string;
 };
