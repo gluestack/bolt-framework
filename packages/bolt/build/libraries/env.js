@@ -84,7 +84,8 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
                         const prefix = key.split("_")[0];
                         const replaceKeys = this.getReplaceKeys(this.keys[key]);
                         for (const replaceKey of replaceKeys) {
-                            this.keys[key] = this.keys[key].replaceAll(`${this.keyCharacter}${replaceKey}${this.keyCharacter}`, this.keys[replaceKey] || "");
+                            this.keys[key] = this.keys[key].replaceAll(`${this.keyCharacter}${replaceKey}${this.keyCharacter}`, this.keys[replaceKey] ||
+                                `${this.keyCharacter}${replaceKey}${this.keyCharacter}`);
                             const childEnv = (0, lodash_1.find)(this.envs, { prefix: prefix });
                             if (childEnv) {
                                 childEnv.updateKey(key.replace(new RegExp("^" + `${prefix}_`), ""), this.keys[key]);

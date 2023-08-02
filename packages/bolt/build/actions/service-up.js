@@ -78,7 +78,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                     const portDiscovery = new port_discovery_1.default(content);
                     const discoveredPorts = yield portDiscovery.handle();
                     // generates .env
-                    console.log(`>> Generating .env files...`);
+                    console.log(chalk_1.default.gray(`>> Generating .env files...`));
                     const generateEnv = new env_generate_1.default();
                     yield generateEnv.handle({
                         build: "dev",
