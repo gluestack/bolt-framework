@@ -79,8 +79,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             return __awaiter(this, void 0, void 0, function* () {
                 this.program
                     .name("bolt")
-                    .version(`bolt Run Version v${package_json_1.default.version}`)
-                    .description(`bolt CLI tool v${package_json_1.default.version}`);
+                    .version(package_json_1.default.version, '-v, --version', 'output the current bolt version')
+                    .description('The Universal Project Runner\nRun Docker containers, child processes, or even encapsulate your entire project within a VM, all under one unified API.');
             });
         }
         addCommands() {
