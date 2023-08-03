@@ -57,6 +57,7 @@ export default class ServiceRunnerDocker implements BoltServiceRunner {
     console.log(">> Initiaiting Docker run...");
     const args: string[] = [
       "run",
+      "--rm",
       "--detach",
       "--name",
       this.container_name,

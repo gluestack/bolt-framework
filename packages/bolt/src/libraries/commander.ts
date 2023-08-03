@@ -24,8 +24,8 @@ export default class Commander {
   public async init() {
     this.program
       .name("bolt")
-      .version(`bolt Run Version v${packageJSON.version}`)
-      .description(`bolt CLI tool v${packageJSON.version}`);
+      .version(packageJSON.version, '-v, --version', 'output the current bolt version')
+      .description('The Universal Project Runner\nRun Docker containers, child processes, or even encapsulate your entire project within a VM, all under one unified API.');
   }
 
   public async addCommands() {
