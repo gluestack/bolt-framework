@@ -23,13 +23,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "../../helpers/get-store", "../../helpers/deploy/deploy", "../../common"], factory);
+        define(["require", "exports", "../../helpers/get-store", "../../helpers/deploy/deployment", "../../common"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const get_store_1 = __importDefault(require("../../helpers/get-store"));
-    const deploy_1 = require("../../helpers/deploy/deploy");
+    const deployment_1 = require("../../helpers/deploy/deployment");
     const common_1 = __importDefault(require("../../common"));
     class DeployClass {
         constructor() {
@@ -48,7 +48,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 this.store.save();
             });
         }
-        getSealContent() {
+        getBoltFileContent() {
             return __awaiter(this, void 0, void 0, function* () {
                 const _yamlContent = yield common_1.default.getAndValidateBoltYaml();
                 return _yamlContent;
@@ -59,7 +59,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             var _a, e_1, _b, _c;
             return __awaiter(this, void 0, void 0, function* () {
                 const services = this.services;
-                const _yamlContent = yield this.getSealContent();
+                const _yamlContent = yield this.getBoltFileContent();
                 try {
                     // Gather all the availables services
                     for (var _d = true, _e = __asyncValues(Object.entries(_yamlContent.services)), _f; _f = yield _e.next(), _a = _f.done, !_a;) {
@@ -89,28 +89,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         createZip() {
             return __awaiter(this, void 0, void 0, function* () {
                 const cwd = this.cwd;
-                const { zipPath } = yield (0, deploy_1.zip)(cwd);
+                const { zipPath } = yield (0, deployment_1.zip)(cwd);
                 this.zipPath = zipPath;
                 return Promise.resolve(zipPath);
             });
         }
-        // Authenticates users credentials and
-        // stores the details into the project's store
         auth(doAuth) {
             return __awaiter(this, void 0, void 0, function* () {
-                yield (0, deploy_1.auth)(doAuth, this.store);
+                return yield (0, deployment_1.auth)(doAuth, this.store);
+            });
+        }
+        setProject(projects) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield (0, deployment_1.setProject)(projects);
             });
         }
         // uploads the zip into minio
         upload() {
             return __awaiter(this, void 0, void 0, function* () {
-                yield (0, deploy_1.upload)(this.zipPath, this.store);
+                return yield (0, deployment_1.upload)(this.zipPath, this.store);
+            });
+        }
+        submit({ projectId, fileId, userId, }) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield (0, deployment_1.deploy)({
+                    projectId,
+                    fileId,
+                    userId,
+                });
             });
         }
         // watches the deployment steps
         watch() {
             return __awaiter(this, void 0, void 0, function* () {
-                yield (0, deploy_1.watch)(this.store);
+                yield (0, deployment_1.watch)(this.store);
             });
         }
     }

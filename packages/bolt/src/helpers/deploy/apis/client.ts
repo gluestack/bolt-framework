@@ -1,7 +1,6 @@
-import { GraphQLClient } from 'graphql-request';
-import { SEAL_GQL } from '../../../config';
+import { GraphQLClient } from "graphql-request";
+import { BOX_SERVER_URL } from "../../../config";
 
-export const clientGQL = new GraphQLClient(SEAL_GQL);
+export const clientGQL = new GraphQLClient(BOX_SERVER_URL);
 
-
-export { request, gql } from 'graphql-request';
+export { request, gql } from "graphql-request";

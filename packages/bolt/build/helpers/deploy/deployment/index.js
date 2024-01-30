@@ -18,7 +18,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./auth", "./upload", "./zip", "./watch"], factory);
+        define(["require", "exports", "./auth", "./upload", "./zip", "./watch", "./setProject", "./deploy"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -27,4 +27,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     __exportStar(require("./upload"), exports);
     __exportStar(require("./zip"), exports);
     __exportStar(require("./watch"), exports);
+    __exportStar(require("./setProject"), exports);
+    __exportStar(require("./deploy"), exports);
 });

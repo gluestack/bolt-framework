@@ -1,6 +1,13 @@
 import getStore from "../../helpers/get-store";
 import { BoltService } from "../../typings/bolt-service";
-import { auth, upload, zip, watch } from "../../helpers/deploy/deploy";
+import {
+  auth,
+  upload,
+  zip,
+  watch,
+  setProject,
+  deploy,
+} from "../../helpers/deploy/deployment";
 import Common from "../../common";
 
 export default class DeployClass {
@@ -21,7 +28,7 @@ export default class DeployClass {
     this.store.save();
   }
 
-  async getSealContent() {
+  async getBoltFileContent() {
     const _yamlContent = await Common.getAndValidateBoltYaml();
     return _yamlContent;
   }
@@ -29,7 +36,7 @@ export default class DeployClass {
   // populate services
   async setServices() {
     const services: BoltService[] = this.services;
-    const _yamlContent = await this.getSealContent();
+    const _yamlContent = await this.getBoltFileContent();
     // Gather all the availables services
     for await (const [serviceName] of Object.entries(_yamlContent.services)) {
       const { content } = await Common.getAndValidateService(
@@ -51,15 +58,33 @@ export default class DeployClass {
     return Promise.resolve(zipPath);
   }
 
-  // Authenticates users credentials and
-  // stores the details into the project's store
   async auth(doAuth: boolean) {
-    await auth(doAuth, this.store);
+    return await auth(doAuth, this.store);
+  }
+
+  async setProject(projects: any[]) {
+    return await setProject(projects);
   }
 
   // uploads the zip into minio
   async upload() {
-    await upload(this.zipPath, this.store);
+    return await upload(this.zipPath, this.store);
+  }
+
+  async submit({
+    projectId,
+    fileId,
+    userId,
+  }: {
+    projectId: number;
+    fileId: number;
+    userId: number;
+  }) {
+    return await deploy({
+      projectId,
+      fileId,
+      userId,
+    });
   }
   // watches the deployment steps
   async watch() {

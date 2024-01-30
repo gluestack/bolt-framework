@@ -52,8 +52,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const file_exists_1 = require("../file-exists");
     const readline = __importStar(require("readline"));
     const zip = (project_path) => __awaiter(void 0, void 0, void 0, function* () {
-        const filename = 'output.zip';
-        const directory = (0, path_1.join)(project_path, '.deploy');
+        const filename = `${(0, path_1.basename)(process.cwd())}.zip`;
+        const directory = (0, path_1.join)(project_path, ".deploy");
         const zipPath = (0, path_1.join)(directory, filename);
         if (!(yield (0, file_exists_1.fileExists)(directory))) {
             (0, fs_1.mkdirSync)(directory, { recursive: true });
@@ -61,27 +61,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         const promise = new Promise((resolve, reject) => {
             // create a file to stream archive data to.
             const output = (0, fs_1.createWriteStream)(zipPath);
-            const archive = (0, archiver_1.default)('zip', {
-                zlib: { level: 9 } // Sets the compression level.
+            const archive = (0, archiver_1.default)("zip", {
+                zlib: { level: 9 }, // Sets the compression level.
             });
             // listen for all archive data to be written
             // 'close' event is fired only when a file descriptor is involved
-            output.on('close', () => {
+            output.on("close", () => {
                 readline.clearLine(process.stdout, 0);
                 readline.cursorTo(process.stdout, 0);
-                process.stdout.write(`> Compressed ${(0, format_bytes_1.formatBytes)(archive.pointer())} into "${filename}"!`);
+                process.stdout.write(`>> Compressed ${(0, format_bytes_1.formatBytes)(archive.pointer())} into "${filename}"!`);
                 console.log();
                 resolve(zipPath);
             });
-            archive.on('progress', (progress) => {
+            archive.on("progress", (progress) => {
                 readline.clearLine(process.stdout, 0);
                 readline.cursorTo(process.stdout, 0);
-                process.stdout.write(`> In progress: processed ${progress.entries.processed} files & ${(0, format_bytes_1.formatBytes)(progress.fs.processedBytes)} of data`);
+                process.stdout.write(`>> In progress: processed ${progress.entries.processed} files & ${(0, format_bytes_1.formatBytes)(progress.fs.processedBytes)} of data`);
             });
             // good practice to catch warnings (ie stat failures and other non-blocking errors)
-            archive.on('warning', (err) => {
-                console.log('> Warning:', err);
-                if (err.code === 'ENOENT') {
+            archive.on("warning", (err) => {
+                console.log("> Warning:", err);
+                if (err.code === "ENOENT") {
                     // log warning
                 }
                 else {
@@ -92,30 +92,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             // This event is fired when the data source is drained no matter what was the data source.
             // It is not part of this library but rather from the NodeJS Stream API.
             // @see: https://nodejs.org/api/stream.html#stream_event_end
-            output.on('end', () => {
-                console.log('Data has been drained');
+            output.on("end", () => {
+                console.log("Data has been drained");
             });
             // good practice to catch this error explicitly
-            archive.on('error', (err) => {
+            archive.on("error", (err) => {
                 reject(err);
             });
             // pipe archive data to the file
             archive.pipe(output);
             // append files from a glob pattern
-            archive.glob('**', {
+            archive.glob("**", {
                 ignore: [
-                    '**/storage/**/data/**',
-                    '**/databases/**/db/**',
-                    'node_modules/*',
-                    '**/node_modules/**',
-                    '**/.DS_Store',
-                    '.git/**',
-                    '**/*.zip',
-                    '.deploy',
-                    '**/.next/**',
+                    "**/storage/**/data/**",
+                    "**/databases/**/db/**",
+                    "node_modules/*",
+                    "**/node_modules/**",
+                    "**/.DS_Store",
+                    ".git/**",
+                    "**/*.zip",
+                    ".deploy",
+                    "**/.next/**",
                 ],
                 cwd: project_path,
-                dot: true
+                dot: true,
             });
             // finalize the archive (ie we are done appending files but streams have to finish yet)
             // 'close', 'end' or 'finish' may be fired right after calling this method so register to them beforehand

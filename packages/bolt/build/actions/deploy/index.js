@@ -28,20 +28,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     const route_generate_1 = __importDefault(require("../route-generate"));
     const deploy_1 = __importDefault(require("./deploy"));
     exports.default = (options, isWatch = false) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(chalk_1.default.gray(">> Building Production Envs..."));
-        const envGenerate = new env_generate_1.default();
-        yield envGenerate.handle({ environment: "production" });
-        const routeGenerate = new route_generate_1.default();
-        yield routeGenerate.handle(true);
-        return;
+        var _a;
         // validate the project
         console.log(">> Validating project...");
         yield (0, validate_metadata_1.validateMetadata)();
         yield (0, validate_services_1.validateServices)();
-        console.log("\n> Note: Please remove any zip file or unnecessary files/folders from your project before deploying!");
-        console.log("\n> Deploying project...");
+        console.log(chalk_1.default.gray(">> Building Production Envs..."));
+        const envGenerate = new env_generate_1.default();
+        yield envGenerate.handle({ environment: "production" });
+        console.log(chalk_1.default.green(">> Production Envs built successfully!") + "\n");
+        const routeGenerate = new route_generate_1.default();
+        yield routeGenerate.handle(true);
+        console.log("\n>> Note: Please remove any zip file or unnecessary files/folders from your project before deploying!");
+        console.log("\n>> Deploying project...");
         const deploy = new deploy_1.default();
-        console.log("\n> Gathering all deployable services...");
+        console.log("\n>> Gathering all deployable services...");
         // populate store
         yield deploy.setStore();
         // populate services
@@ -57,17 +58,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         yield deploy.createZip();
         // authenticate the user & store creds in local store
         console.log("\n>> Authenticating user credentials...");
-        yield deploy.auth(options.auth);
+        const authData = yield deploy.auth(options.auth);
         console.log(">> Authentication successful!\n");
+        const projects = (authData === null || authData === void 0 ? void 0 : authData.projects) || [];
+        const selectedProject = yield deploy.setProject(projects);
         // uploads the project zip file to minio
         console.log(">> Uploading project zip file...");
-        yield deploy.upload();
+        const fileId = yield deploy.upload();
         console.log(">> Project zip file uploaded successfully!\n");
-        // save store
-        yield deploy.saveStore();
-        if (isWatch) {
-            console.log(">> Fetching deployment details...\n");
-            yield deploy.watch();
-        }
+        console.log(">> Submitting the deployment now...");
+        const deployment = yield deploy.submit({
+            fileId,
+            projectId: selectedProject.id,
+            userId: (_a = authData === null || authData === void 0 ? void 0 : authData.user) === null || _a === void 0 ? void 0 : _a.id,
+        });
+        console.log(">> Deployment submitted successfully!\n");
+        // // save store
+        // await deploy.saveStore();
+        // if (isWatch) {
+        //   console.log(">> Fetching deployment details...\n");
+        // await deploy.watch();
+        // }
     });
 });

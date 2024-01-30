@@ -7,10 +7,19 @@ export default class DeployClass {
     constructor();
     setStore(): Promise<void>;
     saveStore(): Promise<void>;
-    getSealContent(): Promise<import("../../typings/bolt").Bolt>;
+    getBoltFileContent(): Promise<import("../../typings/bolt").Bolt>;
     setServices(): Promise<void>;
     createZip(): Promise<string>;
-    auth(doAuth: boolean): Promise<void>;
-    upload(): Promise<void>;
+    auth(doAuth: boolean): Promise<{
+        user: any;
+        projects: any;
+    } | undefined>;
+    setProject(projects: any[]): Promise<any>;
+    upload(): Promise<any>;
+    submit({ projectId, fileId, userId, }: {
+        projectId: number;
+        fileId: number;
+        userId: number;
+    }): Promise<any>;
     watch(): Promise<void>;
 }

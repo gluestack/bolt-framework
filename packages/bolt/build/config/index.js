@@ -1,3 +1,7 @@
+/**
+ * SEAL server details
+ */
+// export const SEAL_DOMAIN: string = "https://api.gluestack.io";
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
@@ -9,13 +13,10 @@
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.SEAL_GQL = exports.SEAL_DOMAIN = void 0;
-    /**
-     * SEAL server details
-     */
-    exports.SEAL_DOMAIN = 'https://api.gluestack.io';
+    exports.BOX_SERVER_URL = void 0;
     /**
      * SEAL GQL service details
      */
-    exports.SEAL_GQL = 'https://api.gluestack.io/backend/graphql';
+    // export const SEAL_GQL: string = "https://api.gluestack.io/backend/graphql";
+    exports.BOX_SERVER_URL = "http://localhost:8000/api";
 });

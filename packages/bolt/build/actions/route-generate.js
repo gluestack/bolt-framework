@@ -34,7 +34,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 yield (0, validate_services_1.validateServices)();
                 console.log(`>> Creating Ingress...`);
                 yield (0, generate_routes_1.default)(_yamlContent, isProd);
-                process.exit(0);
+                {
+                    !isProd && process.exit(0);
+                }
             });
         }
     }
