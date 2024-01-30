@@ -58,6 +58,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 console.log(">> Initiaiting Docker run...");
                 const args = [
                     "run",
+                    "--rm",
                     "--detach",
                     "--name",
                     this.container_name,

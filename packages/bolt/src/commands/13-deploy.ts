@@ -11,8 +11,6 @@ export default async (program: any) => {
     )
     .description("Prepares the compressed project & initiates the deployment")
     .action((options: any) => {
-      console.log(chalk.green(">> Coming Soon..."));
-      process.exit();
       // deploy(options, true);
     });
 };
