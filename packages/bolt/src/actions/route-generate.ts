@@ -14,9 +14,6 @@ export default class RouteGenerate {
 
     console.log(`>> Creating Ingress...`);
     await generateRoutes(_yamlContent, isProd);
-
-    {
-      !isProd && process.exit(0);
-    }
+    process.exit(0);
   }
 }
